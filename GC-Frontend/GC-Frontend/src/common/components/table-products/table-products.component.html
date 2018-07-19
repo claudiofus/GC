@@ -1,0 +1,49 @@
+<div *ngIf="products.length > 0">
+  <form>
+    <div class="form-group">
+      <label for="searchString">Filtra per nome o codice del prodotto o per fornitore</label>
+      <input id="searchString" type="search" [(ngModel)]="searchString" class="form-control" name="searchString"
+             placeholder="Scrivi per cercare...">
+    </div>
+  </form>
+
+  <table class="redTable">
+    <thead>
+    <tr>
+      <th *ngFor="let c of columns">{{c}}</th>
+    </tr>
+    </thead>
+    <!--<tfoot>-->
+    <!--<tr>-->
+    <!--<td colspan="2">-->
+    <!--<div class="links">-->
+    <!--<a href="#">&laquo;</a>-->
+    <!--<a class="active" href="#">1</a>-->
+    <!--<a *ngFor="let pageNum of pages" href="/{{pageNum}}">{{pageNum}}</a>-->
+    <!--<a href="#">&raquo;</a></div>-->
+    <!--</td>-->
+    <!--</tr>-->
+    <!--</tfoot>-->
+    <tbody>
+    <ng-template ngFor let-item [ngForOf]="products | filtername: searchString">
+      <tr>
+        <td>{{item.providerCode | titlecase}}</td>
+        <td>{{item.code}}</td>
+        <td>{{item.name}}</td>
+        <td>
+          <button type="button" (click)="addRow(item)">
+            {{item.medPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}
+          </button>
+        </td>
+      </tr>
+      <ng-container *ngIf="item.showDetails">
+        <tr *ngFor="let elem of prices">
+          <td colspan="2"></td>
+          <td>{{elem.price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+          <td>{{elem.date_ins | date:'dd/MM/yyyy'}}</td>
+        </tr>
+      </ng-container>
+    </ng-template>
+    </tbody>
+  </table>
+</div>

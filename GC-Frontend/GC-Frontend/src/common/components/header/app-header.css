@@ -1,0 +1,61 @@
+@font-face {
+  font-family  : 'Open Sans';
+  font-display : optional;
+  src          : url('../../../assets/css/open-sans.woff2') format('woff2');
+}
+
+.snip1285 {
+  font-family        : 'Raleway', Arial, sans-serif;
+  position           : relative;
+  float              : left;
+  color              : #7b2f3d;
+  margin             : 30px 0;
+  max-width          : 100px;
+  width              : 100%;
+  text-align         : right;
+  font-size          : 16px;
+  -webkit-box-sizing : border-box;
+  box-sizing         : border-box;
+}
+
+.snip1285 h1, .snip1285 h5 {
+  margin         : 0 0 0 50px;
+  text-transform : uppercase;
+}
+
+.snip1285 h1 {
+  font-family    : 'Open Sans', Arial, sans-serif;
+  font-size      : 1.5em;
+  letter-spacing : -2.2px;
+  line-height    : 1em;
+  position       : relative;
+  font-weight    : 800;
+  display        : inline-block;
+}
+
+.snip1285 h1:after {
+  content           : '';
+  position          : absolute;
+  width             : 60px;
+  height            : 60px;
+  left              : 0;
+  top               : 50%;
+  -webkit-transform : translate(-40px, -68%);
+  transform         : translate(-40px, -68%);
+  border-color      : #7b2f3d;
+  border-style      : solid;
+  border-width      : 4px 0 0 4px;
+  border-radius     : 50%;
+}
+
+.snip1285 i {
+  font-size : 4.8em;
+  color     : #7b2f3d;
+  position  : relative;
+}
+
+header {
+  height        : 65px;
+  padding       : 5px;
+  border-bottom : 2px solid #7b2f3d;
+}

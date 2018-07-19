@@ -1,0 +1,93 @@
+<h2>Aggiungi fattura</h2>
+
+<div class="form_wrapper card mb10">
+  <form #uploadForm='ngForm' (submit)="submitForm()" enctype="multipart/form-data">
+    <div [hidden]="providerObj">
+      <div class="row">
+        <div class="col22">
+          <app-select-provider [group]="addInvoiceFG"></app-select-provider>
+
+          <div *ngIf="provider && provider.invalid && (provider.dirty || provider.touched)" class="error">
+            <div *ngIf="provider.errors.required">
+              Inserire il fornitore del prodotto.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col_full">
+          <div class="mt10 fakefile" style="position: relative" [hidden]="showFileUploader()">
+            <input id="fileToUpload" type="file" name="file" ngModel (change)="getFiles($event)" size="50"
+                   accept="application/pdf"/>
+            <button class="button" [disabled]="!files || !files[0]" type="submit">Carica file</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col_full">
+        <div *ngIf="providerObj">
+          <p>Hai caricato la fattura del fornitore: <strong>{{providerObj.name}}</strong></p>
+          <button type="reset" class="button" (click)="resetForm(uploadForm)">Aggiungi fattura</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div [hidden]="!waitDiv">
+  <div class="waitImg"></div>
+</div>
+
+<div [hidden]="!itemsOrder || itemsOrder.length === 0">
+  <div *ngFor="let dn of deliveryNotes; let i = index;" class="card card_content mb10">
+    <h4 class="center">{{dn}}</h4>
+    <table class="redTable">
+      <thead>
+      <tr>
+        <th>
+          <input type="checkbox" name="all" [checked]="isAllChecked(itemsOrder[dn])"
+                 (change)="checkAll($event,itemsOrder[dn])"/>
+        </th>
+        <th *ngFor="let c of orderColumns">{{c}}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor='let order of itemsOrder[dn]'>
+        <td><input type="checkbox" (change)="order.state = !order.state" [checked]="order.state"/></td>
+        <td>{{order.code}}</td>
+        <td>{{order.name}}</td>
+        <td>{{order.um}}</td>
+        <td>{{order.quantity}}</td>
+        <td>{{order.price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+        <td>{{order.discount}} %</td>
+        <td>{{order.adj_price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+        <td>{{order.iva}} %</td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="mt10">
+      <div *ngIf="itemsOrder[dn].showBuilding === true">
+        <label>Seleziona il cantiere :
+          <select [(ngModel)]="itemsOrder[dn].building.name">
+            <option *ngFor="let el of buildings" [ngValue]="el.name">{{el.name}}</option>
+          </select>
+        </label>
+        <button type="button" class="button ml10" [disabled]="!itemsOrder[dn].building.name"
+                (click)="assignBuilding(itemsOrder[dn], i)">Conferma
+        </button>
+      </div>
+      <button type="button" class="button mt10"
+              (click)="itemsOrder[dn].showBuilding = true; itemsOrder[dn].building = {'name': ''};">
+        Assegna al cantiere
+      </button>
+
+      <p class="green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
+        Prodotti assegnati correttamente al cantiere: <strong>{{itemsOrder[dn].building.name}}</strong>
+      </p>
+      <p class="red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
+        <strong>Errore nell'assegnare i prodotti al cantiere: {{itemsOrder[dn].building.name}}</strong>
+      </p>
+    </div>
+  </div>
+</div>

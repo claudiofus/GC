@@ -1,0 +1,7 @@
+<div [formGroup]="group">
+  <label for="building">Cantiere </label>
+  <select id="building" [formControlName]="'building_id'">
+    <option disabled selected value></option>
+    <option *ngFor="let c of buildings" [ngValue]="c.id">{{c.name}}</option>
+  </select>
+</div>

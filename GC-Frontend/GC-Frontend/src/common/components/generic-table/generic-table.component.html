@@ -1,0 +1,9 @@
+<table class="redTable">
+  <tbody>
+  <tr *ngFor="let record of records">
+    <td *ngFor="let map of columnMaps" [appStyleCell]="record[map.access(record)]">
+      {{ record[map.access(record)] | formatCell:map.format }}
+    </td>
+  </tr>
+  </tbody>
+</table>

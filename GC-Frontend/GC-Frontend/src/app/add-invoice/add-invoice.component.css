@@ -1,0 +1,46 @@
+select {
+  /*height        : 1.5em;*/
+  /*margin-bottom : 0.5em;*/
+  /*margin-left   : 0.5em;*/
+  height             : 40px;
+  padding            : 10px 10px 10px 20px;
+  border             : 1px solid #ccc;
+  border-radius      : 4px;
+  box-sizing         : border-box;
+  outline            : none;
+  -webkit-transition : all 0.30s ease-in-out;
+  -moz-transition    : all 0.30s ease-in-out;
+  transition         : all 0.30s ease-in-out;
+}
+
+input {
+  height        : 1.5em;
+  margin-bottom : 0.5em;
+  margin-left   : 0.5em;
+}
+
+input:focus {
+  text-decoration : none;
+  border          : none;
+  outline         : none;
+}
+
+div.fakefile {
+  position : absolute;
+  top      : 0;
+  left     : 0;
+  z-index  : 1;
+}
+
+input.file {
+  position     : relative;
+  text-align   : right;
+  -moz-opacity : 0;
+  filter       : alpha(opacity:0);
+  opacity      : 0;
+  z-index      : 2;
+}
+
+input[type="checkbox"] {
+  margin: 0;
+}
