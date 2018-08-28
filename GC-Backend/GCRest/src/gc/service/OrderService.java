@@ -16,10 +16,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import com.google.gson.Gson;
 import com.sun.jersey.core.header.FormDataContentDisposition;
@@ -30,14 +28,12 @@ import gc.dao.ProductDaoImpl;
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.UM;
+import gc.model.types.BaseOrder;
 import gc.utils.Utils;
 
 @Path("/order")
 public class OrderService {
 	private static final String UPLOAD_FOLDER = "D:\\GC\\GCRest\\WebContent\\WEB-INF\\UPLOADED\\";
-
-	@Context
-	private UriInfo context;
 
 	/**
 	 * Returns text response to caller containing uploaded file location
@@ -91,7 +87,7 @@ public class OrderService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addOrder(@PathParam("provider") String providerCode,
-			final Order ord) throws IOException {
+			BaseOrder ord) throws IOException {
 		if (ord.getCode() == null || ord.getName() == null
 				|| ord.getCode().isEmpty() || ord.getName().isEmpty()
 				|| providerCode == null || providerCode.isEmpty()) {

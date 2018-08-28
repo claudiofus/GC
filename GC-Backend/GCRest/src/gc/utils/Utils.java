@@ -1,11 +1,25 @@
 package gc.utils;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripperByArea;
+
+import com.itextpdf.kernel.pdf.canvas.parser.filter.TextRegionEventFilter;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.FilteredTextEventListener;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextExtractionStrategy;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStrategy;
 
 import gc.model.Product;
 
@@ -96,5 +110,65 @@ public class Utils {
 				System.err.println("Directory not created in: " + dirName);
 			}
 		}
+	}
+
+	public static ITextExtractionStrategy getStrategy(int x, int y, int width,
+			int height) {
+		com.itextpdf.kernel.geom.Rectangle rectangle = new com.itextpdf.kernel.geom.Rectangle(
+				x, y, width, height);
+		TextRegionEventFilter filter = new TextRegionEventFilter(rectangle);
+		return new FilteredTextEventListener(
+				new LocationTextExtractionStrategy(), filter);
+	}
+
+	public static String extractData(File file, Rectangle rect) {
+		String readText = "";
+		StringBuffer buf = new StringBuffer();
+		try (PDDocument document = PDDocument.load(file)) {
+			if (!document.isEncrypted()) {
+				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+				stripper.setSortByPosition(true);
+				stripper.addRegion("class1", rect);
+				for (int page = 0; page < document.getNumberOfPages(); page++) {
+					if (page > 0)
+						buf.append("\n");
+					stripper.extractRegions(document.getPage(page));
+					buf.append(stripper.getTextForRegion("class1"));
+				}
+				readText = buf.toString();
+				System.out.println("readText: " + readText);
+			}
+		} catch (IOException e) {
+			System.err.println(
+					"Exception while trying to read pdf document - " + e);
+		}
+		return readText;
+	}
+
+	public static java.sql.Date extractOrderDate(String regex, String text,
+			String dateFormat) {
+		java.sql.Date sqlDate = null;
+		Matcher m = Pattern.compile(regex).matcher(text);
+		if (m.find()) {
+			String date = m.group();
+			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+			Date dob = null;
+			try {
+				dob = sdf.parse(date);
+				sqlDate = new java.sql.Date(
+						dob.getTime() + 24 * 60 * 60 * 1000);
+			} catch (ParseException e) {
+				System.err.println("Parse exception, incorrect input in text: "
+						+ text + " with regex: " + regex);
+				e.printStackTrace();
+			}
+		} else if (sqlDate == null) {
+			// Bad input
+			System.err.println("Errors while trying to get date in text: "
+					+ text + " with regex: " + regex);
+			System.out.println("I will use the actual date.");
+			sqlDate = new java.sql.Date(new Date().getTime());
+		}
+		return sqlDate;
 	}
 }

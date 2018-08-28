@@ -3,6 +3,7 @@ package gc.fornitori;
 import java.awt.Rectangle;
 import java.io.File;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -15,20 +16,62 @@ import org.apache.commons.collections4.map.LinkedMap;
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.UM;
+import gc.model.types.BaseOrder;
 import gc.utils.DBUtils;
 import gc.utils.Utils;
 
-public class FinishVillage extends Order {
-
-	public static final String DDT_DESCR = "Ns. doc.";
-	public static final Rectangle PDFBOX_RECT = new Rectangle(21, 317, 554, 338);
-	public static final String DB_CODE = "finishVillage";
-	public static final String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{4}";
-	public static final String DATE_FORMAT = "dd/MM/yyyy";
+public class FinishVillage extends BaseOrder {
+	private static final String DDT_DESCR = "Ns. doc.";
+	private static final Rectangle PDFBOX_RECT = new Rectangle(21, 317, 554,
+			338);
+	private static final String DB_CODE = "finishVillage";
+	private static final String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{4}";
+	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	public FinishVillage() {
 	}
 
+	public FinishVillage(int id, String productID, String productDesc,
+			String um, float quantity, float price, float discount,
+			float adj_price, float iva, Date sqlDate) {
+		super(id, productID, productDesc, um, quantity, price, discount,
+				adj_price, iva, sqlDate);
+	}
+
+	public FinishVillage(String productID, String productDesc, String um,
+			float quantity, float price, float discount, float adj_price,
+			float iva, Date sqlDate) {
+
+		super(productID, productDesc, um, quantity, price, discount, adj_price,
+				iva, sqlDate);
+	}
+
+	@Override
+	public String getDDT() {
+		return DDT_DESCR;
+	}
+
+	@Override
+	public Rectangle getPDFRECT() {
+		return PDFBOX_RECT;
+	}
+
+	@Override
+	public String getDBCODE() {
+		return DB_CODE;
+	}
+
+	@Override
+	public String getDATEORDER() {
+		return DATE_ORDER_REGEX;
+	}
+
+	@Override
+	public String getDATEFORMAT() {
+		return DATE_FORMAT;
+	}
+	
+	@Override
 	public LinkedMap<String, ArrayList<Order>> parseOrder(File file,
 			Connection conn) {
 		final NumberFormat format = NumberFormat
@@ -37,12 +80,12 @@ public class FinishVillage extends Order {
 			((DecimalFormat) format).setParseBigDecimal(true);
 		}
 		LinkedMap<String, ArrayList<Order>> map = new LinkedMap<>();
-		String esito = extractData(file, PDFBOX_RECT);
+		String esito = Utils.extractData(file, PDFBOX_RECT);
 		String[] righe = esito.split("\n");
 		java.sql.Date sqlDate = null;
 		for (String riga : righe) {
 			if (riga.startsWith(DDT_DESCR)) {
-				sqlDate = extractOrderDate(DATE_ORDER_REGEX, riga, DATE_FORMAT);
+				sqlDate = Utils.extractOrderDate(DATE_ORDER_REGEX, riga, DATE_FORMAT);
 				map.put(riga, null);
 			} else if (map.size() > 0) {
 				String lastKey = map.lastKey();
@@ -51,7 +94,7 @@ public class FinishVillage extends Order {
 						: map.get(lastKey);
 				String[] itemParts = riga.trim().replaceAll(" +", ";")
 						.split(";");
-				Order ord = new Order();
+				Order ord = new FinishVillage();
 				try {
 					if (itemParts.length > 5) {
 						StringBuilder strBuild = new StringBuilder();
@@ -82,7 +125,7 @@ public class FinishVillage extends Order {
 									.floatValue();
 							float discount = Utils.round(Utils.calcDiscount(
 									price, adj_price / quantity), 2);
-							ord = new Order(productID, productDesc, um,
+							ord = new FinishVillage(productID, productDesc, um,
 									quantity, price,
 									discount < 1 ? 0 : discount, adj_price, iva,
 									sqlDate);
@@ -93,7 +136,7 @@ public class FinishVillage extends Order {
 									.floatValue();
 							float discount = Utils.round(Utils.calcDiscount(
 									price, adj_price / quantity), 2);
-							ord = new Order(productID, productDesc, um,
+							ord = new FinishVillage(productID, productDesc, um,
 									quantity, price,
 									discount < 1 ? 0 : discount, adj_price, iva,
 									sqlDate);
@@ -104,7 +147,7 @@ public class FinishVillage extends Order {
 									.floatValue();
 							float discount = Utils.round(Utils.calcDiscount(
 									price, adj_price / quantity), 2);
-							ord = new Order(productID, productDesc, um,
+							ord = new FinishVillage(productID, productDesc, um,
 									quantity, price,
 									discount < 1 ? 0 : discount, adj_price, iva,
 									sqlDate);

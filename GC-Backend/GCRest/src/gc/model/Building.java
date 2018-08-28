@@ -59,19 +59,19 @@ public class Building {
 	}
 
 	public java.sql.Date getStart_date() {
-		return new java.sql.Date(start_date.getTime());
+		return start_date;
 	}
 
 	public void setStart_date(java.sql.Date start_date) {
-		this.start_date = new java.sql.Date(start_date.getTime());
+		this.start_date = start_date;
 	}
 
 	public java.sql.Date getEnd_date() {
-		return new java.sql.Date(end_date.getTime());
+		return end_date;
 	}
 
 	public void setEnd_date(java.sql.Date end_date) {
-		this.end_date = new java.sql.Date(end_date.getTime());
+		this.end_date = end_date;
 	}
 
 	public Address getAddress() {

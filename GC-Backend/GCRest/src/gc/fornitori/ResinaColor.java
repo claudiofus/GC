@@ -1,16 +1,58 @@
+
 package gc.fornitori;
 
 import java.awt.Rectangle;
+import java.sql.Date;
 
-import gc.model.Order;
+import gc.model.types.BaseOrder;
 
-public class ResinaColor extends Order {
-	public static String DDT_DESCR = "BOLLA N. ";
-	public static Rectangle PDFBOX_RECT = new Rectangle(18, 272, 547, 380);
-	public static String DB_CODE = "resinaColor";
-	public static String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{4}";
-	public static String DATE_FORMAT = "dd/MM/yyyy";
-	
+public class ResinaColor extends BaseOrder {
+	private static String DDT_DESCR = "BOLLA N. ";
+	private static Rectangle PDFBOX_RECT = new Rectangle(18, 272, 547, 380);
+	private static String DB_CODE = "resinaColor";
+	private static String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{4}";
+	private static String DATE_FORMAT = "dd/MM/yyyy";
+
 	public ResinaColor() {
+	}
+
+	public ResinaColor(int id, String productID, String productDesc, String um,
+			float quantity, float price, float discount, float adj_price,
+			float iva, Date sqlDate) {
+		super(id, productID, productDesc, um, quantity, price, discount,
+				adj_price, iva, sqlDate);
+	}
+
+	public ResinaColor(String productID, String productDesc, String um,
+			float quantity, float price, float discount, float adj_price,
+			float iva, Date sqlDate) {
+
+		super(productID, productDesc, um, quantity, price, discount, adj_price,
+				iva, sqlDate);
+	}
+	
+	@Override
+	public String getDDT() {
+		return DDT_DESCR;
+	}
+
+	@Override
+	public Rectangle getPDFRECT() {
+		return PDFBOX_RECT;
+	}
+
+	@Override
+	public String getDBCODE() {
+		return DB_CODE;
+	}
+
+	@Override
+	public String getDATEORDER() {
+		return DATE_ORDER_REGEX;
+	}
+
+	@Override
+	public String getDATEFORMAT() {
+		return DATE_FORMAT;
 	}
 }

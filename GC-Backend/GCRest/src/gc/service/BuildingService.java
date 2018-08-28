@@ -42,7 +42,7 @@ public class BuildingService {
 
 		for (Building el : buildingList) {
 			String type = el.getAddress().getAddressType();
-			el.getAddress().setAddressType(Address.getDescFromCode(type));
+			if (type != null) el.getAddress().setAddressType(Address.getDescFromCode(type));
 		}
 
 		return Response.status(200).entity(buildingList).build();
@@ -58,8 +58,8 @@ public class BuildingService {
 		WebResource webResource = client
 				.resource(
 						"https://maps.googleapis.com/maps/api/directions/json")
-				.queryParam("origin", "Via V. Guerra, 5, 70015 Noci BA").queryParam("destination", dest)
-				.queryParam("language", "it");
+				.queryParam("origin", "Via V. Guerra, 5, 70015 Noci BA")
+				.queryParam("destination", dest).queryParam("language", "it");
 		String result = webResource.type(MediaType.APPLICATION_JSON)
 				.get(ClientResponse.class).getEntity(String.class);
 

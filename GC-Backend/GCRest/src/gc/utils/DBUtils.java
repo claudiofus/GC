@@ -5,16 +5,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import gc.model.Building;
+import gc.model.Event;
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.Provider;
 import gc.model.types.Address;
+import gc.model.types.BaseOrder;
 
 public class DBUtils {
 
@@ -142,11 +145,17 @@ public class DBUtils {
 		ResultSet rs = pstm.executeQuery();
 		List<Order> list = new ArrayList<Order>();
 		while (rs.next()) {
-			Order ord = new Order(rs.getInt("id"), rs.getString("product_id"),
-					rs.getString("product_name"), rs.getString("um"),
-					rs.getFloat("quantity"), rs.getFloat("price"),
-					rs.getFloat("discount"), rs.getFloat("adj_price"),
-					rs.getFloat("iva"), rs.getDate("date_ins"));
+			BaseOrder ord = new BaseOrder();
+			ord.setId(rs.getInt("id"));
+			ord.setCode(rs.getString("product_id"));
+			ord.setName(rs.getString("product_name"));
+			ord.setUm(rs.getString("um"));
+			ord.setQuantity(rs.getFloat("quantity"));
+			ord.setPrice(rs.getFloat("price"));
+			ord.setDiscount(rs.getFloat("discount"));
+			ord.setAdj_price(rs.getFloat("adj_price"));
+			ord.setIva(rs.getFloat("iva"));
+			ord.setDate_order(rs.getDate("date_ins"));
 			ord.setBuilding_id(rs.getInt("building_id"));
 			list.add(ord);
 		}
@@ -203,7 +212,7 @@ public class DBUtils {
 	}
 
 	public static Order selectOrdine(Connection conn, Order ordine)
-			throws SQLException {
+			throws Exception {
 		String sql = "Select id, product_id, building_id, product_name, um, quantity, price, discount, adj_price, iva, date_ins from gestione_cantieri.order where id = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
@@ -213,11 +222,15 @@ public class DBUtils {
 		ResultSet rs = pstm.executeQuery();
 		Order ord = null;
 		while (rs.next()) {
-			ord = new Order(rs.getInt("id"), rs.getString("product_id"),
-					rs.getString("product_name"), rs.getString("um"),
-					rs.getFloat("quantity"), rs.getFloat("price"),
-					rs.getFloat("discount"), rs.getFloat("adj_price"),
-					rs.getFloat("iva"), rs.getDate("date_ins"));
+			ord = ordine.getClass()
+					.getConstructor(int.class, String.class, String.class,
+							String.class, float.class, float.class, float.class,
+							float.class, float.class, java.sql.Date.class)
+					.newInstance(rs.getInt("id"), rs.getString("product_id"),
+							rs.getString("product_name"), rs.getString("um"),
+							rs.getFloat("quantity"), rs.getFloat("price"),
+							rs.getFloat("discount"), rs.getFloat("adj_price"),
+							rs.getFloat("iva"), rs.getDate("date_ins"));
 			ord.setBuilding_id(rs.getInt("building_id"));
 		}
 		pstm.close();
@@ -412,7 +425,7 @@ public class DBUtils {
 		pstm.setString(11, buildingData.getAddress().getState());
 		pstm.setFloat(12, buildingData.getReq_amount());
 
-		System.out.println("insertOrdine: " + pstm.toString());
+		System.out.println("insertBuilding: " + pstm.toString());
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
@@ -428,5 +441,61 @@ public class DBUtils {
 		}
 		pstm.close();
 		return buildingData.getId();
+	}
+
+	/* EVENT */
+	public static List<Event> queryEvent(Connection conn) throws SQLException {
+		String sql = "Select id, title, start_date, end_date, executed from gestione_cantieri.event";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		System.out.println("queryEvents: " + pstm.toString());
+
+		ResultSet rs = pstm.executeQuery();
+		List<Event> list = new ArrayList<Event>();
+		while (rs.next()) {
+			Integer id = rs.getInt("id");
+			String title = rs.getString("title");
+			Timestamp start_date = rs.getTimestamp("start_date");
+			Timestamp end_date = rs.getTimestamp("end_date");
+			boolean executed = rs.getBoolean("executed");
+
+			Event ev = new Event(title);
+			ev.setId(id);
+			ev.setStart_date(new java.sql.Date(start_date.getTime()));
+			ev.setEnd_date(new java.sql.Date(end_date.getTime()));
+			ev.setExecuted(executed);
+			list.add(ev);
+		}
+
+		pstm.close();
+		return list;
+	}
+
+	public static int insertEvent(Connection conn, Event eventData)
+			throws SQLException {
+		String sql = "INSERT INTO gestione_cantieri.event (title, start_date, end_date, executed) VALUES (?, ?, ?, ?)";
+		PreparedStatement pstm = conn.prepareStatement(sql,
+				Statement.RETURN_GENERATED_KEYS);
+		pstm.setString(1, eventData.getTitle());
+		pstm.setDate(2, eventData.getStart_date());
+		pstm.setDate(3, eventData.getEnd_date());
+		pstm.setBoolean(4, eventData.isExecuted());
+
+		System.out.println("insertEvent: " + pstm.toString());
+
+		int affectedRows = pstm.executeUpdate();
+		if (affectedRows == 0) {
+			throw new SQLException("Creating user failed, no rows affected.");
+		}
+
+		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
+			if (generatedKeys.next()) {
+				eventData.setId(generatedKeys.getInt(1));
+			} else {
+				throw new SQLException("Creating user failed, no ID obtained.");
+			}
+		}
+		pstm.close();
+		return eventData.getId();
 	}
 }

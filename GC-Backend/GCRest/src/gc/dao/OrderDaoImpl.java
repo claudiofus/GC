@@ -59,7 +59,7 @@ public class OrderDaoImpl {
 			}
 		}
 	}
-	
+
 	public Order insertOrder(Order ord) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
@@ -99,7 +99,7 @@ public class OrderDaoImpl {
 		Order updOrd = null;
 
 		try {
-			updOrd = new Order();
+			updOrd = ord.getClass().getConstructor().newInstance();
 			updOrd.setId(ord.getId());
 			updOrd.setBuilding_id(ord.getBuilding_id());
 			updOrd.setCode(ord.getCode());
@@ -116,7 +116,7 @@ public class OrderDaoImpl {
 			conn.commit();
 			updOrd = DBUtils.selectOrdine(conn, updOrd);
 			conn.commit();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			System.err.println("Error during update order");
 			e.printStackTrace();
 			try {
