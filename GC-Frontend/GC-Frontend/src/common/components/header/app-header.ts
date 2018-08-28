@@ -7,5 +7,5 @@ import {Component, Input} from '@angular/core';
 })
 
 export class AppHeaderComponent {
-  @Input() title: string;
+  @Input() appTitle: string;
 }

@@ -1,1 +1,171 @@
 <h2>Scadenze</h2>
+
+<div class="row text-center">
+  <div class="col-md-4">
+    <div class="btn-group">
+      <div
+        class="btn btn-primary"
+        mwlCalendarPreviousView
+        [view]="view"
+        [(viewDate)]="viewDate"
+        (viewDateChange)="activeDayIsOpen = false">
+        <<
+      </div>
+      <div
+        class="btn btn-outline-secondary"
+        mwlCalendarToday
+        [(viewDate)]="viewDate">
+        Oggi
+      </div>
+      <div
+        class="btn btn-primary"
+        mwlCalendarNextView
+        [view]="view"
+        [(viewDate)]="viewDate"
+        (viewDateChange)="activeDayIsOpen = false">
+        >>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h3 [hidden]="view!=='month'">{{ viewDate | date:'MMMM yyyy':'it' | titlecase }}</h3>
+    <h3 [hidden]="view!=='week'">Settimana n. {{ viewDate | date:'w' }} del {{viewDate | date:'yyyy'}}</h3>
+    <h3 [hidden]="view!=='day'">{{ viewDate | date:'EEEE, dd LLLL yyyy':'it' | titlecase }}</h3>
+  </div>
+  <div class="col-md-4">
+    <div class="btn-group">
+      <div
+        class="btn btn-primary"
+        (click)="view = 'month'"
+        [class.active]="view === 'month'">
+        Mese
+      </div>
+      <div
+        class="btn btn-primary"
+        (click)="view = 'week'"
+        [class.active]="view === 'week'">
+        Settimana
+      </div>
+      <div
+        class="btn btn-primary"
+        (click)="view = 'day'"
+        [class.active]="view === 'day'">
+        Giorno
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+<div [ngSwitch]="view" style="background: white">
+  <mwl-calendar-month-view
+    *ngSwitchCase="'month'"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    [weekStartsOn]="weekStartsOn"
+    [activeDayIsOpen]="activeDayIsOpen"
+    (dayClicked)="dayClicked($event.day)"
+    (eventTimesChanged)="eventTimesChanged($event)">
+  </mwl-calendar-month-view>
+  <mwl-calendar-week-view
+    *ngSwitchCase="'week'"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    [weekStartsOn]="weekStartsOn"
+    (eventTimesChanged)="eventTimesChanged($event)">
+  </mwl-calendar-week-view>
+  <mwl-calendar-day-view
+    *ngSwitchCase="'day'"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    (eventTimesChanged)="eventTimesChanged($event)">
+  </mwl-calendar-day-view>
+</div>
+
+<br>
+
+<button class="btn btn-primary" [hidden]="showEvents" (click)="showEvents = !showEvents">
+  Aggiungi eventi
+</button>
+
+<div class="mt10" [hidden]="!showEvents">
+  <h3>
+    Lista eventi
+    <button
+      class="btn btn-primary"
+      (click)="addEvent()">
+      Aggiungi
+    </button>
+    <div class="clearfix"></div>
+  </h3>
+
+  <table class="table table-bordered" style="background: white" [hidden]="events.length === 0">
+    <thead>
+    <tr>
+      <th>Titolo</th>
+      <th>Inizia alle</th>
+      <th>Termina alle</th>
+      <th>Salva</th>
+      <th>Rimuovi</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let event of events; let index = index">
+      <td>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="event.title"
+          (keyup)="refresh.next()">
+      </td>
+      <td>
+        <input
+          class="form-control"
+          type="text"
+          mwlFlatpickr
+          [(ngModel)]="event.start"
+          (ngModelChange)="refresh.next()"
+          [altInput]="true"
+          [enableTime]="true"
+          [time24hr]="true"
+          [locale]="locale"
+          dateFormat="Y-m-dTH:i"
+          altFormat="d/m/Y H:i"
+          placeholder="Not set">
+      </td>
+      <td>
+        <input
+          class="form-control"
+          type="text"
+          mwlFlatpickr
+          [(ngModel)]="event.end"
+          (ngModelChange)="refresh.next()"
+          [altInput]="true"
+          [enableTime]="true"
+          [time24hr]="true"
+          [locale]="locale"
+          dateFormat="Y-m-dTH:i"
+          altFormat="d/m/Y H:i"
+          placeholder="Not set">
+      </td>
+      <td>
+        <button
+          class="btn btn-info"
+          (click)="save(event)">
+          Salva
+        </button>
+      </td>
+      <td>
+        <button
+          class="btn btn-danger"
+          (click)="events.splice(index, 1); refresh.next()">
+          Cancella
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

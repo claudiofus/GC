@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {BuildingsService} from './buildings.service';
 import {ColumnSetting} from '../../common/components/generic-table/layout.model';
+import {Address} from '../../classes/address';
 
 @Component({
   selector: 'app-buildings',
@@ -76,5 +77,9 @@ export class BuildingsComponent implements OnInit {
       }
     }
     building.details = !building.details;
+  }
+
+  isValidAddress(addr: Address): boolean {
+    return (addr.addressType != null && addr.addressName != null && addr.city != null);
   }
 }

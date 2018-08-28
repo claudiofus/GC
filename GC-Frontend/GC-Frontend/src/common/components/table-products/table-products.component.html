@@ -1,8 +1,8 @@
 <div *ngIf="products.length > 0">
   <form>
-    <div class="form-group">
+    <div class="form-inline" style="margin-bottom: 5px;">
       <label for="searchString">Filtra per nome o codice del prodotto o per fornitore</label>
-      <input id="searchString" type="search" [(ngModel)]="searchString" class="form-control" name="searchString"
+      <input id="searchString" type="search" [(ngModel)]="searchString" class="form-control mb-2 mr-sm-2 mb-sm-0" name="searchString"
              placeholder="Scrivi per cercare...">
     </div>
   </form>

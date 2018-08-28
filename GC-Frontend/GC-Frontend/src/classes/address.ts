@@ -9,4 +9,3 @@ export class Address {
   distance: string;
   timeToReach: string;
 }
-

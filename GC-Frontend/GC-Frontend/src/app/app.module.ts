@@ -1,3 +1,4 @@
+import 'flatpickr/dist/flatpickr.css';
 import {BrowserModule} from '@angular/platform-browser';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
@@ -22,7 +23,7 @@ import {SelectProviderComponent} from '../common/components/select-provider/sele
 import {AddInvoiceService} from './add-invoice/add-invoice.service';
 import {BuildingsComponent} from './buildings/buildings.component';
 import {TableProductsService} from '../common/components/table-products/table-products.service';
-import {registerLocaleData} from '@angular/common';
+import {CommonModule, registerLocaleData} from '@angular/common';
 import localeIt from '@angular/common/locales/it';
 import {BuildingsService} from './buildings/buildings.service';
 import {BuildingFormComponent} from '../common/components/building-form/building-form.component';
@@ -30,6 +31,11 @@ import {SharedModule} from '../common/components/generic-table/shared.module';
 import {SelectBuildingComponent} from '../common/components/select-building/select-building.component';
 import {SelectUmComponent} from '../common/components/select-um/select-um.component';
 import {NguiAutoCompleteModule} from '@ngui/auto-complete';
+import {CalendarModule} from 'angular-calendar';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {NgbModalModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {FlatpickrModule} from 'angularx-flatpickr';
+import {DeadlinesService} from './deadlines/deadlines.service';
 
 registerLocaleData(localeIt, 'it');
 
@@ -41,7 +47,13 @@ registerLocaleData(localeIt, 'it');
     ReactiveFormsModule,
     AppRoutingModule,
     SharedModule,
-    NguiAutoCompleteModule
+    NguiAutoCompleteModule,
+    NgbModule,
+    BrowserAnimationsModule,
+    CommonModule,
+    NgbModalModule,
+    FlatpickrModule.forRoot(),
+    CalendarModule.forRoot()
   ],
   declarations: [
     AppComponent,
@@ -66,7 +78,13 @@ registerLocaleData(localeIt, 'it');
   providers: [{
     provide: LOCALE_ID,
     useValue: 'it'
-  }, ProductListService, AddInvoiceService, TableProductsService, BuildingsService],
+  },
+    ProductListService,
+    AddInvoiceService,
+    TableProductsService,
+    BuildingsService,
+    DeadlinesService
+  ],
   bootstrap: [AppComponent],
   exports: [
     FilterPipe

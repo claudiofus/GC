@@ -6,7 +6,7 @@
   <app-building-form (submit)="addBuilding($event)"></app-building-form>
 </div>
 
-<div *ngIf="buildings.length === 0">
+<div class="mt10" *ngIf="buildings.length === 0">
   <p>Non sono stati inseriti cantieri</p>
 </div>
 
@@ -22,10 +22,12 @@
               <strong>Data inizio : </strong> {{building.start_date | date:'dd/MM/yyyy'}} <br/>
               <strong>Data fine : </strong> {{building.end_date | date:'dd/MM/yyyy'}} <br/>
               <strong>Aperto : </strong> {{building.open ? 'SI' : 'NO'}} <br/>
-              <strong>Indirizzo : </strong> {{building.address.addressType}} {{building.address.addressName}},
-              {{building.address.addressNumber}}<br/>
-              {{building.address.city}} {{building.address.cap}} {{building.address.province}}
-              {{building.address.state}}
+              <div [hidden]="!isValidAddress(building.address)">
+                <strong>Indirizzo : </strong> {{building.address.addressType}} {{building.address.addressName}},
+                {{building.address.addressNumber}}<br/>
+                {{building.address.city}} {{building.address.cap}} {{building.address.province}}
+                {{building.address.state}}
+              </div>
             </div>
             <div class="card_text" *ngIf="building.address.distance && building.address.timeToReach">
               <div class="card_box">
