@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {addDays, addHours, endOfDay, endOfMonth, isSameDay, isSameMonth, startOfDay, subDays} from 'date-fns';
+import {isSameDay, isSameMonth} from 'date-fns';
 import {Subject} from 'rxjs';
 import {CalendarEvent, CalendarEventTimesChangedEvent} from 'angular-calendar';
 import {DAYS_OF_WEEK} from 'calendar-utils';
@@ -35,49 +35,49 @@ export class DeadlinesComponent implements OnInit {
 
   eventTimesChanged({
                       event,
-                      newStart,
-                      newEnd
+                      newStart
                     }: CalendarEventTimesChangedEvent): void {
     event.start = newStart;
-    event.end = newEnd;
     this.refresh.next();
   }
 
   addEvent(): void {
     this.events.push({
       title: 'Nuovo evento',
-      start: startOfDay(new Date()),
-      end: endOfDay(new Date()),
-      color: {primary: '#ad2121', secondary: '#FAE3E3'},
-      draggable: true,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true
-      }
+      start: new Date()
     });
+    this.save(this.events.pop());
     this.refresh.next();
   }
 
-  loadEvent(ev): void {
-    this.events.push({
-      title: ev.title,
-      start: ev.start,
-      end: ev.end,
-      draggable: true,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true
-      }
-    });
+  updateEv(event): void {
+    event.start = new Date(event.start);
+    this.save(event);
     this.refresh.next();
   }
 
   save(ev): void {
-    delete ev.color;
-    delete ev.resizable;
-    delete ev.draggable;
     this.deadlinesService.addEvent(ev).then(_ => {
-      console.log('ok');
+      this.getAllItems();
+    }).catch(error => {
+      console.error(error);
+    });
+  }
+
+  getAllItems(): void {
+    this.deadlinesService.getAll().subscribe(
+      restItems => {
+        restItems.forEach(ev => ev.start = new Date(ev.start));
+        this.events = restItems;
+      }
+    );
+  }
+
+  deleteFunc(index): void {
+    this.deadlinesService.deleteEvent(this.events[index]).then(_ => {
+      this.events.splice(index, 1);
+      this.getAllItems();
+      this.refresh.next();
     }).catch(error => {
       console.error(error);
     });
@@ -87,10 +87,6 @@ export class DeadlinesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.deadlinesService.getAll().subscribe(
-      restItems => {
-        restItems.map(ev => this.loadEvent(ev));
-      }
-    );
+    this.getAllItems();
   }
 }

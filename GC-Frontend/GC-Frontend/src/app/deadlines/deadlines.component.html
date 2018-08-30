@@ -87,7 +87,7 @@
 <br>
 
 <button class="btn btn-primary" [hidden]="showEvents" (click)="showEvents = !showEvents">
-  Aggiungi eventi
+  Mostra / Aggiungi eventi
 </button>
 
 <div class="mt10" [hidden]="!showEvents">
@@ -105,9 +105,9 @@
     <thead>
     <tr>
       <th>Titolo</th>
-      <th>Inizia alle</th>
-      <th>Termina alle</th>
-      <th>Salva</th>
+      <th>Giorno</th>
+      <th>Pagato</th>
+      <th>Posticipa di</th>
       <th>Rimuovi</th>
     </tr>
     </thead>
@@ -127,41 +127,33 @@
           type="text"
           mwlFlatpickr
           [(ngModel)]="event.start"
-          (ngModelChange)="refresh.next()"
+          (ngModelChange)="updateEv(event)"
           [altInput]="true"
-          [enableTime]="true"
-          [time24hr]="true"
           [locale]="locale"
-          dateFormat="Y-m-dTH:i"
-          altFormat="d/m/Y H:i"
-          placeholder="Not set">
+          dateFormat="Y-m-d"
+          altFormat="d/m/Y"
+          placeholder="Non impostata">
       </td>
       <td>
-        <input
-          class="form-control"
-          type="text"
-          mwlFlatpickr
-          [(ngModel)]="event.end"
-          (ngModelChange)="refresh.next()"
-          [altInput]="true"
-          [enableTime]="true"
-          [time24hr]="true"
-          [locale]="locale"
-          dateFormat="Y-m-dTH:i"
-          altFormat="d/m/Y H:i"
-          placeholder="Not set">
+        <select class="form-control">
+          <option>SI</option>
+          <option>NO</option>
+        </select>
       </td>
       <td>
-        <button
-          class="btn btn-info"
-          (click)="save(event)">
-          Salva
-        </button>
+        <select class="form-control">
+          <option selected value></option>
+          <option>30 giorni</option>
+          <option>60 giorni</option>
+          <option>90 giorni</option>
+          <option>120 giorni</option>
+          <option>150 giorni</option>
+        </select>
       </td>
       <td>
         <button
           class="btn btn-danger"
-          (click)="events.splice(index, 1); refresh.next()">
+          (click)="deleteFunc(index)">
           Cancella
         </button>
       </td>

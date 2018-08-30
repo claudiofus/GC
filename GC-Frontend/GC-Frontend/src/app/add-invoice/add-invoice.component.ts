@@ -79,7 +79,9 @@ export class AddInvoiceComponent implements OnInit {
         this.itemsOrder = result;
         this.deliveryNotes = Object.keys(result);
         for (const el of this.deliveryNotes) {
-          this.itemsOrder[el].building = new Building();
+          if (this.itemsOrder[el]) {
+            this.itemsOrder[el].building = new Building();
+          }
         }
       })
       .catch(error => {
@@ -94,11 +96,13 @@ export class AddInvoiceComponent implements OnInit {
 
   isAllChecked(list): boolean {
     let breakCond = true;
-    list.forEach((order: any) => {
-      if (!order.state) {
-        breakCond = false;
-      }
-    });
+    if (list) {
+      list.forEach((order: any) => {
+        if (!order.state) {
+          breakCond = false;
+        }
+      });
+    }
     return breakCond;
   }
 

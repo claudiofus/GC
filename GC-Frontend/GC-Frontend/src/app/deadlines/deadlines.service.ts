@@ -1,4 +1,4 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
@@ -6,6 +6,7 @@ import {map} from 'rxjs/operators';
 export class DeadlinesService {
   protected url = 'http://localhost:8000/GCRest/rest/event/all';
   protected url2 = 'http://localhost:8000/GCRest/rest/event/addEvent';
+  protected url3 = 'http://localhost:8000/GCRest/rest/event/deleteEvent';
 
   constructor(private http: HttpClient) {
   }
@@ -21,6 +22,15 @@ export class DeadlinesService {
 
     return this.http
       .post<any[]>(this.url2, event)
+      .toPromise()
+      .then(data => data);
+  }
+
+  deleteEvent(event): Promise<any> {
+    console.log('Invoking service deleteEvent');
+
+    return this.http
+      .post<any[]>(this.url3, event)
       .toPromise()
       .then(data => data);
   }
