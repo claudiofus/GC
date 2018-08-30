@@ -1,6 +1,10 @@
 package gc.service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -10,6 +14,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import com.google.gson.Gson;
 
 import gc.dao.EventDaoImpl;
 import gc.model.Event;
@@ -49,7 +55,10 @@ public class EventService {
 		eventList = eventDaoImpl.getEvents();
 
 		for (Event el : eventList) {
-			if (el.getTitle().equalsIgnoreCase(event.getTitle())) {
+			if (el.getId() == event.getId()) {
+				eventDaoImpl.updateEvent(event);
+				return Response.ok(event).build();
+			} else if (el.getTitle().equalsIgnoreCase(event.getTitle())) {
 				return Response.status(Response.Status.PRECONDITION_FAILED)
 						.entity("{\"error\": \"Event already exists with name: "
 								+ event.getTitle() + "\"}")
@@ -59,5 +68,59 @@ public class EventService {
 
 		eventDaoImpl.insertEvent(event);
 		return Response.ok(event).build();
+	}
+
+	@POST
+	@Path("/updateEvent")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateEvent(InputStream incomingData) {
+		StringBuilder strBuilder = new StringBuilder();
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					incomingData, Charset.forName("UTF-8")));
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				strBuilder.append(line);
+			}
+			System.out.println("Data Received: " + strBuilder.toString());
+			Gson gson = new Gson();
+			Event ev = gson.fromJson(strBuilder.toString(), Event.class);
+
+			EventDaoImpl eventDaoImpl = new EventDaoImpl();
+			eventDaoImpl.updateEvent(ev);
+			return Response.ok(gson.toJson(ev)).build();
+		} catch (IOException e) {
+			System.err.println("Error Parsing: - " + incomingData);
+			return Response.status(500)
+					.entity("Error Parsing: - " + incomingData).build();
+		}
+	}
+	
+	@POST
+	@Path("/deleteEvent")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response deleteEvent(InputStream incomingData) {
+		StringBuilder strBuilder = new StringBuilder();
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					incomingData, Charset.forName("UTF-8")));
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				strBuilder.append(line);
+			}
+			System.out.println("Data Received: " + strBuilder.toString());
+			Gson gson = new Gson();
+			Event ev = gson.fromJson(strBuilder.toString(), Event.class);
+
+			EventDaoImpl eventDaoImpl = new EventDaoImpl();
+			eventDaoImpl.deleteEvent(ev);
+			return Response.ok(gson.toJson(ev)).build();
+		} catch (IOException e) {
+			System.err.println("Error Parsing: - " + incomingData);
+			return Response.status(500)
+					.entity("Error Parsing: - " + incomingData).build();
+		}
 	}
 }

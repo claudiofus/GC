@@ -14,7 +14,7 @@ public class JDBCConnection {
 		Connection connection = null;
 
 		try {
-			String connectionURL = "jdbc:mysql://" + hostName + ":3306/" + dbName + "?serverTimezone=UTC";
+			String connectionURL = "jdbc:mysql://" + hostName + ":3306/" + dbName + "?serverTimezone=UTC&useSSL=false";
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 			connection = DriverManager.getConnection(connectionURL, userName, password);
 			connection.setAutoCommit(false);

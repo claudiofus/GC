@@ -14,8 +14,9 @@ public class Event {
 	private int id;
 	@XmlElement
 	private String title;
+	@XmlElement
+	private boolean paid;
 	private java.sql.Date start_date;
-	private java.sql.Date end_date;
 	@XmlElement
 	private boolean executed;
 
@@ -49,17 +50,8 @@ public class Event {
 		return start_date;
 	}
 
-	public void setStart_date(java.sql.Date start_date2) {
-		this.start_date = start_date2;
-	}
-
-	@JsonProperty("end")
-	public java.sql.Date getEnd_date() {
-		return end_date;
-	}
-
-	public void setEnd_date(java.sql.Date end_date) {
-		this.end_date = end_date;
+	public void setStart_date(java.sql.Date start_date) {
+		this.start_date = start_date;
 	}
 
 	public boolean isExecuted() {

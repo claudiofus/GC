@@ -10,5 +10,6 @@ public enum UM {
 	PA, //pacchetto
 	SA, 
 	ML,
-	MT //metro
+	MT, //metro
+	LT
 }

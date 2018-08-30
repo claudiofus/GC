@@ -7,7 +7,6 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -70,7 +69,7 @@ public class FinishVillage extends BaseOrder {
 	public String getDATEFORMAT() {
 		return DATE_FORMAT;
 	}
-	
+
 	@Override
 	public LinkedMap<String, ArrayList<Order>> parseOrder(File file,
 			Connection conn) {
@@ -85,7 +84,8 @@ public class FinishVillage extends BaseOrder {
 		java.sql.Date sqlDate = null;
 		for (String riga : righe) {
 			if (riga.startsWith(DDT_DESCR)) {
-				sqlDate = Utils.extractOrderDate(DATE_ORDER_REGEX, riga, DATE_FORMAT);
+				sqlDate = Utils.extractOrderDate(DATE_ORDER_REGEX, riga,
+						DATE_FORMAT);
 				map.put(riga, null);
 			} else if (map.size() > 0) {
 				String lastKey = map.lastKey();
@@ -97,17 +97,22 @@ public class FinishVillage extends BaseOrder {
 				Order ord = new FinishVillage();
 				try {
 					if (itemParts.length > 5) {
+						// Itero a partire dalla fine della stringa per cercare
+						// l'ultima occorrenza di UM, salvo l'indice e tutto ciò
+						// che c'è prima diventerà descrizione del prodotto
 						StringBuilder strBuild = new StringBuilder();
 						int indice = 0;
-						for (int i = 1; i < itemParts.length; i++) {
-							if (!Utils.isInEnum(itemParts[i], UM.class,
-									false)) {
-								strBuild.append(itemParts[i] + " ");
-								indice = i + 1;
-							} else {
+						for (int i = itemParts.length - 1; i > 0; i--) {
+							if (Utils.isInEnum(itemParts[i], UM.class, false)) {
+								indice = i;
 								break;
 							}
 						}
+
+						for (int j = 0; j < indice; j++) {
+							strBuild.append(itemParts[j] + " ");
+						}
+
 						String productID = itemParts[0].trim();
 						String productDesc = strBuild.toString().trim();
 						Product prd = new Product(productID, productDesc,
@@ -161,7 +166,7 @@ public class FinishVillage extends BaseOrder {
 						items.add(ord);
 						map.put(lastKey, items);
 					}
-				} catch (ParseException | SQLException e) {
+				} catch (Exception e) {
 					try {
 						conn.rollback();
 					} catch (SQLException e1) {

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import gc.conn.JDBCConnection;
+import gc.fornitori.Akifix;
 import gc.fornitori.AutofficinaLippolis;
 import gc.fornitori.FinishVillage;
 import gc.fornitori.Intermobil;
@@ -49,6 +50,9 @@ public class OrderDaoImpl {
 					break;
 				case "autoffLippolis" :
 					map = new AutofficinaLippolis().parseOrder(file, conn);
+					break;
+				case "akifix" :
+					map = new Akifix().parseOrder(file, conn);
 					break;
 			}
 			return map;

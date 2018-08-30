@@ -125,20 +125,31 @@ public class BaseOrder extends Order {
 			StringBuilder strBuild = new StringBuilder();
 			int indice = 0;
 
+			for (int i = itemParts.length - 1; i > 0; i--) {
+				if (Utils.isInEnum(itemParts[i], UM.class, false)) {
+					indice = i;
+					break;
+				}
+			}
+
+			for (int j = 0; j < indice; j++) {
+				strBuild.append(itemParts[j] + " ");
+			}
+			
 			/*
 			 * TODO CONTROLLARE QUANTI ELEMENTI DI UM CI SONO NELLA RIGA E
 			 * PRENDERE L'ULTIMO COME UM TUTTO CIO' QUELLO PRIMA FA PARTE DELLA
 			 * DESCRIZIONE
 			 */
 
-			for (int i = 1; i < itemParts.length; i++) {
-				if (!Utils.isInEnum(itemParts[i], UM.class, useDot)) {
-					strBuild.append(itemParts[i] + " ");
-					indice = i + 1;
-				} else {
-					break;
-				}
-			}
+//			for (int i = 1; i < itemParts.length; i++) {
+//				if (!Utils.isInEnum(itemParts[i], UM.class, useDot)) {
+//					strBuild.append(itemParts[i] + " ");
+//					indice = i + 1;
+//				} else {
+//					break;
+//				}
+//			}
 
 			int val = 0;
 			if (itemParts.length != indice + 5 + 1

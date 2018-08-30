@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -76,18 +75,6 @@ public class DBUtils {
 
 		pstm.close();
 		return product;
-	}
-
-	public static void deleteProduct(Connection conn, String code)
-			throws SQLException {
-		String sql = "Delete From Product where Code= ?";
-
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setString(1, code);
-		System.out.println("deleteProduct: " + pstm.toString());
-
-		pstm.executeUpdate();
-		pstm.close();
 	}
 
 	/* PROVIDER */
@@ -445,7 +432,7 @@ public class DBUtils {
 
 	/* EVENT */
 	public static List<Event> queryEvent(Connection conn) throws SQLException {
-		String sql = "Select id, title, start_date, end_date, executed from gestione_cantieri.event";
+		String sql = "Select id, title, start_date, executed from gestione_cantieri.event";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		System.out.println("queryEvents: " + pstm.toString());
@@ -455,14 +442,12 @@ public class DBUtils {
 		while (rs.next()) {
 			Integer id = rs.getInt("id");
 			String title = rs.getString("title");
-			Timestamp start_date = rs.getTimestamp("start_date");
-			Timestamp end_date = rs.getTimestamp("end_date");
+			java.sql.Date start_date = rs.getDate("start_date");
 			boolean executed = rs.getBoolean("executed");
 
 			Event ev = new Event(title);
 			ev.setId(id);
-			ev.setStart_date(new java.sql.Date(start_date.getTime()));
-			ev.setEnd_date(new java.sql.Date(end_date.getTime()));
+			ev.setStart_date(start_date);
 			ev.setExecuted(executed);
 			list.add(ev);
 		}
@@ -473,13 +458,12 @@ public class DBUtils {
 
 	public static int insertEvent(Connection conn, Event eventData)
 			throws SQLException {
-		String sql = "INSERT INTO gestione_cantieri.event (title, start_date, end_date, executed) VALUES (?, ?, ?, ?)";
+		String sql = "INSERT INTO gestione_cantieri.event (title, start_date, executed) VALUES (?, ?, ?)";
 		PreparedStatement pstm = conn.prepareStatement(sql,
 				Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, eventData.getTitle());
 		pstm.setDate(2, eventData.getStart_date());
-		pstm.setDate(3, eventData.getEnd_date());
-		pstm.setBoolean(4, eventData.isExecuted());
+		pstm.setBoolean(3, eventData.isExecuted());
 
 		System.out.println("insertEvent: " + pstm.toString());
 
@@ -497,5 +481,61 @@ public class DBUtils {
 		}
 		pstm.close();
 		return eventData.getId();
+	}
+
+	public static void updateEvent(Connection conn, Event ev)
+			throws SQLException {
+		String sql = "Update gestione_cantieri.event set title = ?, start_date = ?, executed = ? where id = ?";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, ev.getTitle());
+		pstm.setDate(2, ev.getStart_date());
+		pstm.setBoolean(3, ev.isExecuted());
+		pstm.setInt(4, ev.getId());
+
+		System.out.println("updateEvent: " + pstm.toString());
+
+		pstm.executeUpdate();
+		pstm.close();
+	}
+
+	public static boolean deleteEvent(Connection conn, Event ev)
+			throws SQLException {
+		String sql = "Delete from gestione_cantieri.event where id = ?";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, ev.getId());
+		System.out.println("deleteEvent: " + pstm.toString());
+
+		int result = pstm.executeUpdate();
+		pstm.close();
+		if (result != 0) {
+			System.out.println("Event with id = " + ev.getId() + " is deleted");
+			return true;
+		} else {
+			System.out.println("No event was deleted with id = " + ev.getId());
+			return false;
+		}
+	}
+
+	public static Event selectEvent(Connection conn, Event ev)
+			throws Exception {
+		String sql = "Select id, title, start_date, executed from gestione_cantieri.event where id = ?";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, ev.getId());
+		System.out.println("selectEvent: " + pstm.toString());
+
+		ResultSet rs = pstm.executeQuery();
+		Event event = null;
+		while (rs.next()) {
+			event = ev.getClass().getConstructor(String.class)
+					.newInstance(rs.getString("title"));
+			event.setId(rs.getInt("id"));
+			event.setStart_date(rs.getDate("start_date"));
+			event.setExecuted(rs.getBoolean("executed"));
+		}
+		pstm.close();
+		return event;
 	}
 }
