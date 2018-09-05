@@ -109,7 +109,18 @@
       <div class="row">
         <div class="col22">
           <label for="date_order">Data acquisto </label>
-          <input type="date" id="date_order" [formControlName]="'date_order'" min="2018-01-01"/>
+          <!--<input type="date" id="date_order" [formControlName]="'date_order'" min="2018-01-01"/>-->
+          <input
+            id="date_order"
+            class="form-control"
+            type="text"
+            mwlFlatpickr
+            [formControlName]="'date_order'"
+            [altInput]="true"
+            [locale]="locale"
+            dateFormat="Y-m-d"
+            altFormat="d/m/Y"
+            placeholder="Non impostata">
 
           <div *ngIf="date_order && date_order.invalid && (date_order.dirty || date_order.touched)" class="error">
             <div *ngIf="date_order.errors.required">

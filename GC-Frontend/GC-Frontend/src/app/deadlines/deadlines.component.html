@@ -30,7 +30,6 @@
   <div class="col-md-4">
     <h3 [hidden]="view!=='month'">{{ viewDate | date:'MMMM yyyy':'it' | titlecase }}</h3>
     <h3 [hidden]="view!=='week'">Settimana n. {{ viewDate | date:'w' }} del {{viewDate | date:'yyyy'}}</h3>
-    <h3 [hidden]="view!=='day'">{{ viewDate | date:'EEEE, dd LLLL yyyy':'it' | titlecase }}</h3>
   </div>
   <div class="col-md-4">
     <div class="btn-group">
@@ -45,12 +44,6 @@
         (click)="view = 'week'"
         [class.active]="view === 'week'">
         Settimana
-      </div>
-      <div
-        class="btn btn-primary"
-        (click)="view = 'day'"
-        [class.active]="view === 'day'">
-        Giorno
       </div>
     </div>
   </div>
@@ -75,13 +68,6 @@
     [weekStartsOn]="weekStartsOn"
     (eventTimesChanged)="eventTimesChanged($event)">
   </mwl-calendar-week-view>
-  <mwl-calendar-day-view
-    *ngSwitchCase="'day'"
-    [viewDate]="viewDate"
-    [events]="events"
-    [refresh]="refresh"
-    (eventTimesChanged)="eventTimesChanged($event)">
-  </mwl-calendar-day-view>
 </div>
 
 <br>
@@ -101,25 +87,25 @@
     <div class="clearfix"></div>
   </h3>
 
-  <table class="table table-bordered" style="background: white" [hidden]="events.length === 0">
+  <table class="table table-bordered" style="background: white;" [hidden]="events.length === 0">
     <thead>
     <tr>
       <th>Titolo</th>
       <th>Giorno</th>
       <th>Pagato</th>
       <th>Posticipa di</th>
-      <th>Rimuovi</th>
+      <th colspan="2">Azioni</th>
     </tr>
     </thead>
 
     <tbody>
     <tr *ngFor="let event of events; let index = index">
       <td>
-        <input
+        <textarea
           type="text"
           class="form-control"
           [(ngModel)]="event.title"
-          (keyup)="refresh.next()">
+          (keyup)="refresh.next()"></textarea>
       </td>
       <td>
         <input
@@ -135,25 +121,32 @@
           placeholder="Non impostata">
       </td>
       <td>
-        <select class="form-control">
-          <option>SI</option>
-          <option>NO</option>
+        <select class="form-control" [(ngModel)]="event.paid">
+          <option value="false">NO</option>
+          <option value="true">SI</option>
         </select>
       </td>
       <td>
-        <select class="form-control">
-          <option selected value></option>
-          <option>30 giorni</option>
-          <option>60 giorni</option>
-          <option>90 giorni</option>
-          <option>120 giorni</option>
-          <option>150 giorni</option>
+        <select class="form-control" (change)="postponeEv($event.target.value, event)">
+          <option value="0">0 giorni</option>
+          <option value="30">30 giorni</option>
+          <option value="60">60 giorni</option>
+          <option value="90">90 giorni</option>
+          <option value="120">120 giorni</option>
+          <option value="150">150 giorni</option>
         </select>
       </td>
       <td>
         <button
+          class="btn btn-success center"
+          (click)="save(event)">
+          Salva
+        </button>
+      </td>
+      <td>
+        <button
           class="btn btn-danger"
-          (click)="deleteFunc(index)">
+          (click)="deleteFunc(event)">
           Cancella
         </button>
       </td>

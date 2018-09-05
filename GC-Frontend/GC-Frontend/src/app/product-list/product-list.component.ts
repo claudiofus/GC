@@ -3,6 +3,7 @@ import {ProductListService} from './product-list.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Order} from '../../classes/order';
 import {Utils} from '../../classes/utils';
+import {Italian} from 'flatpickr/dist/l10n/it';
 
 @Component({
   selector: 'app-product-list',
@@ -11,6 +12,7 @@ import {Utils} from '../../classes/utils';
 export class ProductListComponent implements OnInit {
   products: any[];
   addPanel: boolean;
+  locale = Italian;
   public utils = Utils;
   addOrderFG = new FormGroup({
     code: new FormControl(null, [Validators.required, Validators.minLength(3)]),

@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 
 @Injectable()
 export class AddInvoiceService implements OnInit {
-  protected url = 'http://localhost:8000/GCRest/rest/order/insertOrder';
+  protected url = 'http://localhost:8000/GCRest/rest/invoice/addInvoice';
   protected url2 = 'http://localhost:8000/GCRest/rest/provider/providers/';
   protected url3 = 'http://localhost:8000/GCRest/rest/building/assignBuilding/';
 

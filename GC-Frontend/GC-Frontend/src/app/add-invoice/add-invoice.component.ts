@@ -4,6 +4,7 @@ import {AddInvoiceService} from './add-invoice.service';
 import {Building} from '../../classes/building';
 import {BuildingsService} from '../buildings/buildings.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {formatDate} from '@angular/common';
 
 @Component({
   selector: 'app-add-invoice',
@@ -76,12 +77,19 @@ export class AddInvoiceComponent implements OnInit {
     this.addInvoiceService.addOrder(this.files[0], this.addInvoiceFG.value.provider)
       .then(result => {
         this.waitDiv = false;
-        this.itemsOrder = result;
-        this.deliveryNotes = Object.keys(result);
+        this.itemsOrder = result.DDTOrders;
+        this.deliveryNotes = Object.keys(result.DDTOrders);
         for (const el of this.deliveryNotes) {
           if (this.itemsOrder[el]) {
             this.itemsOrder[el].building = new Building();
           }
+        }
+        if (result.scadenze) {
+          let row = '';
+          result.scadenze.forEach(sc => {
+            row += formatDate(sc.deadlineDate, 'dd/MM/yyyy', 'it') + ' - ' + sc.amount + '€\n';
+          });
+          alert('Scadenze inserite:\n' + row);
         }
       })
       .catch(error => {

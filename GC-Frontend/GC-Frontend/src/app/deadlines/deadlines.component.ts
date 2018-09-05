@@ -1,10 +1,16 @@
 import {Component, OnInit} from '@angular/core';
-import {isSameDay, isSameMonth} from 'date-fns';
+import {addDays, isSameDay, isSameMonth} from 'date-fns';
 import {Subject} from 'rxjs';
 import {CalendarEvent, CalendarEventTimesChangedEvent} from 'angular-calendar';
 import {DAYS_OF_WEEK} from 'calendar-utils';
 import {Italian} from 'flatpickr/dist/l10n/it';
 import {DeadlinesService} from './deadlines.service';
+
+const colors: any = {
+  red: {primary: '#ad2121', secondary: '#FAE3E3'},
+  blue: {primary: '#1e90ff', secondary: '#D1E8FF'},
+  yellow: {primary: '#e3bc08', secondary: '#FDF1BA'}
+};
 
 @Component({
   selector: 'app-deadlines',
@@ -46,7 +52,8 @@ export class DeadlinesComponent implements OnInit {
       title: 'Nuovo evento',
       start: new Date()
     });
-    this.save(this.events.pop());
+    const lastEv = this.events.pop();
+    this.save(lastEv);
     this.refresh.next();
   }
 
@@ -57,6 +64,7 @@ export class DeadlinesComponent implements OnInit {
   }
 
   save(ev): void {
+    delete ev.color;
     this.deadlinesService.addEvent(ev).then(_ => {
       this.getAllItems();
     }).catch(error => {
@@ -67,20 +75,28 @@ export class DeadlinesComponent implements OnInit {
   getAllItems(): void {
     this.deadlinesService.getAll().subscribe(
       restItems => {
-        restItems.forEach(ev => ev.start = new Date(ev.start));
+        restItems.forEach(ev => {
+          ev.start = new Date(ev.start);
+          ev.color = ev.paid ? colors.blue : colors.red;
+        });
         this.events = restItems;
       }
     );
   }
 
-  deleteFunc(index): void {
-    this.deadlinesService.deleteEvent(this.events[index]).then(_ => {
-      this.events.splice(index, 1);
+  deleteFunc(event): void {
+    this.deadlinesService.deleteEvent(event).then(_ => {
+      this.events.splice(event.id, 1);
       this.getAllItems();
       this.refresh.next();
     }).catch(error => {
       console.error(error);
     });
+  }
+
+  postponeEv(value, event): void {
+    event.start = addDays(event.start, value);
+    this.updateEv(event);
   }
 
   constructor(public deadlinesService: DeadlinesService) {
