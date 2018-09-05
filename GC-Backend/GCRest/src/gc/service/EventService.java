@@ -58,11 +58,6 @@ public class EventService {
 			if (el.getId() == event.getId()) {
 				eventDaoImpl.updateEvent(event);
 				return Response.ok(event).build();
-			} else if (el.getTitle().equalsIgnoreCase(event.getTitle())) {
-				return Response.status(Response.Status.PRECONDITION_FAILED)
-						.entity("{\"error\": \"Event already exists with name: "
-								+ event.getTitle() + "\"}")
-						.build();
 			}
 		}
 
@@ -96,7 +91,7 @@ public class EventService {
 					.entity("Error Parsing: - " + incomingData).build();
 		}
 	}
-	
+
 	@POST
 	@Path("/deleteEvent")
 	@Produces(MediaType.APPLICATION_JSON)

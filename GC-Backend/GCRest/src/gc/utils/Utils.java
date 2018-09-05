@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -145,6 +146,26 @@ public class Utils {
 		return readText;
 	}
 
+	public static String extractDataOnePage(File file, Rectangle rect) {
+		String readText = "";
+		StringBuffer buf = new StringBuffer();
+		try (PDDocument document = PDDocument.load(file)) {
+			if (!document.isEncrypted()) {
+				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+				stripper.setSortByPosition(true);
+				stripper.addRegion("class1", rect);
+				stripper.extractRegions(document.getPage(0));
+				buf.append(stripper.getTextForRegion("class1"));
+				readText = buf.toString();
+				System.out.println("readText: " + readText);
+			}
+		} catch (IOException e) {
+			System.err.println(
+					"Exception while trying to read pdf document - " + e);
+		}
+		return readText;
+	}
+
 	public static java.sql.Date extractOrderDate(String regex, String text,
 			String dateFormat) {
 		java.sql.Date sqlDate = null;
@@ -170,5 +191,21 @@ public class Utils {
 			sqlDate = new java.sql.Date(new Date().getTime());
 		}
 		return sqlDate;
+	}
+
+	public static List<String> getDateFromString(String str) {
+		List<String> allMatches = new ArrayList<>();
+		Matcher m = Pattern.compile(
+				"(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d")
+				.matcher(str);
+		while (m.find()) {
+			allMatches.add(m.group());
+		}
+		return allMatches;
+	}
+
+	public static String sqlDateToDate(java.sql.Date sqlDate, String format) {
+		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(format);
+		return DATE_FORMAT.format(sqlDate);
 	}
 }

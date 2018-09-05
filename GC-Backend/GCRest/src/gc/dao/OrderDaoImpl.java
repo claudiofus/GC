@@ -16,7 +16,6 @@ import gc.fornitori.Intermobil;
 import gc.fornitori.Mag;
 import gc.fornitori.Montone;
 import gc.fornitori.ResinaColor;
-import gc.fornitori.VitalVernici;
 import gc.model.Order;
 import gc.model.UM;
 import gc.utils.DBUtils;
@@ -38,9 +37,6 @@ public class OrderDaoImpl {
 					break;
 				case "resinaColor" :
 					map = new ResinaColor().parseOrder(file, conn);
-					break;
-				case "vitalvernici" :
-					map = new VitalVernici().parseOrder(file, conn);
 					break;
 				case "intermobil" :
 					map = new Intermobil().parseOrder(file, conn);

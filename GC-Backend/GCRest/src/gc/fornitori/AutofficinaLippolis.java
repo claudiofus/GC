@@ -3,11 +3,16 @@ package gc.fornitori;
 import java.awt.Rectangle;
 import java.io.File;
 import java.sql.Connection;
-import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
@@ -15,11 +20,20 @@ import gc.model.Order;
 import gc.model.Product;
 import gc.model.UM;
 import gc.model.types.BaseOrder;
+import gc.model.types.Scadenza;
 import gc.utils.DBUtils;
 import gc.utils.Utils;
 
 public class AutofficinaLippolis extends BaseOrder {
-	private static final Rectangle PDFBOX_RECT = new Rectangle(33, 269, 519,
+	/**
+	 * The coordinates of the Rectangles are expressed in points (ppt) without
+	 * rotation nor reflection of the page.
+	 */
+	private static final Rectangle ID_FATT = new Rectangle(351, 240, 82, 14);
+	private static final Rectangle DATA_FATT = new Rectangle(463, 240, 44, 12);
+	private static final Rectangle SCADENZE_FATT = new Rectangle(35, 723, 515,
+			11);
+	private static final Rectangle ORDERS_AREA = new Rectangle(33, 269, 519,
 			343);
 	private static final Rectangle NUM_FATT_RECT = new Rectangle(316, 239, 121,
 			16);
@@ -28,41 +42,22 @@ public class AutofficinaLippolis extends BaseOrder {
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	public AutofficinaLippolis() {
+		super();
 	}
 
 	public AutofficinaLippolis(int id, String productID, String productDesc,
 			String um, float quantity, float price, float discount,
-			float adj_price, float iva, Date sqlDate) {
+			float adj_price, float iva, java.sql.Date sqlDate) {
 		super(id, productID, productDesc, um, quantity, price, discount,
 				adj_price, iva, sqlDate);
 	}
 
 	public AutofficinaLippolis(String productID, String productDesc, String um,
 			float quantity, float price, float discount, float adj_price,
-			float iva, Date sqlDate) {
+			float iva, java.sql.Date sqlDate) {
 
 		super(productID, productDesc, um, quantity, price, discount, adj_price,
 				iva, sqlDate);
-	}
-
-	@Override
-	public Rectangle getPDFRECT() {
-		return PDFBOX_RECT;
-	}
-
-	@Override
-	public String getDBCODE() {
-		return DB_CODE;
-	}
-
-	@Override
-	public String getDATEORDER() {
-		return DATE_ORDER_REGEX;
-	}
-
-	@Override
-	public String getDATEFORMAT() {
-		return DATE_FORMAT;
 	}
 
 	@Override
@@ -70,7 +65,7 @@ public class AutofficinaLippolis extends BaseOrder {
 			Connection conn) {
 		LinkedMap<String, ArrayList<Order>> map = new LinkedMap<>();
 		String num_fatt = Utils.extractData(file, NUM_FATT_RECT);
-		String esito = Utils.extractData(file, PDFBOX_RECT);
+		String esito = Utils.extractData(file, ORDERS_AREA);
 		String[] righe = esito.split("\n");
 		map.put(num_fatt, null);
 		java.sql.Date sqlDate = null;
@@ -162,5 +157,79 @@ public class AutofficinaLippolis extends BaseOrder {
 			items.add(ord);
 			map.put(lastKey, items);
 		}
+	}
+
+	@Override
+	public String getNumber(File file) {
+		return Utils.extractData(file, ID_FATT);
+	}
+
+	@Override
+	public java.sql.Date getDate(File file) {
+		try {
+			String dateStr = Utils.extractData(file, DATA_FATT);
+			Date date = new SimpleDateFormat("dd/MM/yy").parse(dateStr);
+			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+			return sqlDate;
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<Scadenza> getDeadlines(File file) {
+		String scad = Utils.extractData(file, SCADENZE_FATT);
+		List<Scadenza> scadList = new ArrayList<Scadenza>();
+		List<String> dateList = Utils.getDateFromString(scad);
+		List<Float> amount = getAmountFromString(scad);
+
+		try {
+			for (int i = 0; i < dateList.size(); i++) {
+				Scadenza sc = new Scadenza();
+				java.util.Date date = new SimpleDateFormat("dd/MM/yyyy")
+						.parse(dateList.get(i));
+				java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+				sc.setDeadlineDate(sqlDate);
+				sc.setAmount(amount.get(i));
+				scadList.add(sc);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return scadList;
+	}
+	
+	private List<Float> getAmountFromString(String str) {
+		List<Float> allMatches = new ArrayList<>();
+		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ITALY);
+		// Covering case str = lorem ipsum € 111,11
+		String newStr = str;
+		try {
+			if (str.indexOf("€") != -1) {
+				str = str.substring(str.indexOf("€"));
+			}
+			Pattern p = Pattern.compile(
+					"^(?!€*$)(€ ?(?!.*€)(?=,?\\d))?\\-?([1-9]{1,3}( \\d{3})*|[1-9]{1,3}(\\.\\d{3})*|(0|([1-9]\\d*)?))(,[0-9]{2})?( ?€)?$");
+			Matcher m = p.matcher(str);
+			while (m.find()) {
+				String tmp = m.group().replaceAll("€", "").trim();
+				allMatches.add(numberFormat.parse(tmp).floatValue());
+			}
+
+			// Covering case str = lorem ipsum 111,11€
+			if (allMatches.isEmpty() && newStr.indexOf("€") != -1) {
+				newStr = newStr.substring(newStr.lastIndexOf(" "),
+						newStr.indexOf("€"));
+				Matcher m2 = p.matcher(newStr);
+				while (m2.find()) {
+					String tmp = m2.group().replaceAll("€", "").trim();
+					allMatches.add(numberFormat.parse(tmp).floatValue());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return allMatches;
 	}
 }

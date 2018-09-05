@@ -1,43 +1,59 @@
 package gc.fornitori;
 
 import java.awt.Rectangle;
-import java.sql.Date;
+import java.io.File;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import gc.model.types.BaseOrder;
+import gc.model.types.Scadenza;
+import gc.utils.Utils;
 
 public class Intermobil extends BaseOrder {
+	private static final Rectangle ID_FATT = new Rectangle(377, 148, 87, 18);
+	private static final Rectangle DATA_FATT = new Rectangle(475, 149, 69, 18);
+	private static final Rectangle SCADENZE_FATT = new Rectangle(17, 749, 560,
+			53);
 	private static String DDT_DESCR = "D.d.T.";
-	private static Rectangle PDFBOX_RECT = new Rectangle(15, 233, 564, 402);
+	private static Rectangle ORDERS_AREA = new Rectangle(15, 233, 564, 402);
 	private static String DB_CODE = "intermobil";
 	private static String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{4}";
 	private static String DATE_FORMAT = "dd/MM/yyyy";
-	
+
 	public Intermobil() {
 	}
-	
+
 	public Intermobil(int id, String productID, String productDesc, String um,
 			float quantity, float price, float discount, float adj_price,
-			float iva, Date sqlDate) {
+			float iva, java.sql.Date sqlDate) {
 		super(id, productID, productDesc, um, quantity, price, discount,
 				adj_price, iva, sqlDate);
 	}
 
 	public Intermobil(String productID, String productDesc, String um,
 			float quantity, float price, float discount, float adj_price,
-			float iva, Date sqlDate) {
+			float iva, java.sql.Date sqlDate) {
 
 		super(productID, productDesc, um, quantity, price, discount, adj_price,
 				iva, sqlDate);
 	}
-	
+
 	@Override
 	public String getDDT() {
 		return DDT_DESCR;
 	}
 
 	@Override
-	public Rectangle getPDFRECT() {
-		return PDFBOX_RECT;
+	public Rectangle getORDERS_AREA() {
+		return ORDERS_AREA;
 	}
 
 	@Override
@@ -53,5 +69,69 @@ public class Intermobil extends BaseOrder {
 	@Override
 	public String getDATEFORMAT() {
 		return DATE_FORMAT;
+	}
+
+	@Override
+	public String getNumber(File file) {
+		return Utils.extractDataOnePage(file, ID_FATT);
+	}
+
+	@Override
+	public java.sql.Date getDate(File file) {
+		try {
+			String dateStr = Utils.extractDataOnePage(file, DATA_FATT);
+			Date date = new SimpleDateFormat("dd/MM/yyyy").parse(dateStr);
+			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+			return sqlDate;
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<Scadenza> getDeadlines(File file) {
+		String scad = Utils.extractData(file, SCADENZE_FATT);
+		List<Scadenza> scadList = new ArrayList<Scadenza>();
+		List<String> dateList = Utils.getDateFromString(scad);
+		List<Float> amount = getAmountFromString(scad);
+
+		try {
+			for (int i = 0; i < dateList.size(); i++) {
+				Scadenza sc = new Scadenza();
+				java.util.Date date = new SimpleDateFormat("dd/MM/yyyy")
+						.parse(dateList.get(i));
+				java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+				sc.setDeadlineDate(sqlDate);
+				sc.setAmount(amount.get(i));
+				scadList.add(sc);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return scadList;
+	}
+
+	private List<Float> getAmountFromString(String str) {
+		List<Float> allMatches = new ArrayList<>();
+		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ITALY);
+		Arrays.stream(str.split("\\r?\\n")).forEach(line -> {
+			try {
+				if (line != null && !line.isEmpty()) {
+					String[] tmp = line.split("\\s+");
+					String amount = tmp[1];
+					Pattern p = Pattern.compile(
+							"[0-9]{1,3}(?:.?[0-9]{3})*(?:\\,[0-9]{2})?");
+					Matcher m = p.matcher(amount);
+					while (m.find()) {
+						allMatches.add(
+								numberFormat.parse(m.group()).floatValue());
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		});
+		return allMatches;
 	}
 }

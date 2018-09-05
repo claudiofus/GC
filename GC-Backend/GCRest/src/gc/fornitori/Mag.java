@@ -7,7 +7,7 @@ import gc.model.types.BaseOrder;
 
 public class Mag extends BaseOrder {
 	private static String DDT_DESCR = "DDT n.";
-	private static Rectangle PDFBOX_RECT = new Rectangle(22, 346, 543, 266);
+	private static Rectangle ORDERS_AREA = new Rectangle(22, 346, 543, 266);
 	private static String DB_CODE = "mag";
 	private static String DATE_ORDER_REGEX = "\\d{1,2}\\/\\d{2}\\/\\d{2}";
 	private static String DATE_FORMAT = "dd/MM/yy";
@@ -36,8 +36,8 @@ public class Mag extends BaseOrder {
 	}
 
 	@Override
-	public Rectangle getPDFRECT() {
-		return PDFBOX_RECT;
+	public Rectangle getORDERS_AREA() {
+		return ORDERS_AREA;
 	}
 
 	@Override

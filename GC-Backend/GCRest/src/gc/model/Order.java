@@ -20,7 +20,7 @@ import gc.model.types.BaseOrder;
 @JsonDeserialize(as = BaseOrder.class)
 public abstract class Order {
 	public abstract String getDDT();
-	public abstract Rectangle getPDFRECT();
+	public abstract Rectangle getORDERS_AREA();
 	public abstract String getDBCODE();
 	public abstract String getDATEORDER();
 	public abstract String getDATEFORMAT();

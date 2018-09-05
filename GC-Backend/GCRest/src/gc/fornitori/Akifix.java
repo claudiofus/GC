@@ -7,7 +7,7 @@ import gc.model.types.BaseOrder;
 
 public class Akifix extends BaseOrder {
 	private static String DDT_DESCR = "BOLLA N. ";
-	private static Rectangle PDFBOX_RECT = new Rectangle(18, 272, 547, 380);
+	private static Rectangle ORDERS_AREA = new Rectangle(18, 272, 547, 380);
 	private static String DB_CODE = "akifix";
 	private static String DATE_ORDER_REGEX = "TO_DEFINE";
 	private static String DATE_FORMAT = "TO_DEFINE";
@@ -36,8 +36,8 @@ public class Akifix extends BaseOrder {
 	}
 
 	@Override
-	public Rectangle getPDFRECT() {
-		return PDFBOX_RECT;
+	public Rectangle getORDERS_AREA() {
+		return ORDERS_AREA;
 	}
 
 	@Override

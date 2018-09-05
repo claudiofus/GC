@@ -3,12 +3,18 @@ package gc.fornitori;
 import java.awt.Rectangle;
 import java.io.File;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
@@ -16,58 +22,39 @@ import gc.model.Order;
 import gc.model.Product;
 import gc.model.UM;
 import gc.model.types.BaseOrder;
+import gc.model.types.Scadenza;
 import gc.utils.DBUtils;
 import gc.utils.Utils;
 
 public class FinishVillage extends BaseOrder {
+	private static final Rectangle ID_FATT = new Rectangle(439, 248, 135, 14);
+	private static final Rectangle DATA_FATT = new Rectangle(437, 276, 139, 19);
+	private static final Rectangle SCADENZE_FATT = new Rectangle(21, 733, 226,
+			68);
 	private static final String DDT_DESCR = "Ns. doc.";
-	private static final Rectangle PDFBOX_RECT = new Rectangle(21, 317, 554,
+	private static final Rectangle ORDERS_AREA = new Rectangle(21, 317, 554,
 			338);
 	private static final String DB_CODE = "finishVillage";
 	private static final String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{4}";
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	public FinishVillage() {
+		super();
 	}
 
 	public FinishVillage(int id, String productID, String productDesc,
 			String um, float quantity, float price, float discount,
-			float adj_price, float iva, Date sqlDate) {
+			float adj_price, float iva, java.sql.Date sqlDate) {
 		super(id, productID, productDesc, um, quantity, price, discount,
 				adj_price, iva, sqlDate);
 	}
 
 	public FinishVillage(String productID, String productDesc, String um,
 			float quantity, float price, float discount, float adj_price,
-			float iva, Date sqlDate) {
+			float iva, java.sql.Date sqlDate) {
 
 		super(productID, productDesc, um, quantity, price, discount, adj_price,
 				iva, sqlDate);
-	}
-
-	@Override
-	public String getDDT() {
-		return DDT_DESCR;
-	}
-
-	@Override
-	public Rectangle getPDFRECT() {
-		return PDFBOX_RECT;
-	}
-
-	@Override
-	public String getDBCODE() {
-		return DB_CODE;
-	}
-
-	@Override
-	public String getDATEORDER() {
-		return DATE_ORDER_REGEX;
-	}
-
-	@Override
-	public String getDATEFORMAT() {
-		return DATE_FORMAT;
 	}
 
 	@Override
@@ -79,7 +66,7 @@ public class FinishVillage extends BaseOrder {
 			((DecimalFormat) format).setParseBigDecimal(true);
 		}
 		LinkedMap<String, ArrayList<Order>> map = new LinkedMap<>();
-		String esito = Utils.extractData(file, PDFBOX_RECT);
+		String esito = Utils.extractData(file, ORDERS_AREA);
 		String[] righe = esito.split("\n");
 		java.sql.Date sqlDate = null;
 		for (String riga : righe) {
@@ -177,5 +164,69 @@ public class FinishVillage extends BaseOrder {
 			}
 		}
 		return map;
+	}
+
+	@Override
+	public String getNumber(File file) {
+		return Utils.extractData(file, ID_FATT);
+	}
+
+	@Override
+	public java.sql.Date getDate(File file) {
+		try {
+			String dateStr = Utils.extractData(file, DATA_FATT);
+			Date date = new SimpleDateFormat("dd/MM/yyyy").parse(dateStr);
+			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+			return sqlDate;
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<Scadenza> getDeadlines(File file) {
+		String scad = Utils.extractData(file, SCADENZE_FATT);
+		List<Scadenza> scadList = new ArrayList<Scadenza>();
+		List<String> dateList = Utils.getDateFromString(scad);
+		List<Float> amount = getAmountFromString(scad);
+
+		try {
+			for (int i = 0; i < dateList.size(); i++) {
+				Scadenza sc = new Scadenza();
+				java.util.Date date = new SimpleDateFormat("dd/MM/yyyy")
+						.parse(dateList.get(i));
+				java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+				sc.setDeadlineDate(sqlDate);
+				sc.setAmount(amount.get(i));
+				scadList.add(sc);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return scadList;
+	}
+
+	private List<Float> getAmountFromString(String str) {
+		List<Float> allMatches = new ArrayList<>();
+		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ITALY);
+		Arrays.stream(str.split("\\r?\\n")).forEach(line -> {
+			try {
+				if (line != null && !line.isEmpty()) {
+					String[] tmp = line.split("\\s+");
+					String amount = tmp[2];
+					Pattern p = Pattern.compile(
+							"[0-9]{1,3}(?:.?[0-9]{3})*(?:\\,[0-9]{2})?");
+					Matcher m = p.matcher(amount);
+					while (m.find()) {
+						allMatches.add(
+								numberFormat.parse(m.group()).floatValue());
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		});
+		return allMatches;
 	}
 }

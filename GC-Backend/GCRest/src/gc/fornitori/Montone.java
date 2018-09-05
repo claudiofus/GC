@@ -50,26 +50,6 @@ public class Montone extends BaseOrder {
 	}
 
 	@Override
-	public String getDDT() {
-		return DDT_DESCR;
-	}
-
-	@Override
-	public String getDBCODE() {
-		return DB_CODE;
-	}
-
-	@Override
-	public String getDATEORDER() {
-		return DATE_ORDER_REGEX;
-	}
-
-	@Override
-	public String getDATEFORMAT() {
-		return DATE_FORMAT;
-	}
-
-	@Override
 	public LinkedMap<String, ArrayList<Order>> parseOrder(File file,
 			Connection conn) {
 		final NumberFormat format = NumberFormat

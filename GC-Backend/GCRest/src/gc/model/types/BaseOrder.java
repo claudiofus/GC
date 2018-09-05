@@ -7,17 +7,19 @@ import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.collections4.map.LinkedMap;
 
+import gc.interfaces.IInvoice;
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.UM;
 import gc.utils.DBUtils;
 import gc.utils.Utils;
 
-public class BaseOrder extends Order {
+public class BaseOrder extends Order implements IInvoice {
 	public BaseOrder() {
 		super();
 	}
@@ -43,7 +45,7 @@ public class BaseOrder extends Order {
 	}
 
 	@Override
-	public Rectangle getPDFRECT() {
+	public Rectangle getORDERS_AREA() {
 		return null;
 	}
 
@@ -67,7 +69,7 @@ public class BaseOrder extends Order {
 			Connection conn) {
 		String descDDT = getDDT(), dateOrderRegex = getDATEORDER(),
 				dateFormat = getDATEFORMAT();
-		Rectangle rect = getPDFRECT();
+		Rectangle rect = getORDERS_AREA();
 		final NumberFormat format = NumberFormat
 				.getNumberInstance(Locale.getDefault());
 		if (format instanceof DecimalFormat) {
@@ -135,21 +137,6 @@ public class BaseOrder extends Order {
 			for (int j = 0; j < indice; j++) {
 				strBuild.append(itemParts[j] + " ");
 			}
-			
-			/*
-			 * TODO CONTROLLARE QUANTI ELEMENTI DI UM CI SONO NELLA RIGA E
-			 * PRENDERE L'ULTIMO COME UM TUTTO CIO' QUELLO PRIMA FA PARTE DELLA
-			 * DESCRIZIONE
-			 */
-
-//			for (int i = 1; i < itemParts.length; i++) {
-//				if (!Utils.isInEnum(itemParts[i], UM.class, useDot)) {
-//					strBuild.append(itemParts[i] + " ");
-//					indice = i + 1;
-//				} else {
-//					break;
-//				}
-//			}
 
 			int val = 0;
 			if (itemParts.length != indice + 5 + 1
@@ -187,5 +174,20 @@ public class BaseOrder extends Order {
 			items.add(ord);
 			map.put(lastKey, items);
 		}
+	}
+
+	@Override
+	public String getNumber(File file) {
+		return null;
+	}
+
+	@Override
+	public Date getDate(File file) {
+		return null;
+	}
+
+	@Override
+	public List<Scadenza> getDeadlines(File file) {
+		return null;
 	}
 }

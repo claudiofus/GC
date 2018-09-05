@@ -17,8 +17,6 @@ public class Event {
 	@XmlElement
 	private boolean paid;
 	private java.sql.Date start_date;
-	@XmlElement
-	private boolean executed;
 
 	public Event() {
 		super();
@@ -54,11 +52,11 @@ public class Event {
 		this.start_date = start_date;
 	}
 
-	public boolean isExecuted() {
-		return executed;
+	public boolean isPaid() {
+		return paid;
 	}
 
-	public void setExecuted(boolean executed) {
-		this.executed = executed;
+	public void setPaid(boolean paid) {
+		this.paid = paid;
 	}
 }

@@ -8,7 +8,7 @@ import gc.model.types.BaseOrder;
 
 public class ResinaColor extends BaseOrder {
 	private static String DDT_DESCR = "BOLLA N. ";
-	private static Rectangle PDFBOX_RECT = new Rectangle(18, 272, 547, 380);
+	private static Rectangle ORDERS_AREA = new Rectangle(18, 272, 547, 380);
 	private static String DB_CODE = "resinaColor";
 	private static String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{4}";
 	private static String DATE_FORMAT = "dd/MM/yyyy";
@@ -37,8 +37,8 @@ public class ResinaColor extends BaseOrder {
 	}
 
 	@Override
-	public Rectangle getPDFRECT() {
-		return PDFBOX_RECT;
+	public Rectangle getORDERS_AREA() {
+		return ORDERS_AREA;
 	}
 
 	@Override

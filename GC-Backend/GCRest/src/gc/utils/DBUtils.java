@@ -432,7 +432,7 @@ public class DBUtils {
 
 	/* EVENT */
 	public static List<Event> queryEvent(Connection conn) throws SQLException {
-		String sql = "Select id, title, start_date, executed from gestione_cantieri.event";
+		String sql = "Select id, title, start_date, paid from gestione_cantieri.event";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		System.out.println("queryEvents: " + pstm.toString());
@@ -443,12 +443,12 @@ public class DBUtils {
 			Integer id = rs.getInt("id");
 			String title = rs.getString("title");
 			java.sql.Date start_date = rs.getDate("start_date");
-			boolean executed = rs.getBoolean("executed");
+			boolean paid = rs.getBoolean("paid");
 
 			Event ev = new Event(title);
 			ev.setId(id);
 			ev.setStart_date(start_date);
-			ev.setExecuted(executed);
+			ev.setPaid(paid);
 			list.add(ev);
 		}
 
@@ -458,12 +458,12 @@ public class DBUtils {
 
 	public static int insertEvent(Connection conn, Event eventData)
 			throws SQLException {
-		String sql = "INSERT INTO gestione_cantieri.event (title, start_date, executed) VALUES (?, ?, ?)";
+		String sql = "INSERT INTO gestione_cantieri.event (title, start_date, paid) VALUES (?, ?, ?)";
 		PreparedStatement pstm = conn.prepareStatement(sql,
 				Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, eventData.getTitle());
 		pstm.setDate(2, eventData.getStart_date());
-		pstm.setBoolean(3, eventData.isExecuted());
+		pstm.setBoolean(3, eventData.isPaid());
 
 		System.out.println("insertEvent: " + pstm.toString());
 
@@ -485,12 +485,12 @@ public class DBUtils {
 
 	public static void updateEvent(Connection conn, Event ev)
 			throws SQLException {
-		String sql = "Update gestione_cantieri.event set title = ?, start_date = ?, executed = ? where id = ?";
+		String sql = "Update gestione_cantieri.event set title = ?, start_date = ?, paid = ? where id = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, ev.getTitle());
 		pstm.setDate(2, ev.getStart_date());
-		pstm.setBoolean(3, ev.isExecuted());
+		pstm.setBoolean(3, ev.isPaid());
 		pstm.setInt(4, ev.getId());
 
 		System.out.println("updateEvent: " + pstm.toString());
@@ -520,7 +520,7 @@ public class DBUtils {
 
 	public static Event selectEvent(Connection conn, Event ev)
 			throws Exception {
-		String sql = "Select id, title, start_date, executed from gestione_cantieri.event where id = ?";
+		String sql = "Select id, title, start_date, paid from gestione_cantieri.event where id = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setInt(1, ev.getId());
@@ -533,7 +533,7 @@ public class DBUtils {
 					.newInstance(rs.getString("title"));
 			event.setId(rs.getInt("id"));
 			event.setStart_date(rs.getDate("start_date"));
-			event.setExecuted(rs.getBoolean("executed"));
+			event.setPaid(rs.getBoolean("paid"));
 		}
 		pstm.close();
 		return event;

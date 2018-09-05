@@ -55,7 +55,7 @@ public class EventDaoImpl {
 			updEv.setId(ev.getId());
 			updEv.setTitle(ev.getTitle());
 			updEv.setStart_date(ev.getStart_date());
-			updEv.setExecuted(ev.isExecuted());
+			updEv.setPaid(ev.isPaid());
 
 			DBUtils.updateEvent(conn, updEv);
 			conn.commit();
