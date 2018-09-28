@@ -1,31 +1,31 @@
 package gc.fornitori;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.SQLException;
-import java.text.DecimalFormat;
+import java.awt.Rectangle;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.apache.commons.collections4.map.LinkedMap;
-import org.apache.commons.io.FileUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
 
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
-import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextExtractionStrategy;
-
-import gc.model.Order;
-import gc.model.Product;
 import gc.model.types.BaseOrder;
-import gc.utils.DBUtils;
+import gc.model.types.Scadenza;
 import gc.utils.Utils;
 
 public class Montone extends BaseOrder {
+	// These use PDFBOX
+	private static final Rectangle ID_FATT = new Rectangle(514, 208, 89, 17);
+	private static final Rectangle DATA_FATT = new Rectangle(439, 207, 73, 17);
+	private static final Rectangle SCADENZE_FATT = new Rectangle(21, 742, 583,
+			16);
+	private static final Rectangle ORDERS_AREA = new Rectangle(0, 290, 620,
+			330);
 	private static final String DDT_DESCR = "D.D.T.";
 	private static final String DB_CODE = "montone";
 	private static final String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{2}";
@@ -36,123 +36,103 @@ public class Montone extends BaseOrder {
 
 	public Montone(int id, String productID, String productDesc, String um,
 			float quantity, float price, float discount, float adj_price,
-			float iva, Date sqlDate) {
+			float iva, java.sql.Date sqlDate) {
 		super(id, productID, productDesc, um, quantity, price, discount,
 				adj_price, iva, sqlDate);
 	}
 
 	public Montone(String productID, String productDesc, String um,
 			float quantity, float price, float discount, float adj_price,
-			float iva, Date sqlDate) {
+			float iva, java.sql.Date sqlDate) {
 
 		super(productID, productDesc, um, quantity, price, discount, adj_price,
 				iva, sqlDate);
 	}
 
 	@Override
-	public LinkedMap<String, ArrayList<Order>> parseOrder(File file,
-			Connection conn) {
-		final NumberFormat format = NumberFormat
-				.getNumberInstance(Locale.getDefault());
-		if (format instanceof DecimalFormat) {
-			((DecimalFormat) format).setParseBigDecimal(true);
-		}
-		LinkedMap<String, ArrayList<Order>> map = new LinkedMap<>();
-		String esito = extractDataIText(file);
-		String[] righe = esito.split("\n");
-		java.sql.Date sqlDate = null;
-		for (String riga : righe) {
-			if (riga.startsWith(DDT_DESCR)) {
-				sqlDate = Utils.extractOrderDate(DATE_ORDER_REGEX, riga,
-						DATE_FORMAT);
-				map.put(riga, null);
-			} else if (map.size() > 0) {
-				String lastKey = map.lastKey();
-				ArrayList<Order> items = map.get(lastKey) == null
-						? new ArrayList<>()
-						: map.get(lastKey);
-				String[] itemParts = riga.trim().replaceAll("  +", ";")
-						.split(";");
-				Order ord = new Montone();
-				try {
-					if (itemParts.length > 1) {
-						String productID = itemParts[0].trim();
-						String productDesc = itemParts[1].trim();
-						Product prd = new Product(productID, productDesc,
-								DB_CODE);
-						String um = itemParts[2];
-						float quantity = format.parse(itemParts[3])
-								.floatValue();
-						float price = format.parse(itemParts[4]).floatValue();
-						float adj_price = format.parse(itemParts[5])
-								.floatValue();
-						float iva = format.parse(itemParts[6]).floatValue();
-						float discount = Utils.round(
-								Utils.calcDiscount(price, adj_price / quantity),
-								2);
-						if (itemParts.length == 7) {
-							ord = new Montone(productID, productDesc, um,
-									quantity, price,
-									discount < 1 ? 0 : discount, adj_price, iva,
-									sqlDate);
-						}
-						Product prdToFind = DBUtils.findProduct(conn, prd);
-						if (prdToFind == null) {
-							DBUtils.insertProduct(conn, prd);
-						}
-
-						DBUtils.insertOrdine(conn, ord, false);
-						conn.commit();
-						items.add(ord);
-						map.put(lastKey, items);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					try {
-						conn.rollback();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-				}
-			}
-		}
-		return map;
+	public String getDDT() {
+		return DDT_DESCR;
 	}
 
-	public String extractDataIText(File file) {
-		StringBuffer buf = new StringBuffer();
-		try {
-			InputStream targetStream = FileUtils.openInputStream(file);
-			PdfDocument pdfDoc = new PdfDocument(new PdfReader(targetStream));
+	@Override
+	public Rectangle getORDERS_AREA() {
+		return ORDERS_AREA;
+	}
 
-			// Left-bottom is (0,0)
-			// http://developers.itextpdf.com/content/best-itext-questions-stackoverview/questions-about-pdf-general/itext7-where-origin-xy-pdf-page
-			// To find the correct rectangle for each section we have to open
-			// the PDF with
-			// GIMP or other editor
-			// rotate the image of 180° and reflect the image selecting the
-			// options from the
-			// right panel
-			// select "pt" as unit misure at left-lower corner and point the
-			// cursor on the
-			// text you want to extract
-			// then create a rectangle and check it's width and length from
-			// right panel
-			for (int page = 1; page <= pdfDoc.getNumberOfPages(); page++) {
-				if (page > 1)
-					buf.append("\n");
-				ITextExtractionStrategy dataDocStr = Utils.getStrategy(6, 250,
-						600, 325);
-				buf.append(PdfTextExtractor
-						.getTextFromPage(pdfDoc.getPage(page), dataDocStr)
-						.trim());
-			}
-			pdfDoc.close();
-		} catch (IOException ioExc) {
-			ioExc.printStackTrace();
+	@Override
+	public String getDBCODE() {
+		return DB_CODE;
+	}
+
+	@Override
+	public String getDATEORDER() {
+		return DATE_ORDER_REGEX;
+	}
+
+	@Override
+	public String getDATEFORMAT() {
+		return DATE_FORMAT;
+	}
+
+	@Override
+	public String getNumber(PDDocument document, int page) {
+		return Utils.extractDataNoSpaces(document, ID_FATT, page);
+	}
+
+	@Override
+	public java.sql.Date getDate(PDDocument document, int page) {
+		try {
+			String dateStr = Utils.extractDataNoSpaces(document, DATA_FATT, page);
+			Date date = new SimpleDateFormat("dd/MM/yyyy").parse(dateStr);
+			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+			return sqlDate;
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
-		String readText = buf.toString();
-		System.out.println("Parsed text : " + readText);
-		return readText;
+		return null;
+	}
+
+	@Override
+	public List<Scadenza> getDeadlines(PDDocument document, int page) {
+		String scad = Utils.extractDataNoSpaces(document, SCADENZE_FATT, page);
+		List<Scadenza> scadList = new ArrayList<Scadenza>();
+		List<String> dateList = Utils.getDateFromString(scad);
+		List<Float> amount = getAmountFromString(scad);
+
+		try {
+			for (int i = 0; i < dateList.size(); i++) {
+				Scadenza sc = new Scadenza();
+				java.util.Date date = new SimpleDateFormat("dd/MM/yyyy")
+						.parse(dateList.get(i));
+				java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+				sc.setDeadlineDate(sqlDate);
+				sc.setAmount(amount.get(i));
+				scadList.add(sc);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return scadList;
+	}
+
+	private List<Float> getAmountFromString(String str) {
+		List<Float> allMatches = new ArrayList<>();
+		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ITALY);
+		Arrays.stream(str.split("\\r?\\n")).forEach(line -> {
+			try {
+				if (line != null && !line.isEmpty()) {
+					Pattern p = Pattern
+							.compile("([0-9]{1,3}[.])*[0-9]{1,3},[0-9]{1,2}");
+					Matcher m = p.matcher(line);
+					while (m.find()) {
+						allMatches.add(
+								numberFormat.parse(m.group()).floatValue());
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		});
+		return allMatches;
 	}
 }

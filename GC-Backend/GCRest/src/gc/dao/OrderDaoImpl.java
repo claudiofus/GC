@@ -1,12 +1,16 @@
 package gc.dao;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 import gc.conn.JDBCConnection;
 import gc.fornitori.Akifix;
@@ -27,31 +31,47 @@ public class OrderDaoImpl {
 		Connection conn = jdbcConnection.getConnnection();
 
 		try {
-			Map<String, ArrayList<Order>> map = null;
-			switch (provider) {
-				case "montone" :
-					map = new Montone().parseOrder(file, conn);
-					break;
-				case "mag" :
-					map = new Mag().parseOrder(file, conn);
-					break;
-				case "resinaColor" :
-					map = new ResinaColor().parseOrder(file, conn);
-					break;
-				case "intermobil" :
-					map = new Intermobil().parseOrder(file, conn);
-					break;
-				case "finishVillage" :
-					map = new FinishVillage().parseOrder(file, conn);
-					break;
-				case "autoffLippolis" :
-					map = new AutofficinaLippolis().parseOrder(file, conn);
-					break;
-				case "akifix" :
-					map = new Akifix().parseOrder(file, conn);
-					break;
+			LinkedMap<String, ArrayList<Order>> map = new LinkedMap<>();
+			PDDocument document = PDDocument.load(file);
+			for (int page = 0; page < document.getNumberOfPages(); page++) {
+				switch (provider) {
+					case "montone" :
+						map = new Montone().parseOrder(document, conn, page,
+								map);
+						break;
+					case "mag" :
+						map = new Mag().parseOrder(document, conn, page,
+								map);
+						break;
+					case "resinaColor" :
+						map = new ResinaColor().parseOrder(document, conn,
+								page,
+								map);
+						break;
+					case "intermobil" :
+						map = new Intermobil().parseOrder(document, conn, page,
+								map);
+						break;
+					case "finishVillage" :
+						map = new FinishVillage().parseOrder(document, conn,
+								page,
+								map);
+						break;
+					case "autoffLippolis" :
+						map = new AutofficinaLippolis().parseOrder(document,
+								conn, page,
+								map);
+						break;
+					case "akifix" :
+						map = new Akifix().parseOrder(document, conn, page,
+								map);
+						break;
+				}
 			}
 			return map;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
 		} finally {
 			try {
 				conn.close();

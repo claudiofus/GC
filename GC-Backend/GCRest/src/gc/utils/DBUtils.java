@@ -10,15 +10,26 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import gc.model.Building;
 import gc.model.Event;
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.Provider;
+import gc.model.Vehicle;
 import gc.model.types.Address;
 import gc.model.types.BaseOrder;
+import gc.model.types.CarTax;
+import gc.model.types.Insurance;
+import gc.model.types.Penalty;
+import gc.model.types.Revision;
 
 public class DBUtils {
+	private static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd")
+			.create();
 
 	/* PRODUCT */
 	public static void insertProduct(Connection conn, Product product)
@@ -80,7 +91,7 @@ public class DBUtils {
 	/* PROVIDER */
 	public static List<Provider> queryProvider(Connection conn)
 			throws SQLException {
-		String sql = "Select id, name, code from gestione_cantieri.provider";
+		String sql = "Select id, name, code from gestione_cantieri.provider order by name";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		System.out.println("queryProvider: " + pstm.toString());
@@ -184,14 +195,15 @@ public class DBUtils {
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
-			throw new SQLException("Creating user failed, no rows affected.");
+			throw new SQLException("Creating order failed, no rows affected.");
 		}
 
 		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
 			if (generatedKeys.next()) {
 				ordine.setId(generatedKeys.getInt(1));
 			} else {
-				throw new SQLException("Creating user failed, no ID obtained.");
+				throw new SQLException(
+						"Creating order failed, no ID obtained.");
 			}
 		}
 		pstm.close();
@@ -416,14 +428,16 @@ public class DBUtils {
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
-			throw new SQLException("Creating user failed, no rows affected.");
+			throw new SQLException(
+					"Creating building failed, no rows affected.");
 		}
 
 		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
 			if (generatedKeys.next()) {
 				buildingData.setId(generatedKeys.getInt(1));
 			} else {
-				throw new SQLException("Creating user failed, no ID obtained.");
+				throw new SQLException(
+						"Creating building failed, no ID obtained.");
 			}
 		}
 		pstm.close();
@@ -432,7 +446,7 @@ public class DBUtils {
 
 	/* EVENT */
 	public static List<Event> queryEvent(Connection conn) throws SQLException {
-		String sql = "Select id, title, start_date, paid from gestione_cantieri.event";
+		String sql = "Select id, title, start_date, paid from gestione_cantieri.event order by start_date asc";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		System.out.println("queryEvents: " + pstm.toString());
@@ -469,14 +483,15 @@ public class DBUtils {
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
-			throw new SQLException("Creating user failed, no rows affected.");
+			throw new SQLException("Creating event failed, no rows affected.");
 		}
 
 		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
 			if (generatedKeys.next()) {
 				eventData.setId(generatedKeys.getInt(1));
 			} else {
-				throw new SQLException("Creating user failed, no ID obtained.");
+				throw new SQLException(
+						"Creating event failed, no ID obtained.");
 			}
 		}
 		pstm.close();
@@ -537,5 +552,99 @@ public class DBUtils {
 		}
 		pstm.close();
 		return event;
+	}
+
+	/* VEHICLE */
+	public static List<Vehicle> queryVehicle(Connection conn)
+			throws SQLException {
+		String sql = "Select brand, model, color, first_registration, plate, insurance, car_tax, revision, penalty"
+				+ " from gestione_cantieri.vehicle";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		System.out.println("queryVehicle: " + pstm.toString());
+
+		ResultSet rs = pstm.executeQuery();
+		List<Vehicle> list = new ArrayList<Vehicle>();
+		while (rs.next()) {
+			String brand = rs.getString("brand");
+			String model = rs.getString("model");
+			String color = rs.getString("color");
+			java.sql.Date firstReg = rs.getDate("first_registration");
+			String plate = rs.getString("plate");
+			String insurance = rs.getString("insurance");
+			String car_tax = rs.getString("car_tax");
+			String revision = rs.getString("revision");
+			String penalty = rs.getString("penalty");
+			Vehicle vehicle = new Vehicle(brand, model, color, firstReg, plate);
+			vehicle.setInsurance(gson.fromJson(insurance, Insurance.class));
+			vehicle.setCarTax(gson.fromJson(car_tax, CarTax.class));
+			vehicle.setRevision(gson.fromJson(revision, Revision.class));
+			List<Penalty> listFromGson = gson.fromJson(penalty,
+		               new TypeToken<List<Object>>() {}.getType());
+			vehicle.setPenalty(listFromGson);
+			list.add(vehicle);
+		}
+
+		pstm.close();
+		return list;
+	}
+
+	public static int insertVehicle(Connection conn, Vehicle vehicleData)
+			throws SQLException {
+		String sql = "INSERT INTO gestione_cantieri.vehicle (brand, model, color, first_registration, plate, insurance, "
+				+ "car_tax, revision, penalty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		PreparedStatement pstm = conn.prepareStatement(sql,
+				Statement.RETURN_GENERATED_KEYS);
+		pstm.setString(1, vehicleData.getBrand());
+		pstm.setString(2, vehicleData.getModel());
+		pstm.setString(3, vehicleData.getColor());
+		pstm.setDate(4, vehicleData.getFirstRegistration());
+		pstm.setString(5, vehicleData.getPlate());
+		String ins = gson.toJson(vehicleData.getInsurance());
+		String cartax = gson.toJson(vehicleData.getCarTax());
+		String rev = gson.toJson(vehicleData.getRevision());
+		pstm.setObject(6, ins);
+		pstm.setObject(7, cartax);
+		pstm.setObject(8, rev);
+		pstm.setObject(9, vehicleData.getPenalty());
+
+		System.out.println("insertVehicle: " + pstm.toString());
+
+		int affectedRows = pstm.executeUpdate();
+		if (affectedRows == 0) {
+			throw new SQLException(
+					"Creating vehicle failed, no rows affected.");
+		}
+
+		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
+			if (generatedKeys.next()) {
+				vehicleData.setId(generatedKeys.getInt(1));
+			} else {
+				throw new SQLException(
+						"Creating vehicle failed, no ID obtained.");
+			}
+		}
+		pstm.close();
+		return vehicleData.getId();
+	}
+
+	public static Vehicle updateVehicle(Connection conn, Vehicle vehicleData)
+			throws SQLException {
+		String sql = "UPDATE gestione_cantieri.vehicle SET penalty = ? WHERE plate = ?";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		String penalty = gson.toJson(vehicleData.getPenalty());
+		pstm.setObject(1, penalty);
+		pstm.setString(2, vehicleData.getPlate());
+
+		System.out.println("updateVehicle: " + pstm.toString());
+
+		int affectedRows = pstm.executeUpdate();
+		if (affectedRows == 0) {
+			throw new SQLException(
+					"Creating vehicle failed, no rows affected.");
+		}
+
+		pstm.close();
+		return vehicleData;
 	}
 }

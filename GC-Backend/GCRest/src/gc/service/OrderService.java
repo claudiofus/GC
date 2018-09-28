@@ -64,7 +64,7 @@ public class OrderService {
 			String uploadedFileLocation = UPLOAD_FOLDER
 					+ fileDetail.getFileName();
 			Utils.saveToFile(uploadedInputStream, uploadedFileLocation);
-
+			
 			File file = new File(uploadedFileLocation);
 			OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
 			Map<String, ArrayList<Order>> map = orderDaoImpl.addOrder(provider,

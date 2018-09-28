@@ -16,11 +16,7 @@ import java.util.regex.Pattern;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
-
-import com.itextpdf.kernel.pdf.canvas.parser.filter.TextRegionEventFilter;
-import com.itextpdf.kernel.pdf.canvas.parser.listener.FilteredTextEventListener;
-import com.itextpdf.kernel.pdf.canvas.parser.listener.ITextExtractionStrategy;
-import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStrategy;
+import org.apache.pdfbox.text.TextPosition;
 
 import gc.model.Product;
 
@@ -113,58 +109,57 @@ public class Utils {
 		}
 	}
 
-	public static ITextExtractionStrategy getStrategy(int x, int y, int width,
-			int height) {
-		com.itextpdf.kernel.geom.Rectangle rectangle = new com.itextpdf.kernel.geom.Rectangle(
-				x, y, width, height);
-		TextRegionEventFilter filter = new TextRegionEventFilter(rectangle);
-		return new FilteredTextEventListener(
-				new LocationTextExtractionStrategy(), filter);
-	}
-
-	public static String extractData(File file, Rectangle rect) {
-		String readText = "";
+	public static String extractDataNoSpaces(PDDocument document, Rectangle rect,
+			int page)
+	{
+	    String readText = "";
 		StringBuffer buf = new StringBuffer();
-		try (PDDocument document = PDDocument.load(file)) {
+		try {
 			if (!document.isEncrypted()) {
-				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+				PDFTextStripperByArea stripper = new PDFTextStripperByArea()
+			    {
+			        @Override
+			        protected void processTextPosition(TextPosition text)
+			        {
+			            String character = text.getUnicode();
+			            if (character != null && character.trim().length() != 0)
+			                super.processTextPosition(text);
+			        }
+			    };
 				stripper.setSortByPosition(true);
 				stripper.addRegion("class1", rect);
-				for (int page = 0; page < document.getNumberOfPages(); page++) {
-					if (page > 0)
-						buf.append("\n");
-					stripper.extractRegions(document.getPage(page));
-					buf.append(stripper.getTextForRegion("class1"));
-				}
-				readText = buf.toString();
-				System.out.println("readText: " + readText);
-			}
-		} catch (IOException e) {
-			System.err.println(
-					"Exception while trying to read pdf document - " + e);
-		}
-		return readText;
-	}
-
-	public static String extractDataOnePage(File file, Rectangle rect) {
-		String readText = "";
-		StringBuffer buf = new StringBuffer();
-		try (PDDocument document = PDDocument.load(file)) {
-			if (!document.isEncrypted()) {
-				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
-				stripper.setSortByPosition(true);
-				stripper.addRegion("class1", rect);
-				stripper.extractRegions(document.getPage(0));
+				stripper.extractRegions(document.getPage(page));
 				buf.append(stripper.getTextForRegion("class1"));
-				readText = buf.toString();
-				System.out.println("readText: " + readText);
 			}
+			readText = buf.toString();
+			System.out.println("readText: " + readText);
 		} catch (IOException e) {
 			System.err.println(
 					"Exception while trying to read pdf document - " + e);
 		}
 		return readText;
 	}
+	
+//	public static String extractData(PDDocument document, Rectangle rect,
+//			int page) {
+//		String readText = "";
+//		StringBuffer buf = new StringBuffer();
+//		try {
+//			if (!document.isEncrypted()) {
+//				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+//				stripper.setSortByPosition(true);
+//				stripper.addRegion("class1", rect);
+//				stripper.extractRegions(document.getPage(page));
+//				buf.append(stripper.getTextForRegion("class1"));
+//			}
+//			readText = buf.toString();
+//			System.out.println("readText: " + readText);
+//		} catch (IOException e) {
+//			System.err.println(
+//					"Exception while trying to read pdf document - " + e);
+//		}
+//		return readText;
+//	}
 
 	public static java.sql.Date extractOrderDate(String regex, String text,
 			String dateFormat) {
@@ -195,8 +190,7 @@ public class Utils {
 
 	public static List<String> getDateFromString(String str) {
 		List<String> allMatches = new ArrayList<>();
-		Matcher m = Pattern.compile(
-				"(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d")
+		Matcher m = Pattern.compile("\\d{1,2}\\/\\d{1,2}\\/\\d{2,4}")
 				.matcher(str);
 		while (m.find()) {
 			allMatches.add(m.group());
@@ -207,5 +201,29 @@ public class Utils {
 	public static String sqlDateToDate(java.sql.Date sqlDate, String format) {
 		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(format);
 		return DATE_FORMAT.format(sqlDate);
+	}
+
+	public static int getInvoicesNumb(File file, Rectangle rect) {
+		int count = 0;
+		try (PDDocument document = PDDocument.load(file)) {
+			if (!document.isEncrypted()) {
+				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+				stripper.setSortByPosition(true);
+				stripper.addRegion("class1", rect);
+				String invID = "";
+				for (int page = 0; page < document.getNumberOfPages(); page++) {
+					stripper.extractRegions(document.getPage(page));
+					if (!invID.equalsIgnoreCase(
+							stripper.getTextForRegion("class1"))) {
+						invID = stripper.getTextForRegion("class1");
+						count++;
+					}
+				}
+			}
+		} catch (IOException e) {
+			System.err.println(
+					"Exception while trying to read pdf document - " + e);
+		}
+		return count;
 	}
 }

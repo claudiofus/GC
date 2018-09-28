@@ -3,6 +3,7 @@ package gc.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -47,7 +48,7 @@ public class InvoiceService {
 
 			File file = new File(uploadedFileLocation);
 			InvoiceDaoImpl invoiceDaoImpl = new InvoiceDaoImpl();
-			Invoice inv = invoiceDaoImpl.addInvoice(provider, file);
+			List<Invoice> inv = invoiceDaoImpl.addInvoice(provider, file);
 
 			return Response.status(200).entity(inv).build();
 		} catch (IOException e) {

@@ -1,7 +1,7 @@
 package gc.model;
 
 import java.awt.Rectangle;
-import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
 
@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 import gc.model.types.BaseOrder;
@@ -24,8 +26,10 @@ public abstract class Order {
 	public abstract String getDBCODE();
 	public abstract String getDATEORDER();
 	public abstract String getDATEFORMAT();
-	public abstract LinkedMap<String, ArrayList<Order>> parseOrder(File file,
-			Connection conn);
+	public abstract LinkedMap<String, ArrayList<Order>> parseOrder(
+			PDDocument document, Connection conn, int page,
+			LinkedMap<String, ArrayList<Order>> map)
+			throws InvalidPasswordException, IOException;
 
 	@XmlElement
 	private int id;

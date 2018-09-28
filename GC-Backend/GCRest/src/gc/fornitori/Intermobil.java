@@ -1,7 +1,6 @@
 package gc.fornitori;
 
 import java.awt.Rectangle;
-import java.io.File;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 import gc.model.types.BaseOrder;
 import gc.model.types.Scadenza;
@@ -72,14 +73,14 @@ public class Intermobil extends BaseOrder {
 	}
 
 	@Override
-	public String getNumber(File file) {
-		return Utils.extractDataOnePage(file, ID_FATT);
+	public String getNumber(PDDocument document, int page) {
+		return Utils.extractDataNoSpaces(document, ID_FATT, page);
 	}
 
 	@Override
-	public java.sql.Date getDate(File file) {
+	public java.sql.Date getDate(PDDocument document, int page) {
 		try {
-			String dateStr = Utils.extractDataOnePage(file, DATA_FATT);
+			String dateStr = Utils.extractDataNoSpaces(document, DATA_FATT, page);
 			Date date = new SimpleDateFormat("dd/MM/yyyy").parse(dateStr);
 			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
 			return sqlDate;
@@ -90,8 +91,8 @@ public class Intermobil extends BaseOrder {
 	}
 
 	@Override
-	public List<Scadenza> getDeadlines(File file) {
-		String scad = Utils.extractData(file, SCADENZE_FATT);
+	public List<Scadenza> getDeadlines(PDDocument document, int page) {
+		String scad = Utils.extractDataNoSpaces(document, SCADENZE_FATT, page);
 		List<Scadenza> scadList = new ArrayList<Scadenza>();
 		List<String> dateList = Utils.getDateFromString(scad);
 		List<Float> amount = getAmountFromString(scad);
@@ -120,8 +121,8 @@ public class Intermobil extends BaseOrder {
 				if (line != null && !line.isEmpty()) {
 					String[] tmp = line.split("\\s+");
 					String amount = tmp[1];
-					Pattern p = Pattern.compile(
-							"[0-9]{1,3}(?:.?[0-9]{3})*(?:\\,[0-9]{2})?");
+					Pattern p = Pattern
+							.compile("([0-9]{1,3}[.])*[0-9]{1,3},[0-9]{1,2}");
 					Matcher m = p.matcher(amount);
 					while (m.find()) {
 						allMatches.add(

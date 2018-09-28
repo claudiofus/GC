@@ -1,7 +1,7 @@
 package gc.fornitori;
 
 import java.awt.Rectangle;
-import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -15,6 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 
 import gc.model.Order;
 import gc.model.Product;
@@ -61,11 +63,11 @@ public class AutofficinaLippolis extends BaseOrder {
 	}
 
 	@Override
-	public LinkedMap<String, ArrayList<Order>> parseOrder(File file,
-			Connection conn) {
-		LinkedMap<String, ArrayList<Order>> map = new LinkedMap<>();
-		String num_fatt = Utils.extractData(file, NUM_FATT_RECT);
-		String esito = Utils.extractData(file, ORDERS_AREA);
+	public LinkedMap<String, ArrayList<Order>> parseOrder(PDDocument document,
+			Connection conn, int page, LinkedMap<String, ArrayList<Order>> map)
+			throws InvalidPasswordException, IOException {
+		String num_fatt = Utils.extractDataNoSpaces(document, NUM_FATT_RECT, page);
+		String esito = Utils.extractDataNoSpaces(document, ORDERS_AREA, page);
 		String[] righe = esito.split("\n");
 		map.put(num_fatt, null);
 		java.sql.Date sqlDate = null;
@@ -160,14 +162,14 @@ public class AutofficinaLippolis extends BaseOrder {
 	}
 
 	@Override
-	public String getNumber(File file) {
-		return Utils.extractData(file, ID_FATT);
+	public String getNumber(PDDocument document, int page) {
+		return Utils.extractDataNoSpaces(document, ID_FATT, page);
 	}
 
 	@Override
-	public java.sql.Date getDate(File file) {
+	public java.sql.Date getDate(PDDocument document, int page) {
 		try {
-			String dateStr = Utils.extractData(file, DATA_FATT);
+			String dateStr = Utils.extractDataNoSpaces(document, DATA_FATT, page);
 			Date date = new SimpleDateFormat("dd/MM/yy").parse(dateStr);
 			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
 			return sqlDate;
@@ -178,8 +180,8 @@ public class AutofficinaLippolis extends BaseOrder {
 	}
 
 	@Override
-	public List<Scadenza> getDeadlines(File file) {
-		String scad = Utils.extractData(file, SCADENZE_FATT);
+	public List<Scadenza> getDeadlines(PDDocument document, int page) {
+		String scad = Utils.extractDataNoSpaces(document, SCADENZE_FATT, page);
 		List<Scadenza> scadList = new ArrayList<Scadenza>();
 		List<String> dateList = Utils.getDateFromString(scad);
 		List<Float> amount = getAmountFromString(scad);
@@ -199,7 +201,7 @@ public class AutofficinaLippolis extends BaseOrder {
 		}
 		return scadList;
 	}
-	
+
 	private List<Float> getAmountFromString(String str) {
 		List<Float> allMatches = new ArrayList<>();
 		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ITALY);
@@ -209,8 +211,8 @@ public class AutofficinaLippolis extends BaseOrder {
 			if (str.indexOf("€") != -1) {
 				str = str.substring(str.indexOf("€"));
 			}
-			Pattern p = Pattern.compile(
-					"^(?!€*$)(€ ?(?!.*€)(?=,?\\d))?\\-?([1-9]{1,3}( \\d{3})*|[1-9]{1,3}(\\.\\d{3})*|(0|([1-9]\\d*)?))(,[0-9]{2})?( ?€)?$");
+			Pattern p = Pattern
+					.compile("([0-9]{1,3}[.])*[0-9]{1,3},[0-9]{1,2}");
 			Matcher m = p.matcher(str);
 			while (m.find()) {
 				String tmp = m.group().replaceAll("€", "").trim();

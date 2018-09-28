@@ -1,16 +1,18 @@
 package gc.model.types;
 
 import java.awt.Rectangle;
-import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 
 import gc.interfaces.IInvoice;
 import gc.model.Order;
@@ -26,14 +28,14 @@ public class BaseOrder extends Order implements IInvoice {
 
 	public BaseOrder(int id, String productID, String productDesc, String um,
 			float quantity, float price, float discount, float adj_price,
-			float iva, Date sqlDate) {
+			float iva, java.sql.Date sqlDate) {
 		super(id, productID, productDesc, um, quantity, price, discount,
 				adj_price, iva, sqlDate);
 	}
 
 	public BaseOrder(String productID, String productDesc, String um,
 			float quantity, float price, float discount, float adj_price,
-			float iva, Date sqlDate) {
+			float iva, java.sql.Date sqlDate) {
 
 		super(productID, productDesc, um, quantity, price, discount, adj_price,
 				iva, sqlDate);
@@ -65,8 +67,9 @@ public class BaseOrder extends Order implements IInvoice {
 	}
 
 	@Override
-	public LinkedMap<String, ArrayList<Order>> parseOrder(File file,
-			Connection conn) {
+	public LinkedMap<String, ArrayList<Order>> parseOrder(PDDocument document,
+			Connection conn, int page, LinkedMap<String, ArrayList<Order>> map)
+			throws InvalidPasswordException, IOException {
 		String descDDT = getDDT(), dateOrderRegex = getDATEORDER(),
 				dateFormat = getDATEFORMAT();
 		Rectangle rect = getORDERS_AREA();
@@ -75,18 +78,28 @@ public class BaseOrder extends Order implements IInvoice {
 		if (format instanceof DecimalFormat) {
 			((DecimalFormat) format).setParseBigDecimal(true);
 		}
-		LinkedMap<String, ArrayList<Order>> map = new LinkedMap<>();
-		String esito = Utils.extractData(file, rect);
+		String esito = Utils.extractDataNoSpaces(document, rect, page);
 		java.sql.Date sqlDate = null;
 		String[] righe = esito.split("\n");
 		for (String riga : righe) {
-			if (riga.startsWith(descDDT) && !map.containsKey(riga)) {
+			if (riga.startsWith(descDDT)) {
 				sqlDate = Utils.extractOrderDate(dateOrderRegex, riga,
 						dateFormat);
-				map.put(riga, null);
+				if (!map.containsKey(riga)) {
+					map.put(riga, null);
+				}
 			} else if (map.size() > 0) {
+				/**
+				 * nel caso in cui la seconda pagina faccia riferimento al ddt
+				 * definito nella prima pagina sqlDate = null
+				 */
+				if (sqlDate == null) {
+					List<Order> arr = map.getValue(map.values().size() - 1);
+					Order ord = arr.get(arr.size() - 1);
+					sqlDate = ord.getDate_order();
+				}
 				try {
-					populateMap(sqlDate, map, conn, riga, false);
+					populateMap(sqlDate, map, conn, riga);
 					conn.commit();
 				} catch (Exception e) {
 					System.err.println("Error parsing : " + riga);
@@ -94,7 +107,7 @@ public class BaseOrder extends Order implements IInvoice {
 							"Strategy changed, retry to parse : " + riga);
 					try {
 						conn.rollback();
-						populateMap(sqlDate, map, conn, riga, true);
+						populateMap(sqlDate, map, conn, riga);
 						conn.commit();
 					} catch (Exception e1) {
 						System.err.println("Unable to parse : " + riga);
@@ -108,7 +121,7 @@ public class BaseOrder extends Order implements IInvoice {
 
 	public void populateMap(java.sql.Date sqlDate,
 			LinkedMap<String, ArrayList<Order>> map, Connection conn,
-			String riga, boolean useDot) throws Exception {
+			String riga) throws Exception {
 		final NumberFormat format = NumberFormat
 				.getNumberInstance(Locale.getDefault());
 		if (format instanceof DecimalFormat) {
@@ -126,6 +139,11 @@ public class BaseOrder extends Order implements IInvoice {
 			Order ord = this.getClass().getConstructor().newInstance();
 			StringBuilder strBuild = new StringBuilder();
 			int indice = 0;
+
+			if (sqlDate == null) {
+				Date today = new Date();
+				sqlDate = new java.sql.Date(today.getTime());
+			}
 
 			for (int i = itemParts.length - 1; i > 0; i--) {
 				if (Utils.isInEnum(itemParts[i], UM.class, false)) {
@@ -177,17 +195,22 @@ public class BaseOrder extends Order implements IInvoice {
 	}
 
 	@Override
-	public String getNumber(File file) {
+	public Rectangle getIdFatt() {
 		return null;
 	}
 
 	@Override
-	public Date getDate(File file) {
+	public String getNumber(PDDocument file, int page) {
 		return null;
 	}
 
 	@Override
-	public List<Scadenza> getDeadlines(File file) {
+	public java.sql.Date getDate(PDDocument file, int page) {
+		return null;
+	}
+
+	@Override
+	public List<Scadenza> getDeadlines(PDDocument file, int page) {
 		return null;
 	}
 }

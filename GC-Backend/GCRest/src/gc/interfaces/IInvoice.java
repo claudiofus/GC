@@ -1,12 +1,15 @@
 package gc.interfaces;
 
-import java.io.File;
+import java.awt.Rectangle;
 import java.util.List;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 import gc.model.types.Scadenza;
 
 public interface IInvoice {
-	public String getNumber(File file);
-	public java.sql.Date getDate(File file);
-	public List<Scadenza> getDeadlines(File file);
+	public Rectangle getIdFatt();
+	public String getNumber(PDDocument file, int page);
+	public java.sql.Date getDate(PDDocument file, int page);
+	public List<Scadenza> getDeadlines(PDDocument file, int page);
 }
