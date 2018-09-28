@@ -36,6 +36,9 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NgbModalModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {FlatpickrModule} from 'angularx-flatpickr';
 import {DeadlinesService} from './deadlines/deadlines.service';
+import {VehiclesService} from './vehicles/vehicles.service';
+import {VehicleFormComponent} from '../common/components/vehicle-form/vehicle-form.component';
+import {PenaltyFormComponent} from '../common/components/penalty-form/penalty-form.component';
 
 registerLocaleData(localeIt, 'it');
 
@@ -74,6 +77,8 @@ registerLocaleData(localeIt, 'it');
     SelectUmComponent,
     BuildingsComponent,
     BuildingFormComponent,
+    VehicleFormComponent,
+    PenaltyFormComponent,
   ],
   providers: [{
     provide: LOCALE_ID,
@@ -83,7 +88,8 @@ registerLocaleData(localeIt, 'it');
     AddInvoiceService,
     TableProductsService,
     BuildingsService,
-    DeadlinesService
+    DeadlinesService,
+    VehiclesService
   ],
   bootstrap: [AppComponent],
   exports: [

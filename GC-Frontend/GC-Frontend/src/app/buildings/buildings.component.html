@@ -1,7 +1,23 @@
 <a href="https://www.basisystems.com/pilates-equipment/options/sitting-box">Style</a>
 <h2>Cantieri</h2>
 
-<button type="button" class="button" (click)="addPanel = !addPanel;">Aggiungi cantiere</button>
+<div class="row" style="margin: 0">
+  <div class="col-6">
+    <button type="button" class="button" (click)="addPanel = !addPanel;">Aggiungi cantiere</button>
+  </div>
+  <div class="col-6 align-items-center">
+    <div class="float-right">
+      <span>Filtra per </span>
+      <button type="button" class="button" [ngStyle]="{'background-color': showOpened ? 'lightyellow' : 'white' }"
+              (click)="showOpened = !showOpened;">Cantieri aperti
+      </button>
+      <button type="button" class="button" [ngStyle]="{'background-color': showClosed ? 'lightyellow' : 'white' }"
+              (click)="showClosed = !showClosed;">Cantieri chiusi
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="card" *ngIf="addPanel">
   <app-building-form (submit)="addBuilding($event)"></app-building-form>
 </div>
@@ -13,7 +29,8 @@
 <div *ngIf="buildings.length > 0">
   <ul class="cards">
     <li class="cards_item" *ngFor="let building of buildings">
-      <div class="card">
+      <div class="card"
+           *ngIf="(!this.showOpened && !this.showClosed) || (this.showOpened && building.open) || (this.showClosed && !building.open)">
         <!--<div class="card_image" [style.background]="'url(/assets/images/cantieri/' + getImage(building.id) + ')'"></div>-->
         <div class="card_content">
           <div class="card_title">{{building.name}}</div>
@@ -44,8 +61,7 @@
             </div>
           </div>
           <div *ngIf="building.details">
-            <h3>DETTAGLI</h3>
-            <app-generic-table [records]="projects" [settings]="projectSettings"></app-generic-table>
+            <app-generic-table [records]="projects" [settings]="projectSettings" [header]="header"></app-generic-table>
           </div>
           <button class="button" [hidden]="building.details" (click)="getBuildingDet(building)">Dettagli</button>
         </div>

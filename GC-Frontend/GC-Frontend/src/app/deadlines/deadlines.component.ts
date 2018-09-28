@@ -31,6 +31,13 @@ export class DeadlinesComponent implements OnInit {
     return ev.start.toDateString() === new Date().toDateString();
   });
 
+  constructor(public deadlinesService: DeadlinesService) {
+  }
+
+  ngOnInit(): void {
+    this.getAllItems();
+  }
+
   dayClicked({date, events}: { date: Date; events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
       this.viewDate = date;
@@ -97,12 +104,5 @@ export class DeadlinesComponent implements OnInit {
   postponeEv(value, event): void {
     event.start = addDays(event.start, value);
     this.updateEv(event);
-  }
-
-  constructor(public deadlinesService: DeadlinesService) {
-  }
-
-  ngOnInit(): void {
-    this.getAllItems();
   }
 }

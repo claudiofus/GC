@@ -72,7 +72,8 @@ button:disabled {
 }
 
 .button:hover {
-  box-shadow : 0 6px 16px 0 rgba(0, 0, 0, 0.09);
+  box-shadow       : 0 6px 16px 0 rgba(0, 0, 0, 0.09);
+  background-color : lightyellow;
 }
 
 .button:disabled {
@@ -84,8 +85,9 @@ button:disabled {
 }
 
 .button:focus {
-  text-decoration : none;
-  outline         : none;
+  text-decoration  : none;
+  outline          : none;
+  background-color : lightyellow;
 }
 
 .mainNav {

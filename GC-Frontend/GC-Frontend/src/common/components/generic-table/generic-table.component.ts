@@ -3,11 +3,13 @@ import {ColumnMap, ColumnSetting} from './layout.model';
 
 @Component({
   selector: 'app-generic-table',
-  templateUrl: './generic-table.component.html'
+  templateUrl: './generic-table.component.html',
+  styleUrls: ['./generic-table.component.css']
 })
 export class GenericTableComponent implements OnChanges {
   @Input() records: any[];
   @Input() settings: ColumnSetting[];
+  @Input() header: string[];
   columnMaps: ColumnMap[];
 
   ngOnChanges() {

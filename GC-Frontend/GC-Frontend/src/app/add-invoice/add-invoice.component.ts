@@ -18,8 +18,10 @@ export class AddInvoiceComponent implements OnInit {
   filestring: string;
   providerObj: any;
   waitDiv: boolean;
-  itemsOrder: any[];
-  deliveryNotes: string[];
+  invoices: any[];
+  itemsOrder: any;
+  deliveryNotes: any;
+  ddts: object;
   orderColumns: string[];
   building: Building;
   buildings: Building[];
@@ -68,6 +70,7 @@ export class AddInvoiceComponent implements OnInit {
   }
 
   submitForm() {
+    let row = '';
     this.waitDiv = true;
     this.orderColumns = AddInvoiceService.getOrderColumns();
     this.addInvoiceService.getProvider(this.addInvoiceFG.value.provider)
@@ -77,25 +80,38 @@ export class AddInvoiceComponent implements OnInit {
     this.addInvoiceService.addOrder(this.files[0], this.addInvoiceFG.value.provider)
       .then(result => {
         this.waitDiv = false;
-        this.itemsOrder = result.DDTOrders;
-        this.deliveryNotes = Object.keys(result.DDTOrders);
-        for (const el of this.deliveryNotes) {
-          if (this.itemsOrder[el]) {
-            this.itemsOrder[el].building = new Building();
+        this.deliveryNotes = new Map<string, any>();
+        this.itemsOrder = new Map<string, any>();
+        this.ddts = {};
+        this.invoices = result;
+
+        for (let i = 0; i < this.invoices.length; i++) {
+          const ddtMap = this.obj_to_map(this.invoices[i].DDTOrders);
+          this.deliveryNotes[i] = Array.from(ddtMap.keys());
+          for (const el of this.deliveryNotes[i]) {
+            this.itemsOrder[el] = Array.from(ddtMap.get(el).values());
+          }
+          if (this.invoices[i].scadenze) {
+            this.invoices[i].scadenze.forEach(sc => {
+              row += formatDate(sc.deadlineDate, 'dd/MM/yyyy', 'it') + ' - ' + sc.amount + '€\n';
+            });
           }
         }
-        if (result.scadenze) {
-          let row = '';
-          result.scadenze.forEach(sc => {
-            row += formatDate(sc.deadlineDate, 'dd/MM/yyyy', 'it') + ' - ' + sc.amount + '€\n';
-          });
-          alert('Scadenze inserite:\n' + row);
-        }
+
+        alert('Scadenze inserite:\n' + row);
       })
       .catch(error => {
         this.waitDiv = false;
         console.error(error);
       });
+  }
+
+  obj_to_map(obj) {
+    const mp = new Map;
+    Object.keys(obj).forEach(k => {
+      mp.set(k, obj[k]);
+    });
+    return mp;
   }
 
   checkAll(ev, list) {
@@ -115,7 +131,7 @@ export class AddInvoiceComponent implements OnInit {
   }
 
   assignBuilding(deliveryNote, dnIndex) {
-    const building = this.itemsOrder[this.deliveryNotes[dnIndex]].building;
+    const building = this.itemsOrder[dnIndex].building;
     this.addInvoiceService.assignBuilding(building.name, deliveryNote)
       .then(result => {
         console.log(result);

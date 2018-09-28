@@ -1,1 +1,113 @@
 <h2>Mezzi - Attrezzature</h2>
+
+<ul class="cards" *ngIf="vehicles">
+  <li class="cards_item">
+    <div class="card">
+      <div class="card_content">
+        <div class="card_title">{{vehicles.length === 1 ? 1 : vehicles.length}} veicoli</div>
+        <div class="parentDiv">
+          <div class="card_text">
+            <ul>
+              <!-- Riusare generic-table -->
+              <li *ngFor="let vehicle of vehicles">
+                {{vehicle.plate}} - {{vehicle.brand}} {{vehicle.model}} - {{vehicle.color}}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <button class="button" (click)="addVehiclePanel = !addVehiclePanel;">
+          {{addVehiclePanel === true ? 'Nascondi' : 'Aggiungi veicolo'}}
+        </button>
+      </div>
+    </div>
+  </li>
+  <li class="cards_item" style="width: auto">
+    <div class="card">
+      <div class="card_content">
+        <div class="card_title">Multe recenti</div>
+        <app-generic-table [records]="projects" [settings]="projectSettings"
+                           [header]="header"></app-generic-table>
+        <button class="button mt10" (click)="addPenaltyPanel = !addPenaltyPanel;">
+          {{addPenaltyPanel === true ? 'Nascondi' : 'Aggiungi multa'}}
+        </button>
+      </div>
+    </div>
+  </li>
+</ul>
+
+<div class="card" *ngIf="addVehiclePanel">
+  <app-vehicle-form (submit)="addVehicle($event)"></app-vehicle-form>
+</div>
+
+<div class="card" *ngIf="addPenaltyPanel">
+  <app-penalty-form [vehicles]="vehicles" (submit)="addPenalty($event)"></app-penalty-form>
+</div>
+
+<ul class="cards" *ngIf="vehicles">
+  <li class="cards_item">
+    <div class="card">
+      <div class="card_content">
+        <div class="card_title">Scadenza assicurazione</div>
+        <div class="parentDiv">
+          <div class="card_text">
+            <table class="table table-hover">
+              <tbody>
+              <ng-container *ngFor="let vehicle of vehicles">
+                <tr *ngIf="vehicle.insurance">
+                  <td>{{vehicle.plate}}</td>
+                  <td>{{vehicle.insurance.deadlineDate | date:'dd/MM/yyyy'}}</td>
+                  <td>{{vehicle.insurance.amount}} €</td>
+                </tr>
+              </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </li>
+  <li class="cards_item">
+    <div class="card">
+      <div class="card_content">
+        <div class="card_title">Scadenza Bollo</div>
+        <div class="parentDiv">
+          <div class="card_text">
+            <table class="table table-hover">
+              <tbody>
+              <ng-container *ngFor="let vehicle of vehicles">
+                <tr *ngIf="vehicle.car_tax">
+                  <td>{{vehicle.plate}}</td>
+                  <td>{{vehicle.car_tax.deadlineDate | date:'dd/MM/yyyy'}}</td>
+                  <td>{{vehicle.car_tax.amount}} €</td>
+                </tr>
+              </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </li>
+  <li class="cards_item">
+    <div class="card">
+      <div class="card_content">
+        <div class="card_title">Scadenza revisione</div>
+        <div class="parentDiv">
+          <div class="card_text">
+            <table class="table table-hover">
+              <tbody>
+              <ng-container *ngFor="let vehicle of vehicles">
+                <tr *ngIf="vehicle.revision">
+                  <td>{{vehicle.plate}}</td>
+                  <td>{{vehicle.revision.deadlineDate | date:'dd/MM/yyyy'}}</td>
+                  <td>{{vehicle.revision.amount}} €</td>
+                </tr>
+              </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </li>
+</ul>

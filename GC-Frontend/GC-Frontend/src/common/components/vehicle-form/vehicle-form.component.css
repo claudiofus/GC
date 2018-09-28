@@ -1,0 +1,6 @@
+.goldBox {
+  margin-right  : 5px;
+  border        : 1px solid #c8b682;
+  border-radius : 20px;
+  padding       : 10px !important;
+}

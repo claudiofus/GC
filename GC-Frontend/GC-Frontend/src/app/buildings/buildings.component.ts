@@ -14,6 +14,9 @@ export class BuildingsComponent implements OnInit {
   addPanel: boolean;
   projects: any[];
   projectSettings: ColumnSetting[];
+  showOpened = false;
+  showClosed = false;
+  header = ['Descrizione', 'Importo'];
 
   constructor(public buildingsService: BuildingsService) {
   }

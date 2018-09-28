@@ -1,8 +1,9 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {CurrencyPipe} from '@angular/common';
+import {CurrencyPipe, formatDate} from '@angular/common';
 
 @Pipe({name: 'formatCell'})
 export class FormatCellPipe implements PipeTransform {
+
   constructor(private currencyPipe: CurrencyPipe) {
   }
 
@@ -27,6 +28,10 @@ export class FormatCellPipe implements PipeTransform {
 
     if (format === 'currency') {
       return this.currencyPipe.transform(value, 'EUR');
+    }
+
+    if (format === 'date') {
+      return formatDate(value, 'dd/MM/yyyy', 'it');
     }
 
     return value;

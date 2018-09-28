@@ -39,55 +39,58 @@
   <div class="waitImg"></div>
 </div>
 
-<div [hidden]="!itemsOrder || itemsOrder.length === 0">
-  <div *ngFor="let dn of deliveryNotes; let i = index;" class="card card_content mb10">
-    <h4 class="center">{{dn}}</h4>
-    <table class="redTable">
-      <thead>
-      <tr>
-        <th>
-          <input type="checkbox" name="all" [checked]="isAllChecked(itemsOrder[dn])"
-                 (change)="checkAll($event,itemsOrder[dn])"/>
-        </th>
-        <th *ngFor="let c of orderColumns">{{c}}</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor='let order of itemsOrder[dn]'>
-        <td><input type="checkbox" (change)="order.state = !order.state" [checked]="order.state"/></td>
-        <td>{{order.code}}</td>
-        <td>{{order.name}}</td>
-        <td>{{order.um}}</td>
-        <td>{{order.quantity}}</td>
-        <td>{{order.price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
-        <td>{{order.discount}} %</td>
-        <td>{{order.adj_price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
-        <td>{{order.iva}} %</td>
-      </tr>
-      </tbody>
-    </table>
-    <div class="mt10" *ngIf="itemsOrder[dn]">
-      <div *ngIf="itemsOrder[dn].showBuilding === true">
-        <label>Seleziona il cantiere :
-          <select [(ngModel)]="itemsOrder[dn].building.name">
-            <option *ngFor="let el of buildings" [ngValue]="el.name">{{el.name}}</option>
-          </select>
-        </label>
-        <button type="button" class="button ml10" [disabled]="!itemsOrder[dn].building.name"
-                (click)="assignBuilding(itemsOrder[dn], i)">Conferma
+<div [hidden]="!invoices || invoices.length === 0">
+  <div *ngFor="let invoice of invoices; let i = index" class="card card_content mb10">
+    <h4 class="center">Fattura n.{{invoice.num_doc}} del {{invoice.data_doc | date:'dd/MM/yyyy'}}</h4>
+    <div *ngFor="let dn of deliveryNotes[i]">
+      <h6 class="center">{{dn}}</h6>
+      <table class="redTable">
+        <thead>
+        <tr>
+          <th>
+            <input type="checkbox" name="all" [checked]="isAllChecked(itemsOrder[dn])"
+                   (change)="checkAll($event, itemsOrder[dn])"/>
+          </th>
+          <th *ngFor="let c of orderColumns">{{c}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor='let order of itemsOrder[dn]'>
+          <td><input type="checkbox" (change)="order.state = !order.state" [checked]="order.state"/></td>
+          <td>{{order.code}}</td>
+          <td>{{order.name}}</td>
+          <td>{{order.um}}</td>
+          <td>{{order.quantity}}</td>
+          <td>{{order.price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+          <td>{{order.discount}} %</td>
+          <td>{{order.adj_price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+          <td>{{order.iva}} %</td>
+        </tr>
+        </tbody>
+      </table>
+      <div class="mt10" *ngIf="itemsOrder[dn]">
+        <div *ngIf="itemsOrder[dn].showBuilding === true">
+          <label>Seleziona il cantiere :
+            <select [(ngModel)]="itemsOrder[dn].building.name">
+              <option *ngFor="let el of buildings" [ngValue]="el.name">{{el.name}}</option>
+            </select>
+          </label>
+          <button type="button" class="button ml10" [disabled]="!itemsOrder[dn].building.name"
+                  (click)="assignBuilding(itemsOrder[dn], dn)">Conferma
+          </button>
+        </div>
+        <button type="button" class="button mt10"
+                (click)="itemsOrder[dn].showBuilding = true; itemsOrder[dn].building = {'name': ''};">
+          Assegna al cantiere
         </button>
-      </div>
-      <button type="button" class="button mt10"
-              (click)="itemsOrder[dn].showBuilding = true; itemsOrder[dn].building = {'name': ''};">
-        Assegna al cantiere
-      </button>
 
-      <p class="green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
-        Prodotti assegnati correttamente al cantiere: <strong>{{itemsOrder[dn].building.name}}</strong>
-      </p>
-      <p class="red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
-        <strong>Errore nell'assegnare i prodotti al cantiere: {{itemsOrder[dn].building.name}}</strong>
-      </p>
+        <p class="green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
+          Prodotti assegnati correttamente al cantiere: <strong>{{itemsOrder[dn].building.name}}</strong>
+        </p>
+        <p class="red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
+          <strong>Errore nell'assegnare i prodotti al cantiere: {{itemsOrder[dn].building.name}}</strong>
+        </p>
+      </div>
     </div>
   </div>
 </div>

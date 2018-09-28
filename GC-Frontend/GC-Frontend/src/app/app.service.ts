@@ -3,7 +3,6 @@ import {DomSanitizer} from '@angular/platform-browser';
 
 @Injectable()
 export class AppService implements OnInit {
-
   ngOnInit(): void {
   }
 
