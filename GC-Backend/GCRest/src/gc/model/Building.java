@@ -1,27 +1,15 @@
 package gc.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import gc.model.types.Address;
 import gc.model.types.ProjectCost;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Building {
-	@XmlElement
 	private int id;
-	@XmlElement
 	private String name;
-	@XmlElement
 	private boolean open;
 	private java.sql.Date start_date;
 	private java.sql.Date end_date;
-	@XmlElement
 	private Address address;
-	@XmlElement
 	private Float req_amount;
 	private ProjectCost prj_cost;
 

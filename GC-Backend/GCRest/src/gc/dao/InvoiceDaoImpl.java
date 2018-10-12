@@ -16,7 +16,7 @@ import gc.model.Event;
 import gc.model.Invoice;
 import gc.model.Order;
 import gc.model.types.BaseOrder;
-import gc.model.types.Scadenza;
+import gc.model.types.Deadline;
 import gc.service.EventService;
 import gc.utils.Utils;
 
@@ -33,7 +33,7 @@ public class InvoiceDaoImpl {
 			LinkedMap<String, ArrayList<Order>> map = new LinkedMap<>();
 			String inv_number = null;
 			java.sql.Date inv_date = null;
-			List<Scadenza> deadlines = null;
+			List<Deadline> deadlines = null;
 			Invoice inv = new Invoice();
 
 			document = PDDocument.load(file);

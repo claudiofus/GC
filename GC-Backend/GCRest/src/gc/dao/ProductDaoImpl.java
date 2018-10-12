@@ -7,8 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import gc.conn.JDBCConnection;
+import gc.db.DBOrder;
+import gc.db.DBProduct;
 import gc.model.Product;
-import gc.utils.DBUtils;
 
 public class ProductDaoImpl {
 
@@ -18,7 +19,7 @@ public class ProductDaoImpl {
 		List<Product> productData = new ArrayList<>();
 
 		try {
-			productData = DBUtils.queryProduct(connection);
+			productData = DBProduct.queryProduct(connection);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -32,7 +33,7 @@ public class ProductDaoImpl {
 		List<Product> productData = new ArrayList<>();
 
 		try {
-			productData = DBUtils.queryProductPrice(connection);
+			productData = DBOrder.queryProductPrice(connection);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -46,7 +47,7 @@ public class ProductDaoImpl {
 		List<HashMap<String, Object>> productData = null;
 
 		try {
-			productData = DBUtils.queryPricesHistory(connection, prdName);
+			productData = DBOrder.queryPricesHistory(connection, prdName);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -60,7 +61,7 @@ public class ProductDaoImpl {
 		Product productData = new Product(code, name, providerCode);
 
 		try {
-			DBUtils.insertProduct(connection, productData);
+			DBProduct.insertProduct(connection, productData);
 			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();

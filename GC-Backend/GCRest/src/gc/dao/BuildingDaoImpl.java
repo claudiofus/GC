@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gc.conn.JDBCConnection;
+import gc.db.DBBuilding;
 import gc.model.Building;
-import gc.utils.DBUtils;
 
 public class BuildingDaoImpl {
 
@@ -17,7 +17,7 @@ public class BuildingDaoImpl {
 		List<Building> buildingData = new ArrayList<>();
 
 		try {
-			buildingData = DBUtils.queryBuilding(conn);
+			buildingData = DBBuilding.queryBuilding(conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -31,7 +31,7 @@ public class BuildingDaoImpl {
 		Connection conn = jdbcConnection.getConnnection();
 		
 		try {
-			building = DBUtils.findBuilding(conn, name);
+			building = DBBuilding.findBuilding(conn, name);
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -50,7 +50,7 @@ public class BuildingDaoImpl {
 		Connection conn = jdbcConnection.getConnnection();
 
 		try {
-			DBUtils.insertBuilding(conn, building);
+			DBBuilding.insertBuilding(conn, building);
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();

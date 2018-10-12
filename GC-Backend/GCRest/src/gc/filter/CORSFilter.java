@@ -1,23 +1,29 @@
 package gc.filter;
 
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerResponse;
-import com.sun.jersey.spi.container.ContainerResponseFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.container.PreMatching;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.ext.Provider;
 
+@PreMatching
+@Provider
 public class CORSFilter implements ContainerResponseFilter {
 
+	@Context
+	HttpServletRequest httpRequest;
+
 	@Override
-	public ContainerResponse filter(ContainerRequest creq,
-			ContainerResponse cresp) {
-
-		cresp.getHttpHeaders().putSingle("Access-Control-Allow-Origin", "*");
-		cresp.getHttpHeaders().putSingle("Access-Control-Allow-Credentials",
-				"true");
-		cresp.getHttpHeaders().putSingle("Access-Control-Allow-Methods",
-				"GET, POST, DELETE, PUT, OPTIONS, HEAD");
-		cresp.getHttpHeaders().putSingle("Access-Control-Allow-Headers",
-				"Content-Type, Accept, X-Requested-With");
-
-		return cresp;
+	public void filter(ContainerRequestContext creq,
+			ContainerResponseContext cres) {
+		cres.getHeaders().add("Access-Control-Allow-Origin",
+				httpRequest.getHeader("origin"));
+		cres.getHeaders().add("Access-Control-Allow-Headers",
+				"origin, content-type, accept, authorization");
+		cres.getHeaders().add("Access-Control-Allow-Credentials", "true");
+		cres.getHeaders().add("Access-Control-Allow-Methods",
+				"GET, POST, PUT, DELETE, OPTIONS, HEAD");
 	}
 }

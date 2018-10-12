@@ -1,11 +1,8 @@
 package gc.service;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +16,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.google.gson.Gson;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import gc.dao.OrderDaoImpl;
 import gc.dao.ProductDaoImpl;
@@ -37,7 +33,9 @@ public class OrderService {
 
 	/**
 	 * Returns text response to caller containing uploaded file location
-	 * 
+	 * @param uploadedInputStream invoice file
+	 * @param fileDetail file name
+	 * @param provider of the invoice
 	 * @return error response in case of missing parameters an internal
 	 *         exception or success response if file has been stored
 	 *         successfully
@@ -64,7 +62,7 @@ public class OrderService {
 			String uploadedFileLocation = UPLOAD_FOLDER
 					+ fileDetail.getFileName();
 			Utils.saveToFile(uploadedInputStream, uploadedFileLocation);
-			
+
 			File file = new File(uploadedFileLocation);
 			OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
 			Map<String, ArrayList<Order>> map = orderDaoImpl.addOrder(provider,
@@ -82,6 +80,13 @@ public class OrderService {
 		}
 	}
 
+	/**
+	 * Add a order from the invoice
+	 * @param providerCode of the provider
+	 * @param ord to add
+	 * @return added order
+	 * @throws IOException if ord is invalid
+	 */
 	@POST
 	@Path("/addOrder/{provider : .+}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -112,33 +117,25 @@ public class OrderService {
 		return Response.ok(ord).build();
 	}
 
+	/**
+	 * Update an order
+	 * @param ord to update
+	 * @return updated order
+	 */
 	@POST
 	@Path("/updateOrder")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateOrder(InputStream incomingData) {
-		StringBuilder strBuilder = new StringBuilder();
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					incomingData, Charset.forName("UTF-8")));
-			String line = null;
-			while ((line = in.readLine()) != null) {
-				strBuilder.append(line);
-			}
-			System.out.println("Data Received: " + strBuilder.toString());
-			Gson gson = new Gson();
-			Order ord = gson.fromJson(strBuilder.toString(), Order.class);
-
-			OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
-			orderDaoImpl.updateOrder(ord);
-			return Response.ok(gson.toJson(ord)).build();
-		} catch (IOException e) {
-			System.err.println("Error Parsing: - " + incomingData);
-			return Response.status(500)
-					.entity("Error Parsing: - " + incomingData).build();
-		}
+	public Response updateOrder(Order ord) {
+		OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
+		orderDaoImpl.updateOrder(ord);
+		return Response.ok(ord).build();
 	}
 
+	/**
+	 * Get all unit of measurement
+	 * @return list of unit of measurement
+	 */
 	@GET
 	@Path("/um/all")
 	@Produces(MediaType.APPLICATION_JSON)

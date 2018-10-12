@@ -13,6 +13,7 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import gc.conn.JDBCConnection;
+import gc.db.DBOrder;
 import gc.fornitori.Akifix;
 import gc.fornitori.AutofficinaLippolis;
 import gc.fornitori.FinishVillage;
@@ -22,7 +23,6 @@ import gc.fornitori.Montone;
 import gc.fornitori.ResinaColor;
 import gc.model.Order;
 import gc.model.UM;
-import gc.utils.DBUtils;
 
 public class OrderDaoImpl {
 
@@ -40,12 +40,10 @@ public class OrderDaoImpl {
 								map);
 						break;
 					case "mag" :
-						map = new Mag().parseOrder(document, conn, page,
-								map);
+						map = new Mag().parseOrder(document, conn, page, map);
 						break;
 					case "resinaColor" :
-						map = new ResinaColor().parseOrder(document, conn,
-								page,
+						map = new ResinaColor().parseOrder(document, conn, page,
 								map);
 						break;
 					case "intermobil" :
@@ -54,13 +52,11 @@ public class OrderDaoImpl {
 						break;
 					case "finishVillage" :
 						map = new FinishVillage().parseOrder(document, conn,
-								page,
-								map);
+								page, map);
 						break;
 					case "autoffLippolis" :
 						map = new AutofficinaLippolis().parseOrder(document,
-								conn, page,
-								map);
+								conn, page, map);
 						break;
 					case "akifix" :
 						map = new Akifix().parseOrder(document, conn, page,
@@ -85,7 +81,7 @@ public class OrderDaoImpl {
 		Connection conn = jdbcConnection.getConnnection();
 
 		try {
-			DBUtils.insertOrdine(conn, ord, true);
+			DBOrder.insertOrdine(conn, ord, true);
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -105,7 +101,7 @@ public class OrderDaoImpl {
 		List<Order> orderData = new ArrayList<>();
 
 		try {
-			orderData = DBUtils.findOrder(conn, buildingName);
+			orderData = DBOrder.findOrder(conn, buildingName);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -132,9 +128,9 @@ public class OrderDaoImpl {
 			updOrd.setIva(ord.getIva());
 			updOrd.setDate_order(ord.getDate_order());
 
-			DBUtils.updateOrdine(conn, updOrd);
+			DBOrder.updateOrdine(conn, updOrd);
 			conn.commit();
-			updOrd = DBUtils.selectOrdine(conn, updOrd);
+			updOrd = DBOrder.selectOrdine(conn, updOrd);
 			conn.commit();
 		} catch (Exception e) {
 			System.err.println("Error during update order");

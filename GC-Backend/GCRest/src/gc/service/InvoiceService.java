@@ -12,8 +12,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import gc.dao.InvoiceDaoImpl;
 import gc.model.Invoice;
@@ -23,6 +23,13 @@ import gc.utils.Utils;
 public class InvoiceService {
 	private static final String UPLOAD_FOLDER = "D:\\GC\\GCRest\\WebContent\\WEB-INF\\UPLOADED\\";
 
+	/**
+	 * Add an invoice
+	 * @param uploadedInputStream invoice file
+	 * @param fileDetail file name
+	 * @param provider of the invoice
+	 * @return parsed invoice
+	 */
 	@POST
 	@Path("/addInvoice")
 	@Produces(MediaType.APPLICATION_JSON)

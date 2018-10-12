@@ -5,51 +5,42 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import gc.model.types.BaseOrder;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonDeserialize(as = BaseOrder.class)
 public abstract class Order {
+	@JsonIgnore
 	public abstract String getDDT();
+	@JsonIgnore
 	public abstract Rectangle getORDERS_AREA();
+	@JsonIgnore
 	public abstract String getDBCODE();
+	@JsonIgnore
 	public abstract String getDATEORDER();
+	@JsonIgnore
 	public abstract String getDATEFORMAT();
+	@JsonIgnore
 	public abstract LinkedMap<String, ArrayList<Order>> parseOrder(
 			PDDocument document, Connection conn, int page,
 			LinkedMap<String, ArrayList<Order>> map)
 			throws InvalidPasswordException, IOException;
 
-	@XmlElement
 	private int id;
-	@XmlElement
 	private Integer building_id;
-	@XmlElement
 	private String code;
-	@XmlElement
 	private String name;
-	@XmlElement
 	private String um;
-	@XmlElement
 	private float quantity;
-	@XmlElement
 	private float price;
-	@XmlElement
 	private float discount;
-	@XmlElement
 	private float adj_price;
-	@XmlElement
 	private float iva;
 	private java.sql.Date date_order;
 	private boolean state;

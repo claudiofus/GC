@@ -1,20 +1,12 @@
 package gc.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
+@JsonIgnoreProperties(value = {"color"})
 public class Event {
-	@XmlElement
 	private int id;
-	@XmlElement
 	private String title;
-	@XmlElement
 	private boolean paid;
 	private java.sql.Date start_date;
 

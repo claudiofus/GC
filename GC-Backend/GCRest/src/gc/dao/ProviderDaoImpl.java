@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gc.conn.JDBCConnection;
+import gc.db.DBProvider;
 import gc.model.Provider;
-import gc.utils.DBUtils;
 
 public class ProviderDaoImpl {
 
@@ -17,7 +17,7 @@ public class ProviderDaoImpl {
 		Connection connection = jdbcConnection.getConnnection();
 
 		try {
-			productData = DBUtils.queryProvider(connection);
+			productData = DBProvider.queryProvider(connection);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -31,7 +31,7 @@ public class ProviderDaoImpl {
 		Connection connection = jdbcConnection.getConnnection();
 
 		try {
-			productData = DBUtils.findProvider(connection, code);
+			productData = DBProvider.findProvider(connection, code);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

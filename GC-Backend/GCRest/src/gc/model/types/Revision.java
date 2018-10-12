@@ -3,7 +3,7 @@ package gc.model.types;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Revision extends AScadenza implements Serializable{
+public class Revision extends BaseDeadline implements Serializable{
 	/**
 	 * 
 	 */

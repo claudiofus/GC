@@ -18,12 +18,13 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 
+import gc.db.DBOrder;
+import gc.db.DBProduct;
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.UM;
 import gc.model.types.BaseOrder;
-import gc.model.types.Scadenza;
-import gc.utils.DBUtils;
+import gc.model.types.Deadline;
 import gc.utils.Utils;
 
 public class AutofficinaLippolis extends BaseOrder {
@@ -150,11 +151,11 @@ public class AutofficinaLippolis extends BaseOrder {
 						quantity, price, discount < 1 ? 0 : discount, adj_price,
 						iva, sqlDate);
 			}
-			Product prdToFind = DBUtils.findProduct(conn, prd);
+			Product prdToFind = DBProduct.findProduct(conn, prd);
 			if (prdToFind == null) {
-				DBUtils.insertProduct(conn, prd);
+				DBProduct.insertProduct(conn, prd);
 			}
-			DBUtils.insertOrdine(conn, ord, false);
+			DBOrder.insertOrdine(conn, ord, false);
 			conn.commit();
 			items.add(ord);
 			map.put(lastKey, items);
@@ -180,15 +181,15 @@ public class AutofficinaLippolis extends BaseOrder {
 	}
 
 	@Override
-	public List<Scadenza> getDeadlines(PDDocument document, int page) {
+	public List<Deadline> getDeadlines(PDDocument document, int page) {
 		String scad = Utils.extractDataNoSpaces(document, SCADENZE_FATT, page);
-		List<Scadenza> scadList = new ArrayList<Scadenza>();
+		List<Deadline> scadList = new ArrayList<Deadline>();
 		List<String> dateList = Utils.getDateFromString(scad);
 		List<Float> amount = getAmountFromString(scad);
 
 		try {
 			for (int i = 0; i < dateList.size(); i++) {
-				Scadenza sc = new Scadenza();
+				Deadline sc = new Deadline();
 				java.util.Date date = new SimpleDateFormat("dd/MM/yyyy")
 						.parse(dateList.get(i));
 				java.sql.Date sqlDate = new java.sql.Date(date.getTime());

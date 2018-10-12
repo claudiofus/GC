@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gc.conn.JDBCConnection;
+import gc.db.DBEvent;
 import gc.model.Event;
-import gc.utils.DBUtils;
 
 public class EventDaoImpl {
 
@@ -17,7 +17,21 @@ public class EventDaoImpl {
 		List<Event> eventData = new ArrayList<>();
 
 		try {
-			eventData = DBUtils.queryEvent(conn);
+			eventData = DBEvent.queryEvent(conn);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return eventData;
+	}
+
+	public Event getEventByID(int eventID) {
+		JDBCConnection jdbcConnection = new JDBCConnection();
+		Connection conn = jdbcConnection.getConnnection();
+		Event eventData = null;
+
+		try {
+			eventData = DBEvent.getEvent(conn, eventID);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -30,7 +44,7 @@ public class EventDaoImpl {
 		Connection conn = jdbcConnection.getConnnection();
 
 		try {
-			int id = DBUtils.insertEvent(conn, ev);
+			int id = DBEvent.insertEvent(conn, ev);
 			ev.setId(id);
 			conn.commit();
 		} catch (SQLException e) {
@@ -57,9 +71,9 @@ public class EventDaoImpl {
 			updEv.setStart_date(ev.getStart_date());
 			updEv.setPaid(ev.isPaid());
 
-			DBUtils.updateEvent(conn, updEv);
+			DBEvent.updateEvent(conn, updEv);
 			conn.commit();
-			updEv = DBUtils.selectEvent(conn, updEv);
+			updEv = DBEvent.selectEvent(conn, updEv.getId());
 			conn.commit();
 		} catch (Exception e) {
 			System.err.println("Error during update event");
@@ -78,15 +92,13 @@ public class EventDaoImpl {
 		return updEv;
 	}
 
-	public Event deleteEvent(Event ev) {
+	public boolean deleteEvent(int id) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
 
 		try {
-			if (ev != null) {
-				DBUtils.deleteEvent(conn, ev);
-				conn.commit();
-			}
+			DBEvent.deleteEvent(conn, id);
+			conn.commit();
 		} catch (Exception e) {
 			System.err.println("Error during delete event");
 			e.printStackTrace();
@@ -101,6 +113,6 @@ public class EventDaoImpl {
 			}
 		}
 
-		return ev;
+		return true;
 	}
 }

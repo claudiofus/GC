@@ -19,6 +19,7 @@ import org.apache.pdfbox.text.PDFTextStripperByArea;
 import org.apache.pdfbox.text.TextPosition;
 
 import gc.model.Product;
+import gc.model.Vehicle;
 
 public class Utils {
 	public static <E extends Enum<E>> boolean isInEnum(String value,
@@ -50,6 +51,12 @@ public class Utils {
 			final String code) {
 		return list.stream().filter(o -> o.getCode().equalsIgnoreCase(code))
 				.findFirst().isPresent();
+	}
+
+	public static boolean containsPlate(final List<Vehicle> list,
+			final String plate) {
+		return list.stream().filter(o -> o.getPlate().equals(plate)).findFirst()
+				.isPresent();
 	}
 
 	public static float calcDiscount(float original, float discount) {
@@ -109,23 +116,20 @@ public class Utils {
 		}
 	}
 
-	public static String extractDataNoSpaces(PDDocument document, Rectangle rect,
-			int page)
-	{
-	    String readText = "";
+	public static String extractDataNoSpaces(PDDocument document,
+			Rectangle rect, int page) {
+		String readText = "";
 		StringBuffer buf = new StringBuffer();
 		try {
 			if (!document.isEncrypted()) {
-				PDFTextStripperByArea stripper = new PDFTextStripperByArea()
-			    {
-			        @Override
-			        protected void processTextPosition(TextPosition text)
-			        {
-			            String character = text.getUnicode();
-			            if (character != null && character.trim().length() != 0)
-			                super.processTextPosition(text);
-			        }
-			    };
+				PDFTextStripperByArea stripper = new PDFTextStripperByArea() {
+					@Override
+					protected void processTextPosition(TextPosition text) {
+						String character = text.getUnicode();
+						if (character != null && character.trim().length() != 0)
+							super.processTextPosition(text);
+					}
+				};
 				stripper.setSortByPosition(true);
 				stripper.addRegion("class1", rect);
 				stripper.extractRegions(document.getPage(page));
@@ -139,27 +143,27 @@ public class Utils {
 		}
 		return readText;
 	}
-	
-//	public static String extractData(PDDocument document, Rectangle rect,
-//			int page) {
-//		String readText = "";
-//		StringBuffer buf = new StringBuffer();
-//		try {
-//			if (!document.isEncrypted()) {
-//				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
-//				stripper.setSortByPosition(true);
-//				stripper.addRegion("class1", rect);
-//				stripper.extractRegions(document.getPage(page));
-//				buf.append(stripper.getTextForRegion("class1"));
-//			}
-//			readText = buf.toString();
-//			System.out.println("readText: " + readText);
-//		} catch (IOException e) {
-//			System.err.println(
-//					"Exception while trying to read pdf document - " + e);
-//		}
-//		return readText;
-//	}
+
+	// public static String extractData(PDDocument document, Rectangle rect,
+	// int page) {
+	// String readText = "";
+	// StringBuffer buf = new StringBuffer();
+	// try {
+	// if (!document.isEncrypted()) {
+	// PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+	// stripper.setSortByPosition(true);
+	// stripper.addRegion("class1", rect);
+	// stripper.extractRegions(document.getPage(page));
+	// buf.append(stripper.getTextForRegion("class1"));
+	// }
+	// readText = buf.toString();
+	// System.out.println("readText: " + readText);
+	// } catch (IOException e) {
+	// System.err.println(
+	// "Exception while trying to read pdf document - " + e);
+	// }
+	// return readText;
+	// }
 
 	public static java.sql.Date extractOrderDate(String regex, String text,
 			String dateFormat) {

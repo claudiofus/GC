@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import gc.model.types.BaseOrder;
-import gc.model.types.Scadenza;
+import gc.model.types.Deadline;
 import gc.utils.Utils;
 
 public class Intermobil extends BaseOrder {
@@ -91,15 +91,15 @@ public class Intermobil extends BaseOrder {
 	}
 
 	@Override
-	public List<Scadenza> getDeadlines(PDDocument document, int page) {
+	public List<Deadline> getDeadlines(PDDocument document, int page) {
 		String scad = Utils.extractDataNoSpaces(document, SCADENZE_FATT, page);
-		List<Scadenza> scadList = new ArrayList<Scadenza>();
+		List<Deadline> scadList = new ArrayList<Deadline>();
 		List<String> dateList = Utils.getDateFromString(scad);
 		List<Float> amount = getAmountFromString(scad);
 
 		try {
 			for (int i = 0; i < dateList.size(); i++) {
-				Scadenza sc = new Scadenza();
+				Deadline sc = new Deadline();
 				java.util.Date date = new SimpleDateFormat("dd/MM/yyyy")
 						.parse(dateList.get(i));
 				java.sql.Date sqlDate = new java.sql.Date(date.getTime());

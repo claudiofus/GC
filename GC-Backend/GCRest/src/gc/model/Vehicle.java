@@ -2,38 +2,23 @@ package gc.model;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import gc.model.types.CarTax;
 import gc.model.types.Insurance;
 import gc.model.types.Penalty;
 import gc.model.types.Revision;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-@JsonDeserialize(as = Vehicle.class)
 public class Vehicle {
-	private int id;
-	@XmlElement
 	private String brand;
-	@XmlElement
 	private String model;
-	@XmlElement
 	private String color;
-	@XmlElement(name = "registration_date")
+	@JsonProperty("registration_date")
 	private java.sql.Date firstRegistration;
-	@XmlElement
 	private String plate;
-	@XmlElement
 	private Insurance insurance;
-	@XmlElement(name = "car_tax")
+	@JsonProperty("car_tax")
 	private CarTax carTax;
-	@XmlElement
 	private Revision revision;
 	private List<Penalty> penalty;
 
@@ -48,14 +33,6 @@ public class Vehicle {
 		this.color = color;
 		this.firstRegistration = firstRegistration;
 		this.plate = plate;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	public String getBrand() {

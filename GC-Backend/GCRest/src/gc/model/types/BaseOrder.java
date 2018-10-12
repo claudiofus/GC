@@ -14,11 +14,14 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import gc.db.DBOrder;
+import gc.db.DBProduct;
 import gc.interfaces.IInvoice;
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.UM;
-import gc.utils.DBUtils;
 import gc.utils.Utils;
 
 public class BaseOrder extends Order implements IInvoice {
@@ -184,17 +187,18 @@ public class BaseOrder extends Order implements IInvoice {
 							discount < 1 ? 0 : discount, adj_price, iva,
 							sqlDate);
 
-			Product prdToFind = DBUtils.findProduct(conn, prd);
+			Product prdToFind = DBProduct.findProduct(conn, prd);
 			if (prdToFind == null) {
-				DBUtils.insertProduct(conn, prd);
+				DBProduct.insertProduct(conn, prd);
 			}
-			DBUtils.insertOrdine(conn, ord, false);
+			DBOrder.insertOrdine(conn, ord, false);
 			items.add(ord);
 			map.put(lastKey, items);
 		}
 	}
 
 	@Override
+	@JsonIgnore
 	public Rectangle getIdFatt() {
 		return null;
 	}
@@ -210,7 +214,7 @@ public class BaseOrder extends Order implements IInvoice {
 	}
 
 	@Override
-	public List<Scadenza> getDeadlines(PDDocument file, int page) {
+	public List<Deadline> getDeadlines(PDDocument file, int page) {
 		return null;
 	}
 }
