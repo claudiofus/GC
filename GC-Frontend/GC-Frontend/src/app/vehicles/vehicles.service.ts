@@ -6,7 +6,12 @@ import {map} from 'rxjs/operators';
 export class VehiclesService {
   protected url = 'http://localhost:8000/GCRest/rest/vehicle/all';
   protected url2 = 'http://localhost:8000/GCRest/rest/vehicle/addVehicle';
-  protected url3 = 'http://localhost:8000/GCRest/rest/vehicle/updateVehicle';
+  protected url3 = 'http://localhost:8000/GCRest/rest/vehicle/addPenalty';
+  protected url4 = 'http://localhost:8000/GCRest/rest/vehicle/updateVehicle';
+  protected url5 = 'http://localhost:8000/GCRest/rest/vehicle/insurance/all';
+  protected url6 = 'http://localhost:8000/GCRest/rest/vehicle/cartax/all';
+  protected url7 = 'http://localhost:8000/GCRest/rest/vehicle/revision/all';
+  protected url8 = 'http://localhost:8000/GCRest/rest/vehicle/penalty/all';
 
   constructor(private http: HttpClient) {
   }
@@ -15,6 +20,30 @@ export class VehiclesService {
   getAll() {
     return this.http
       .get<any[]>(this.url)
+      .pipe(map(data => data));
+  }
+
+  getAllInsurances() {
+    return this.http
+      .get<any[]>(this.url5)
+      .pipe(map(data => data));
+  }
+
+  getAllCarTaxes() {
+    return this.http
+      .get<any[]>(this.url6)
+      .pipe(map(data => data));
+  }
+
+  getAllRevisions() {
+    return this.http
+      .get<any[]>(this.url7)
+      .pipe(map(data => data));
+  }
+
+  getAllPenalties() {
+    return this.http
+      .get<any[]>(this.url8)
       .pipe(map(data => data));
   }
 
@@ -32,6 +61,15 @@ export class VehiclesService {
 
     return this.http
       .post<any[]>(this.url3, json)
+      .toPromise()
+      .then(data => data);
+  }
+
+  updateVehicle(json): Promise<any> {
+    console.log('Invoking service updateVehicle');
+
+    return this.http
+      .post<any[]>(this.url4, json)
       .toPromise()
       .then(data => data);
   }

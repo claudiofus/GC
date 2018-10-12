@@ -4,13 +4,21 @@ import {ColumnSetting} from '../../common/components/generic-table/layout.model'
 
 @Component({
   selector: 'app-vehicles',
-  templateUrl: './vehicles.component.html'
+  templateUrl: './vehicles.component.html',
+  styleUrls: ['./vehicles.component.css']
 })
 export class VehiclesComponent implements OnInit {
   vehicles: any[];
+  insurances: any[];
+  cartaxes: any[];
+  revisions: any[];
+  vehicle: any;
   addVehiclePanel = false;
   addPenaltyPanel = false;
-  header = ['Targa', 'Data', 'Importo', 'Descrizione', 'Punti'];
+  addInsurancePanel = false;
+  addCarTaxPanel = false;
+  addRevisionPanel = false;
+  header = ['Targa', 'Data multa', 'Importo', 'Descrizione', 'Punti', 'Pagato'];
   projects: any[];
   projectSettings: ColumnSetting[];
 
@@ -38,38 +46,24 @@ export class VehiclesComponent implements OnInit {
     this.projects = [];
     this.projectSettings = [{primaryKey: 'plate'}, {primaryKey: 'date', format: 'date'},
       {primaryKey: 'amount', format: 'currency'}, {primaryKey: 'description'},
-      {primaryKey: 'points'}];
+      {primaryKey: 'points'}, {primaryKey: 'paid'}];
     this.getRestItems();
-  }
-
-  getRestItems() {
-    this.vehiclesService.getAll().subscribe(
-      restItems => {
-        this.vehicles = restItems;
-        const __this = this;
-        for (const v of this.vehicles) {
-          if (v.penalty) {
-            v.penalty.map(function (p) {
-              __this.projects.push({
-                plate: v.plate,
-                date: p.deadlineDate,
-                amount: -p.amount,
-                description: p.description,
-                points: -p.points
-              });
-            });
-          }
-        }
-      });
+    this.getInsurances();
+    this.getCarTaxes();
+    this.getRevisions();
+    this.getPenalties();
   }
 
   addVehicle(vehicle) {
-    console.log(vehicle);
+    const _this = this;
     this.vehiclesService.addVehicle(vehicle)
-      .then(result => {
-        console.log(result);
-        this.addVehiclePanel = false;
-        this.getRestItems();
+      .then(function () {
+        _this.addVehiclePanel = false;
+        _this.getRestItems();
+        _this.getInsurances();
+        _this.getCarTaxes();
+        _this.getRevisions();
+        _this.getPenalties();
       })
       .catch(err => {
         console.error(err);
@@ -77,15 +71,110 @@ export class VehiclesComponent implements OnInit {
   }
 
   addPenalty(vehicle) {
-    console.log(vehicle);
+    const _this = this;
     this.vehiclesService.addPenalty(vehicle)
-      .then(result => {
-        console.log(result);
-        this.addPenaltyPanel = false;
-        this.getRestItems();
+      .then(function () {
+        _this.addPenaltyPanel = false;
+        _this.getPenalties();
       })
       .catch(err => {
         console.error(err);
       });
+  }
+
+  getRestItems() {
+    this.vehiclesService.getAll().subscribe(
+      restItems => {
+        this.vehicles = restItems;
+      });
+  }
+
+  getInsurances() {
+    this.vehiclesService.getAllInsurances().subscribe(
+      restItems => {
+        this.insurances = restItems;
+      }
+    );
+  }
+
+  getCarTaxes() {
+    this.vehiclesService.getAllCarTaxes().subscribe(
+      restItems => {
+        this.cartaxes = restItems;
+      }
+    );
+  }
+
+  getRevisions() {
+    this.vehiclesService.getAllRevisions().subscribe(
+      restItems => {
+        this.revisions = restItems;
+      }
+    );
+  }
+
+  getPenalties() {
+    this.vehiclesService.getAllPenalties().subscribe(
+      restItems => {
+        this.projects = [];
+        const __this = this;
+        for (const v of restItems) {
+          v.penalty.map(function (p) {
+            __this.projects.push({
+              plate: v.plate,
+              date: p.deadlineDate,
+              amount: -p.amount,
+              description: p.description,
+              points: -p.points,
+              paid: p.paid ? 'SI' : 'NO'
+            });
+          });
+        }
+      }
+    );
+  }
+
+  edit(vehicle, type) {
+    this.vehicle = Object.assign({}, vehicle);
+    const foundVeh = this.vehicles.find(v => {
+      return v.plate === vehicle.plate;
+    });
+    this.vehicle.brand = foundVeh.brand;
+    this.vehicle.model = foundVeh.model;
+    this.hidePanels();
+
+    if (type === 'insurance') {
+      this.addInsurancePanel = true;
+    } else if (type === 'car_tax') {
+      this.addCarTaxPanel = true;
+    } else if (type === 'revision') {
+      this.addRevisionPanel = true;
+    }
+  }
+
+  save(vehicle, type) {
+    this.vehicle = Object.assign({}, vehicle);
+
+    const _this = this;
+    this.vehiclesService.updateVehicle(vehicle)
+      .then(function () {
+        _this.hidePanels();
+        if (type === 'insurance') {
+          _this.getInsurances();
+        } else if (type === 'car_tax') {
+          _this.getCarTaxes();
+        } else if (type === 'revision') {
+          _this.getRevisions();
+        }
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  hidePanels() {
+    this.addInsurancePanel = false;
+    this.addCarTaxPanel = false;
+    this.addRevisionPanel = false;
   }
 }

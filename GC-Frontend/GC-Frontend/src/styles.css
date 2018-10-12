@@ -218,7 +218,7 @@ table.redTable {
 
 table.redTable td, table.redTable th {
   border  : 1px solid #AAAAAA;
-  padding : 3px 2px;
+  padding : 3px 5px;
 }
 
 table.redTable tbody td {
@@ -497,4 +497,8 @@ table.redTable td button {
   .form_wrapper input[type="button"], .form_wrapper input[type="reset"], .form_wrapper input[type="submit"] {
     width : 25%;
   }
+}
+
+.form-control[readonly] {
+  background-color : transparent;
 }

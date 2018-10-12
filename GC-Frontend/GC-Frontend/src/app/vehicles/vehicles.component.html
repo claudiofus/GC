@@ -27,7 +27,7 @@
         <div class="card_title">Multe recenti</div>
         <app-generic-table [records]="projects" [settings]="projectSettings"
                            [header]="header"></app-generic-table>
-        <button class="button mt10" (click)="addPenaltyPanel = !addPenaltyPanel;">
+        <button class="button mt10" (click)="addPenaltyPanel = !addPenaltyPanel;" *ngIf="vehicles.length > 0">
           {{addPenaltyPanel === true ? 'Nascondi' : 'Aggiungi multa'}}
         </button>
       </div>
@@ -49,18 +49,29 @@
       <div class="card_content">
         <div class="card_title">Scadenza assicurazione</div>
         <div class="parentDiv">
-          <div class="card_text">
+          <div class="card_text col-sm-12">
             <table class="table table-hover">
               <tbody>
-              <ng-container *ngFor="let vehicle of vehicles">
+              <ng-container *ngFor="let vehicle of insurances">
                 <tr *ngIf="vehicle.insurance">
                   <td>{{vehicle.plate}}</td>
                   <td>{{vehicle.insurance.deadlineDate | date:'dd/MM/yyyy'}}</td>
                   <td>{{vehicle.insurance.amount}} €</td>
+                  <td>{{vehicle.insurance.paid ? 'PAGATO' : 'NON PAGATO'}}</td>
+                  <td>
+                    <button class="btn-success"
+                            (click)="edit(vehicle, 'insurance');">
+                      Modifica
+                    </button>
+                  </td>
                 </tr>
               </ng-container>
               </tbody>
             </table>
+            <div *ngIf="addInsurancePanel">
+              <app-deadline-form [type]="'insurance'" [vehicles]="vehicles" [selVehicle]="vehicle"
+                                 (submit)="save(vehicle, 'insurance')"></app-deadline-form>
+            </div>
           </div>
         </div>
       </div>
@@ -71,18 +82,29 @@
       <div class="card_content">
         <div class="card_title">Scadenza Bollo</div>
         <div class="parentDiv">
-          <div class="card_text">
+          <div class="card_text col-sm-12">
             <table class="table table-hover">
               <tbody>
-              <ng-container *ngFor="let vehicle of vehicles">
+              <ng-container *ngFor="let vehicle of cartaxes">
                 <tr *ngIf="vehicle.car_tax">
                   <td>{{vehicle.plate}}</td>
                   <td>{{vehicle.car_tax.deadlineDate | date:'dd/MM/yyyy'}}</td>
                   <td>{{vehicle.car_tax.amount}} €</td>
+                  <td>{{vehicle.car_tax.paid ? 'PAGATO' : 'NON PAGATO'}}</td>
+                  <td>
+                    <button class="btn-success"
+                            (click)="edit(vehicle, 'car_tax');">
+                      Modifica
+                    </button>
+                  </td>
                 </tr>
               </ng-container>
               </tbody>
             </table>
+            <div *ngIf="addCarTaxPanel">
+              <app-deadline-form [type]="'car_tax'" [vehicles]="vehicles" [selVehicle]="vehicle"
+                                 (submit)="save(vehicle, 'car_tax')"></app-deadline-form>
+            </div>
           </div>
         </div>
       </div>
@@ -93,18 +115,29 @@
       <div class="card_content">
         <div class="card_title">Scadenza revisione</div>
         <div class="parentDiv">
-          <div class="card_text">
+          <div class="card_text col-sm-12">
             <table class="table table-hover">
               <tbody>
-              <ng-container *ngFor="let vehicle of vehicles">
+              <ng-container *ngFor="let vehicle of revisions">
                 <tr *ngIf="vehicle.revision">
                   <td>{{vehicle.plate}}</td>
                   <td>{{vehicle.revision.deadlineDate | date:'dd/MM/yyyy'}}</td>
                   <td>{{vehicle.revision.amount}} €</td>
+                  <td>{{vehicle.revision.paid ? 'PAGATO' : 'NON PAGATO'}}</td>
+                  <td>
+                    <button class="btn-success"
+                            (click)="edit(vehicle, 'revision');">
+                      Modifica
+                    </button>
+                  </td>
                 </tr>
               </ng-container>
               </tbody>
             </table>
+            <div *ngIf="addRevisionPanel">
+              <app-deadline-form [type]="'revision'" [vehicles]="vehicles" [selVehicle]="vehicle"
+                                 (submit)="save(vehicle, 'revision')"></app-deadline-form>
+            </div>
           </div>
         </div>
       </div>

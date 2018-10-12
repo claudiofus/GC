@@ -86,7 +86,7 @@ export class AddInvoiceComponent implements OnInit {
         this.invoices = result;
 
         for (let i = 0; i < this.invoices.length; i++) {
-          const ddtMap = this.obj_to_map(this.invoices[i].DDTOrders);
+          const ddtMap = this.obj_to_map(this.invoices[i].ddtorders);
           this.deliveryNotes[i] = Array.from(ddtMap.keys());
           for (const el of this.deliveryNotes[i]) {
             this.itemsOrder[el] = Array.from(ddtMap.get(el).values());

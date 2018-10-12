@@ -39,6 +39,7 @@ import {DeadlinesService} from './deadlines/deadlines.service';
 import {VehiclesService} from './vehicles/vehicles.service';
 import {VehicleFormComponent} from '../common/components/vehicle-form/vehicle-form.component';
 import {PenaltyFormComponent} from '../common/components/penalty-form/penalty-form.component';
+import {DeadlineFormComponent} from '../common/components/deadline-form/deadline-form.component';
 
 registerLocaleData(localeIt, 'it');
 
@@ -79,6 +80,7 @@ registerLocaleData(localeIt, 'it');
     BuildingFormComponent,
     VehicleFormComponent,
     PenaltyFormComponent,
+    DeadlineFormComponent,
   ],
   providers: [{
     provide: LOCALE_ID,
