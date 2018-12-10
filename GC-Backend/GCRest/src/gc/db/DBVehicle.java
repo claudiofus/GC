@@ -8,6 +8,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.model.Event;
 import gc.model.Vehicle;
 import gc.model.types.CarTax;
@@ -16,13 +19,13 @@ import gc.model.types.Penalty;
 import gc.model.types.Revision;
 
 public class DBVehicle {
+	private static final Logger logger = LogManager.getLogger(DBVehicle.class.getName());
 
-	public static List<Vehicle> queryVehicle(Connection conn)
-			throws SQLException {
+	public static List<Vehicle> queryVehicle(Connection conn) throws SQLException {
 		String sql = "SELECT brand, model, color, first_registration, plate FROM gestione_cantieri.vehicle";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		System.out.println("queryVehicle: " + pstm.toString());
+		logger.info("queryVehicle: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Vehicle> list = new ArrayList<Vehicle>();
@@ -42,13 +45,12 @@ public class DBVehicle {
 		return list;
 	}
 
-	public static List<Vehicle> queryInsurance(Connection conn)
-			throws SQLException {
+	public static List<Vehicle> queryInsurance(Connection conn) throws SQLException {
 		String sql = "SELECT i.plate, i.eventID, e.start_date, i.amount, e.paid from gestione_cantieri.insurance i "
 				+ "INNER JOIN gestione_cantieri.event e ON i.eventID = e.id";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		System.out.println("queryInsurance: " + pstm.toString());
+		logger.info("queryInsurance: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Vehicle> list = new ArrayList<Vehicle>();
@@ -75,13 +77,12 @@ public class DBVehicle {
 		return list;
 	}
 
-	public static List<Vehicle> queryCarTax(Connection conn)
-			throws SQLException {
+	public static List<Vehicle> queryCarTax(Connection conn) throws SQLException {
 		String sql = "SELECT c.plate, c.eventID, e.start_date, c.amount, e.paid FROM gestione_cantieri.car_tax c"
 				+ " INNER JOIN gestione_cantieri.event e ON c.eventID = e.id";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		System.out.println("queryCarTax: " + pstm.toString());
+		logger.info("queryCarTax: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Vehicle> list = new ArrayList<Vehicle>();
@@ -108,13 +109,12 @@ public class DBVehicle {
 		return list;
 	}
 
-	public static List<Vehicle> queryRevision(Connection conn)
-			throws SQLException {
+	public static List<Vehicle> queryRevision(Connection conn) throws SQLException {
 		String sql = "SELECT r.plate, r.eventID, e.start_date, r.amount, e.paid FROM gestione_cantieri.revision r "
 				+ "INNER JOIN gestione_cantieri.event e ON r.eventID = e.id";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		System.out.println("queryRevision: " + pstm.toString());
+		logger.info("queryRevision: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Vehicle> list = new ArrayList<Vehicle>();
@@ -141,13 +141,12 @@ public class DBVehicle {
 		return list;
 	}
 
-	public static List<Vehicle> queryPenalty(Connection conn)
-			throws SQLException {
+	public static List<Vehicle> queryPenalty(Connection conn) throws SQLException {
 		String sql = "SELECT p.plate, p.eventID, p.date, p.amount, p.description, p.points, e.paid"
 				+ " FROM gestione_cantieri.penalty p INNER JOIN gestione_cantieri.event e ON p.eventID = e.id";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		System.out.println("queryPenalty: " + pstm.toString());
+		logger.info("queryPenalty: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Vehicle> list = new ArrayList<Vehicle>();
@@ -183,12 +182,10 @@ public class DBVehicle {
 		return list;
 	}
 
-	public static Vehicle insertVehicle(Connection conn, Vehicle vehicleData)
-			throws SQLException {
+	public static Vehicle insertVehicle(Connection conn, Vehicle vehicleData) throws SQLException {
 		String sql = "INSERT INTO gestione_cantieri.vehicle (brand, model, color, first_registration, plate) "
 				+ "VALUES (?, ?, ?, ?, ?)";
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		try {
 			pstm.setString(1, vehicleData.getBrand());
 			pstm.setString(2, vehicleData.getModel());
@@ -196,15 +193,14 @@ public class DBVehicle {
 			pstm.setDate(4, vehicleData.getFirstRegistration());
 			pstm.setString(5, vehicleData.getPlate());
 
-			System.out.println("insertVehicle: " + pstm.toString());
+			logger.info("insertVehicle: " + pstm.toString());
 
 			int affectedRows = pstm.executeUpdate();
 			if (affectedRows == 0) {
-				throw new SQLException(
-						"Inserting vehicle failed, no rows affected.");
+				throw new SQLException("Inserting vehicle failed, no rows affected.");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in method insertVehicle: ", e);
 		} finally {
 			pstm.close();
 		}
@@ -212,8 +208,7 @@ public class DBVehicle {
 		return vehicleData;
 	}
 
-	public static Vehicle updateInsurance(Connection conn, Vehicle vehicleData)
-			throws SQLException {
+	public static Vehicle updateInsurance(Connection conn, Vehicle vehicleData) throws SQLException {
 		String sql = "UPDATE gestione_cantieri.insurance SET eventID = ?, amount = ? WHERE plate = ?";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		try {
@@ -221,21 +216,19 @@ public class DBVehicle {
 			pstm.setFloat(2, vehicleData.getInsurance().getAmount());
 			pstm.setString(3, vehicleData.getPlate());
 
-			System.out.println("updateInsurance: " + pstm.toString());
+			logger.info("updateInsurance: " + pstm.toString());
 
 			int affectedRows = pstm.executeUpdate();
 			if (affectedRows == 0) {
-				throw new SQLException(
-						"Updating insurance failed, no rows affected.");
+				throw new SQLException("Updating insurance failed, no rows affected.");
 			}
 
-			Event ev = DBEvent.selectEvent(conn,
-					vehicleData.getInsurance().getEventID());
+			Event ev = DBEvent.selectEvent(conn, vehicleData.getInsurance().getEventID());
 			ev.setStart_date(vehicleData.getInsurance().getDeadlineDate());
 			ev.setPaid(vehicleData.getInsurance().isPaid());
 			DBEvent.updateEvent(conn, ev);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in method updateInsurance: ", e);
 		} finally {
 			pstm.close();
 		}
@@ -243,8 +236,7 @@ public class DBVehicle {
 		return vehicleData;
 	}
 
-	public static Vehicle updateCarTax(Connection conn, Vehicle vehicleData)
-			throws SQLException {
+	public static Vehicle updateCarTax(Connection conn, Vehicle vehicleData) throws SQLException {
 		String sql = "UPDATE gestione_cantieri.car_tax SET eventID = ?, amount = ? WHERE plate = ?";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		try {
@@ -252,21 +244,19 @@ public class DBVehicle {
 			pstm.setFloat(2, vehicleData.getCarTax().getAmount());
 			pstm.setString(3, vehicleData.getPlate());
 
-			System.out.println("updateCarTax: " + pstm.toString());
+			logger.info("updateCarTax: " + pstm.toString());
 
 			int affectedRows = pstm.executeUpdate();
 			if (affectedRows == 0) {
-				throw new SQLException(
-						"Updating car tax failed, no rows affected.");
+				throw new SQLException("Updating car tax failed, no rows affected.");
 			}
 
-			Event ev = DBEvent.selectEvent(conn,
-					vehicleData.getCarTax().getEventID());
+			Event ev = DBEvent.selectEvent(conn, vehicleData.getCarTax().getEventID());
 			ev.setStart_date(vehicleData.getCarTax().getDeadlineDate());
 			ev.setPaid(vehicleData.getCarTax().isPaid());
 			DBEvent.updateEvent(conn, ev);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in method updateCarTax: ", e);
 		} finally {
 			pstm.close();
 		}
@@ -274,8 +264,7 @@ public class DBVehicle {
 		return vehicleData;
 	}
 
-	public static Vehicle updateRevision(Connection conn, Vehicle vehicleData)
-			throws SQLException {
+	public static Vehicle updateRevision(Connection conn, Vehicle vehicleData) throws SQLException {
 		String sql = "UPDATE gestione_cantieri.revision SET eventID = ?, amount = ? WHERE plate = ?";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		try {
@@ -283,21 +272,19 @@ public class DBVehicle {
 			pstm.setFloat(2, vehicleData.getRevision().getAmount());
 			pstm.setString(3, vehicleData.getPlate());
 
-			System.out.println("updateRevision: " + pstm.toString());
+			logger.info("updateRevision: " + pstm.toString());
 
 			int affectedRows = pstm.executeUpdate();
 			if (affectedRows == 0) {
-				throw new SQLException(
-						"Updating revision failed, no rows affected.");
+				throw new SQLException("Updating revision failed, no rows affected.");
 			}
 
-			Event ev = DBEvent.selectEvent(conn,
-					vehicleData.getRevision().getEventID());
+			Event ev = DBEvent.selectEvent(conn, vehicleData.getRevision().getEventID());
 			ev.setStart_date(vehicleData.getRevision().getDeadlineDate());
 			ev.setPaid(vehicleData.getRevision().isPaid());
 			DBEvent.updateEvent(conn, ev);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in method updateRevision: ", e);
 		} finally {
 			pstm.close();
 		}
@@ -305,73 +292,62 @@ public class DBVehicle {
 		return vehicleData;
 	}
 
-	public static Insurance insertInsurance(Connection conn, Insurance ins,
-			String plate) throws SQLException {
+	public static Insurance insertInsurance(Connection conn, Insurance ins, String plate) throws SQLException {
 		String sql = "INSERT INTO gestione_cantieri.insurance (plate, amount, eventID) VALUES (?, ?, ?)";
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, plate);
 		pstm.setFloat(2, ins.getAmount());
 		pstm.setInt(3, ins.getEventID());
 
-		System.out.println("insertInsurance: " + pstm.toString());
+		logger.info("insertInsurance: " + pstm.toString());
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
-			throw new SQLException(
-					"Inserting insurance failed, no rows affected.");
+			throw new SQLException("Inserting insurance failed, no rows affected.");
 		}
 		pstm.close();
 		return ins;
 	}
 
-	public static CarTax insertCarTax(Connection conn, CarTax cartax,
-			String plate) throws SQLException {
+	public static CarTax insertCarTax(Connection conn, CarTax cartax, String plate) throws SQLException {
 		String sql = "INSERT INTO gestione_cantieri.car_tax (plate, amount, eventID) VALUES (?, ?, ?)";
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, plate);
 		pstm.setFloat(2, cartax.getAmount());
 		pstm.setInt(3, cartax.getEventID());
 
-		System.out.println("insertCarTax: " + pstm.toString());
+		logger.info("insertCarTax: " + pstm.toString());
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
-			throw new SQLException(
-					"Inserting car tax failed, no rows affected.");
+			throw new SQLException("Inserting car tax failed, no rows affected.");
 		}
 		pstm.close();
 		return cartax;
 	}
 
-	public static Revision insertRevision(Connection conn, Revision rev,
-			String plate) throws SQLException {
+	public static Revision insertRevision(Connection conn, Revision rev, String plate) throws SQLException {
 		String sql = "INSERT INTO gestione_cantieri.revision (plate, amount, eventID) VALUES (?, ?, ?)";
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, plate);
 		pstm.setFloat(2, rev.getAmount());
 		pstm.setInt(3, rev.getEventID());
 
-		System.out.println("insertRevision: " + pstm.toString());
+		logger.info("insertRevision: " + pstm.toString());
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
-			throw new SQLException(
-					"Inserting revision failed, no rows affected.");
+			throw new SQLException("Inserting revision failed, no rows affected.");
 		}
 
 		pstm.close();
 		return rev;
 	}
 
-	public static Penalty insertPenalty(Connection conn,
-			List<Penalty> penalties, String plate) throws SQLException {
+	public static Penalty insertPenalty(Connection conn, List<Penalty> penalties, String plate) throws SQLException {
 		String sql = "INSERT INTO gestione_cantieri.penalty (plate, date, amount, eventID, description, points, paid)"
 				+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
 		Penalty penalty = penalties.get(penalties.size() - 1);
 		pstm.setString(1, plate);
@@ -382,12 +358,11 @@ public class DBVehicle {
 		pstm.setInt(6, penalty.getPoints());
 		pstm.setBoolean(7, penalty.isPaid());
 
-		System.out.println("insertPenalty: " + pstm.toString());
+		logger.info("insertPenalty: " + pstm.toString());
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
-			throw new SQLException(
-					"Inserting penalty failed, no rows affected.");
+			throw new SQLException("Inserting penalty failed, no rows affected.");
 		}
 
 		pstm.close();

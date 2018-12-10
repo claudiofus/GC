@@ -84,10 +84,10 @@
           Assegna al cantiere
         </button>
 
-        <p class="green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
+        <p class="mt10 green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
           Prodotti assegnati correttamente al cantiere: <strong>{{itemsOrder[dn].building.name}}</strong>
         </p>
-        <p class="red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
+        <p class="mt10 red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
           <strong>Errore nell'assegnare i prodotti al cantiere: {{itemsOrder[dn].building.name}}</strong>
         </p>
       </div>

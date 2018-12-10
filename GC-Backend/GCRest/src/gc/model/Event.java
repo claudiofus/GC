@@ -3,11 +3,12 @@ package gc.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(value = {"color"})
+@JsonIgnoreProperties(value = { "color" })
 public class Event {
 	private int id;
 	private String title;
 	private boolean paid;
+	private boolean allDay;
 	private java.sql.Date start_date;
 
 	public Event() {
@@ -50,5 +51,13 @@ public class Event {
 
 	public void setPaid(boolean paid) {
 		this.paid = paid;
+	}
+
+	public boolean isAllDay() {
+		return allDay;
+	}
+
+	public void setAllDay(boolean allDay) {
+		this.allDay = allDay;
 	}
 }

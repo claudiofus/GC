@@ -1,7 +1,32 @@
+td {
+  width : 10%;
+}
+
 td:first-child {
   width : 40%;
 }
 
-td {
-  width : 10%;
+span {
+  margin-right : 5px;
+}
+
+.dot {
+  vertical-align : text-bottom;
+  height         : 20px;
+  width          : 20px;
+  border-radius  : 50%;
+  display        : inline-block;
+  margin-left    : 10px;
+}
+
+.dot.red {
+  background-color : #ad2121;
+}
+
+.dot.blue {
+  background-color : #1e90ff;
+}
+
+.dot.yellow {
+  background-color : #e3bc08;
 }

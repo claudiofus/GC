@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import gc.conn.JDBCConnection;
@@ -25,6 +27,7 @@ import gc.model.Order;
 import gc.model.UM;
 
 public class OrderDaoImpl {
+	private static final Logger logger = LogManager.getLogger(OrderDaoImpl.class.getName());
 
 	public Map<String, ArrayList<Order>> addOrder(String provider, File file) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
@@ -35,38 +38,32 @@ public class OrderDaoImpl {
 			PDDocument document = PDDocument.load(file);
 			for (int page = 0; page < document.getNumberOfPages(); page++) {
 				switch (provider) {
-					case "montone" :
-						map = new Montone().parseOrder(document, conn, page,
-								map);
-						break;
-					case "mag" :
-						map = new Mag().parseOrder(document, conn, page, map);
-						break;
-					case "resinaColor" :
-						map = new ResinaColor().parseOrder(document, conn, page,
-								map);
-						break;
-					case "intermobil" :
-						map = new Intermobil().parseOrder(document, conn, page,
-								map);
-						break;
-					case "finishVillage" :
-						map = new FinishVillage().parseOrder(document, conn,
-								page, map);
-						break;
-					case "autoffLippolis" :
-						map = new AutofficinaLippolis().parseOrder(document,
-								conn, page, map);
-						break;
-					case "akifix" :
-						map = new Akifix().parseOrder(document, conn, page,
-								map);
-						break;
+				case "montone":
+					map = new Montone().parseOrder(document, conn, page, map);
+					break;
+				case "mag":
+					map = new Mag().parseOrder(document, conn, page, map);
+					break;
+				case "resinaColor":
+					map = new ResinaColor().parseOrder(document, conn, page, map);
+					break;
+				case "intermobil":
+					map = new Intermobil().parseOrder(document, conn, page, map);
+					break;
+				case "finishVillage":
+					map = new FinishVillage().parseOrder(document, conn, page, map);
+					break;
+				case "autoffLippolis":
+					map = new AutofficinaLippolis().parseOrder(document, conn, page, map);
+					break;
+				case "akifix":
+					map = new Akifix().parseOrder(document, conn, page, map);
+					break;
 				}
 			}
 			return map;
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error in method addOrder: ", e);
 			return null;
 		} finally {
 			try {
@@ -84,11 +81,11 @@ public class OrderDaoImpl {
 			DBOrder.insertOrdine(conn, ord, true);
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method insertOrder: ", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				logger.error("Error in connection rollback: ", e1);
 			}
 		}
 
@@ -103,7 +100,7 @@ public class OrderDaoImpl {
 		try {
 			orderData = DBOrder.findOrder(conn, buildingName);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getOrders: ", e);
 		}
 
 		return orderData;
@@ -133,16 +130,17 @@ public class OrderDaoImpl {
 			updOrd = DBOrder.selectOrdine(conn, updOrd);
 			conn.commit();
 		} catch (Exception e) {
-			System.err.println("Error during update order");
-			e.printStackTrace();
+			logger.error("Error during update order", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
+				logger.error("Error in connection rollback: ", e1);
 			}
 		} finally {
 			try {
 				conn.close();
 			} catch (SQLException e) {
+				logger.error("Error in connection close: ", e);
 			}
 		}
 

@@ -1,6 +1,6 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {VehicleFormComponent} from './vehicle-form.component';
+import { VehicleFormComponent } from './vehicle-form.component';
 
 describe('VehicleFormComponent', () => {
   let component: VehicleFormComponent;

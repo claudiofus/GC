@@ -1,16 +1,13 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
 @Injectable()
-export class BuildingsService implements OnInit {
+export class BuildingsService {
   protected url = 'http://localhost:8000/GCRest/rest/building/all';
   protected url2 = 'http://localhost:8000/GCRest/rest/building/addBuilding';
   protected url3 = 'http://localhost:8000/GCRest/rest/building/details/';
   protected url4 = 'http://localhost:8000/GCRest/rest/building/directions/';
-
-  ngOnInit(): void {
-  }
 
   constructor(private http: HttpClient) {
   }

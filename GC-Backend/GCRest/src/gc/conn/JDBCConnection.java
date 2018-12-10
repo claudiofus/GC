@@ -4,7 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class JDBCConnection {
+	private static final Logger logger = LogManager.getLogger(JDBCConnection.class.getName());
 
 	public Connection getConnnection() {
 		String hostName = "localhost";
@@ -18,9 +22,9 @@ public class JDBCConnection {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 			connection = DriverManager.getConnection(connectionURL, userName, password);
 			connection.setAutoCommit(false);
+			logger.debug("Connection with driver successful");
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
-			System.err.println("Error during connection to DB, check connection.");
-			e.printStackTrace();
+			logger.error("Error during connection to DB, check connection.", e);
 		}
 
 		return connection;

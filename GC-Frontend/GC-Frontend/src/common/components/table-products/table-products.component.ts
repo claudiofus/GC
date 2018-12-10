@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {TableProductsService} from './table-products.service';
+import {PagerService} from './pager.service';
 
 @Component({
   selector: 'app-table',
@@ -13,8 +14,15 @@ export class TableComponent implements OnInit {
   searchString: string;
   selected: string;
   oldItem: any;
+  pager: any = {};
+  pagedItems: any[];
 
-  constructor(private tableProductsService: TableProductsService) {
+  constructor(private tableProductsService: TableProductsService, private pagerService: PagerService) {
+  }
+
+  setPage(page: number) {
+    this.pager = this.pagerService.getPager(this.products.length, page);
+    this.pagedItems = this.products.slice(this.pager.startIndex, this.pager.endIndex + 1);
   }
 
   ngOnInit() {
@@ -23,6 +31,7 @@ export class TableComponent implements OnInit {
     this.tableProductsService.getAll().subscribe(
       restItems => {
         restItems.map(product => this.products.push(product));
+        this.setPage(1);
       }
     );
   }
@@ -50,5 +59,9 @@ export class TableComponent implements OnInit {
         restItems.map(prHist => this.prices.push(prHist));
       }
     );
+  }
+
+  getProducts() {
+    return this.searchString ? this.products : this.pagedItems;
   }
 }

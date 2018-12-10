@@ -6,12 +6,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.conn.JDBCConnection;
 import gc.db.DBOrder;
 import gc.db.DBProduct;
 import gc.model.Product;
 
 public class ProductDaoImpl {
+	private static final Logger logger = LogManager.getLogger(ProductDaoImpl.class.getName());
 
 	public List<Product> getProducts() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
@@ -21,7 +25,7 @@ public class ProductDaoImpl {
 		try {
 			productData = DBProduct.queryProduct(connection);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getProducts: ", e);
 		}
 
 		return productData;
@@ -35,7 +39,7 @@ public class ProductDaoImpl {
 		try {
 			productData = DBOrder.queryProductPrice(connection);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getProductsPrices: ", e);
 		}
 
 		return productData;
@@ -49,7 +53,7 @@ public class ProductDaoImpl {
 		try {
 			productData = DBOrder.queryPricesHistory(connection, prdName);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getProductDetails: ", e);
 		}
 
 		return productData;
@@ -64,7 +68,7 @@ public class ProductDaoImpl {
 			DBProduct.insertProduct(connection, productData);
 			connection.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method insertProduct: ", e);
 		}
 
 		return productData;

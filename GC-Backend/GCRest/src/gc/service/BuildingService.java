@@ -29,6 +29,7 @@ public class BuildingService {
 
 	/**
 	 * Get all buildings.
+	 * 
 	 * @return List of all buildings.
 	 */
 	@GET
@@ -51,6 +52,7 @@ public class BuildingService {
 
 	/**
 	 * Get the distance from Google Maps API
+	 * 
 	 * @param dest address of building
 	 * @return distance and time to reach
 	 */
@@ -61,11 +63,10 @@ public class BuildingService {
 	public Response getDirections(@PathParam("dest") String dest) {
 
 		Client client = ClientBuilder.newClient();
-		WebTarget target = client
-				.target("https://maps.googleapis.com/maps/api/directions/json")
-				.queryParam("origin", "Via V. Guerra, 5, 70015 Noci BA")
-				.queryParam("destination", dest).queryParam("language", "it");
-		Invocation.Builder invocationBuilder =  target.request(MediaType.APPLICATION_JSON);
+		WebTarget target = client.target("https://maps.googleapis.com/maps/api/directions/json")
+				.queryParam("origin", "Via V. Guerra, 5, 70015 Noci BA").queryParam("destination", dest)
+				.queryParam("language", "it");
+		Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
 		Response response = invocationBuilder.get();
 		GMap route = response.readEntity(GMap.class);
 
@@ -74,6 +75,7 @@ public class BuildingService {
 
 	/**
 	 * Add a building
+	 * 
 	 * @param building to add
 	 * @return building added
 	 * @throws IOException
@@ -95,15 +97,13 @@ public class BuildingService {
 		for (Building el : buildingList) {
 			if (el.getName().equalsIgnoreCase(building.getName())) {
 				return Response.status(Response.Status.PRECONDITION_FAILED)
-						.entity("{\"error\": \"Building already exists with name: "
-								+ building.getName() + "\"}")
+						.entity("{\"error\": \"Building already exists with name: " + building.getName() + "\"}")
 						.build();
 			}
 		}
 
 		long todayMillis = new Date().getTime();
-		if (building.getEnd_date() == null || building.getEnd_date()
-				.after(new java.sql.Date(todayMillis))) {
+		if (building.getEnd_date() == null || building.getEnd_date().after(new java.sql.Date(todayMillis))) {
 			building.setOpen(true);
 		}
 
@@ -113,7 +113,8 @@ public class BuildingService {
 
 	/**
 	 * Assign a list of orders to a building
-	 * @param name of the building
+	 * 
+	 * @param name      of the building
 	 * @param orderList to assign
 	 * @return valid response
 	 * @throws IOException
@@ -122,8 +123,7 @@ public class BuildingService {
 	@Path("/assignBuilding/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response assignBuilding(@PathParam("name") String name,
-			final Order[] orderList) throws IOException {
+	public Response assignBuilding(@PathParam("name") String name, final Order[] orderList) throws IOException {
 
 		BuildingDaoImpl buildingDaoImpl = new BuildingDaoImpl();
 		Building building = buildingDaoImpl.getBuildingDetails(name);
@@ -141,6 +141,7 @@ public class BuildingService {
 
 	/**
 	 * Get a summary of utils for the building
+	 * 
 	 * @param name of the building
 	 * @return list of expenses for the building
 	 * @throws IOException
@@ -148,8 +149,7 @@ public class BuildingService {
 	@GET
 	@Path("/details/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getBuildingDetails(@PathParam("name") String name)
-			throws IOException {
+	public Response getBuildingDetails(@PathParam("name") String name) throws IOException {
 		List<Order> orderList = null;
 		OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
 		orderList = orderDaoImpl.getOrders(name);

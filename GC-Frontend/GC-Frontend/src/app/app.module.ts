@@ -31,7 +31,7 @@ import {SharedModule} from '../common/components/generic-table/shared.module';
 import {SelectBuildingComponent} from '../common/components/select-building/select-building.component';
 import {SelectUmComponent} from '../common/components/select-um/select-um.component';
 import {NguiAutoCompleteModule} from '@ngui/auto-complete';
-import {CalendarModule} from 'angular-calendar';
+import {CalendarModule, DateAdapter} from 'angular-calendar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NgbModalModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {FlatpickrModule} from 'angularx-flatpickr';
@@ -40,6 +40,8 @@ import {VehiclesService} from './vehicles/vehicles.service';
 import {VehicleFormComponent} from '../common/components/vehicle-form/vehicle-form.component';
 import {PenaltyFormComponent} from '../common/components/penalty-form/penalty-form.component';
 import {DeadlineFormComponent} from '../common/components/deadline-form/deadline-form.component';
+import {adapterFactory} from 'angular-calendar/date-adapters/date-fns';
+import {PagerService} from '../common/components/table-products/pager.service';
 
 registerLocaleData(localeIt, 'it');
 
@@ -57,7 +59,10 @@ registerLocaleData(localeIt, 'it');
     CommonModule,
     NgbModalModule,
     FlatpickrModule.forRoot(),
-    CalendarModule.forRoot()
+    CalendarModule.forRoot({
+      provide: DateAdapter,
+      useFactory: adapterFactory
+    })
   ],
   declarations: [
     AppComponent,
@@ -88,6 +93,7 @@ registerLocaleData(localeIt, 'it');
   },
     ProductListService,
     AddInvoiceService,
+    PagerService,
     TableProductsService,
     BuildingsService,
     DeadlinesService,

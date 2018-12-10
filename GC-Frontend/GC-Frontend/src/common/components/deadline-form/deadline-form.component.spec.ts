@@ -1,6 +1,6 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {DeadlineFormComponent} from './deadline-form.component';
+import { DeadlineFormComponent } from './deadline-form.component';
 
 describe('DeadlineFormComponent', () => {
   let component: DeadlineFormComponent;

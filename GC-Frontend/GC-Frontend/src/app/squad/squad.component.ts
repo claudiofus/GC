@@ -1,15 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'app-squad',
   templateUrl: './squad.component.html',
   styleUrls: ['./squad.component.css']
 })
-export class SquadComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
+export class SquadComponent {
 
 }

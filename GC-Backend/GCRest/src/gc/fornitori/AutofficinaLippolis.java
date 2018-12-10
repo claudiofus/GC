@@ -15,6 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 
@@ -28,18 +30,17 @@ import gc.model.types.Deadline;
 import gc.utils.Utils;
 
 public class AutofficinaLippolis extends BaseOrder {
+	private static final Logger logger = LogManager.getLogger(AutofficinaLippolis.class.getName());
+
 	/**
 	 * The coordinates of the Rectangles are expressed in points (ppt) without
 	 * rotation nor reflection of the page.
 	 */
 	private static final Rectangle ID_FATT = new Rectangle(351, 240, 82, 14);
 	private static final Rectangle DATA_FATT = new Rectangle(463, 240, 44, 12);
-	private static final Rectangle SCADENZE_FATT = new Rectangle(35, 723, 515,
-			11);
-	private static final Rectangle ORDERS_AREA = new Rectangle(33, 269, 519,
-			343);
-	private static final Rectangle NUM_FATT_RECT = new Rectangle(316, 239, 121,
-			16);
+	private static final Rectangle SCADENZE_FATT = new Rectangle(35, 723, 515, 11);
+	private static final Rectangle ORDERS_AREA = new Rectangle(33, 269, 519, 343);
+	private static final Rectangle NUM_FATT_RECT = new Rectangle(316, 239, 121, 16);
 	private static final String DB_CODE = "autoffLippolis";
 	private static final String DATE_ORDER_REGEX = "\\d{2}\\/\\d{2}\\/\\d{4}";
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
@@ -48,25 +49,20 @@ public class AutofficinaLippolis extends BaseOrder {
 		super();
 	}
 
-	public AutofficinaLippolis(int id, String productID, String productDesc,
-			String um, float quantity, float price, float discount,
-			float adj_price, float iva, java.sql.Date sqlDate) {
-		super(id, productID, productDesc, um, quantity, price, discount,
-				adj_price, iva, sqlDate);
+	public AutofficinaLippolis(int id, String productID, String productDesc, String um, float quantity, float price,
+			float discount, float adj_price, float iva, java.sql.Date sqlDate) {
+		super(id, productID, productDesc, um, quantity, price, discount, adj_price, iva, sqlDate);
 	}
 
-	public AutofficinaLippolis(String productID, String productDesc, String um,
-			float quantity, float price, float discount, float adj_price,
-			float iva, java.sql.Date sqlDate) {
+	public AutofficinaLippolis(String productID, String productDesc, String um, float quantity, float price,
+			float discount, float adj_price, float iva, java.sql.Date sqlDate) {
 
-		super(productID, productDesc, um, quantity, price, discount, adj_price,
-				iva, sqlDate);
+		super(productID, productDesc, um, quantity, price, discount, adj_price, iva, sqlDate);
 	}
 
 	@Override
-	public LinkedMap<String, ArrayList<Order>> parseOrder(PDDocument document,
-			Connection conn, int page, LinkedMap<String, ArrayList<Order>> map)
-			throws InvalidPasswordException, IOException {
+	public LinkedMap<String, ArrayList<Order>> parseOrder(PDDocument document, Connection conn, int page,
+			LinkedMap<String, ArrayList<Order>> map) throws InvalidPasswordException, IOException {
 		String num_fatt = Utils.extractDataNoSpaces(document, NUM_FATT_RECT, page);
 		String esito = Utils.extractDataNoSpaces(document, ORDERS_AREA, page);
 		String[] righe = esito.split("\n");
@@ -78,16 +74,14 @@ public class AutofficinaLippolis extends BaseOrder {
 					populateMap(sqlDate, map, conn, riga, false);
 					conn.commit();
 				} catch (Exception e) {
-					System.err.println("Error parsing : " + riga);
-					System.out.println(
-							"Strategy changed, retry to parse : " + riga);
+					logger.error("Error parsing : " + riga);
+					logger.info("Strategy changed, retry to parse : " + riga);
 					try {
 						conn.rollback();
 						populateMap(sqlDate, map, conn, riga, true);
 						conn.commit();
 					} catch (Exception e1) {
-						System.err.println("Unable to parse : " + riga);
-						e.printStackTrace();
+						logger.error("Unable to parse : " + riga, e);
 					}
 				}
 			}
@@ -95,19 +89,15 @@ public class AutofficinaLippolis extends BaseOrder {
 		return map;
 	}
 
-	public void populateMap(java.sql.Date sqlDate,
-			LinkedMap<String, ArrayList<Order>> map, Connection conn,
+	public void populateMap(java.sql.Date sqlDate, LinkedMap<String, ArrayList<Order>> map, Connection conn,
 			String riga, boolean useDot) throws Exception {
-		final NumberFormat format = NumberFormat
-				.getNumberInstance(Locale.getDefault());
+		final NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
 		if (format instanceof DecimalFormat) {
 			((DecimalFormat) format).setParseBigDecimal(true);
 		}
 		sqlDate = Utils.extractOrderDate(DATE_ORDER_REGEX, riga, DATE_FORMAT);
 		String lastKey = map.lastKey();
-		ArrayList<Order> items = map.get(lastKey) == null
-				? new ArrayList<>()
-				: map.get(lastKey);
+		ArrayList<Order> items = map.get(lastKey) == null ? new ArrayList<>() : map.get(lastKey);
 		String[] itemParts = riga.trim().replaceAll(" +", ";").split(";");
 		Order ord = new AutofficinaLippolis();
 		if (itemParts.length > 5) {
@@ -133,23 +123,17 @@ public class AutofficinaLippolis extends BaseOrder {
 			float price = format.parse(itemParts[indice + 2]).floatValue();
 			// 0-based
 			if (itemParts.length == indice + 5 + 1) {
-				float adj_price = format.parse(itemParts[indice + 4])
-						.floatValue();
+				float adj_price = format.parse(itemParts[indice + 4]).floatValue();
 				float iva = format.parse(itemParts[indice + 5]).floatValue();
-				float discount = Utils.round(
-						Utils.calcDiscount(price, adj_price / quantity), 2);
-				ord = new AutofficinaLippolis(productID, productDesc, um,
-						quantity, price, discount < 1 ? 0 : discount, adj_price,
-						iva, sqlDate);
+				float discount = Utils.round(Utils.calcDiscount(price, adj_price / quantity), 2);
+				ord = new AutofficinaLippolis(productID, productDesc, um, quantity, price, discount < 1 ? 0 : discount,
+						adj_price, iva, sqlDate);
 			} else if (itemParts.length == indice + 4 + 1) {
-				float adj_price = format.parse(itemParts[indice + 3])
-						.floatValue();
+				float adj_price = format.parse(itemParts[indice + 3]).floatValue();
 				float iva = format.parse(itemParts[indice + 4]).floatValue();
-				float discount = Utils.round(
-						Utils.calcDiscount(price, adj_price / quantity), 2);
-				ord = new AutofficinaLippolis(productID, productDesc, um,
-						quantity, price, discount < 1 ? 0 : discount, adj_price,
-						iva, sqlDate);
+				float discount = Utils.round(Utils.calcDiscount(price, adj_price / quantity), 2);
+				ord = new AutofficinaLippolis(productID, productDesc, um, quantity, price, discount < 1 ? 0 : discount,
+						adj_price, iva, sqlDate);
 			}
 			Product prdToFind = DBProduct.findProduct(conn, prd);
 			if (prdToFind == null) {
@@ -190,15 +174,14 @@ public class AutofficinaLippolis extends BaseOrder {
 		try {
 			for (int i = 0; i < dateList.size(); i++) {
 				Deadline sc = new Deadline();
-				java.util.Date date = new SimpleDateFormat("dd/MM/yyyy")
-						.parse(dateList.get(i));
+				java.util.Date date = new SimpleDateFormat("dd/MM/yyyy").parse(dateList.get(i));
 				java.sql.Date sqlDate = new java.sql.Date(date.getTime());
 				sc.setDeadlineDate(sqlDate);
 				sc.setAmount(amount.get(i));
 				scadList.add(sc);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in method getDeadlines: ", e);
 		}
 		return scadList;
 	}
@@ -212,8 +195,7 @@ public class AutofficinaLippolis extends BaseOrder {
 			if (str.indexOf("€") != -1) {
 				str = str.substring(str.indexOf("€"));
 			}
-			Pattern p = Pattern
-					.compile("([0-9]{1,3}[.])*[0-9]{1,3},[0-9]{1,2}");
+			Pattern p = Pattern.compile("([0-9]{1,3}[.])*[0-9]{1,3},[0-9]{1,2}");
 			Matcher m = p.matcher(str);
 			while (m.find()) {
 				String tmp = m.group().replaceAll("€", "").trim();
@@ -222,8 +204,7 @@ public class AutofficinaLippolis extends BaseOrder {
 
 			// Covering case str = lorem ipsum 111,11€
 			if (allMatches.isEmpty() && newStr.indexOf("€") != -1) {
-				newStr = newStr.substring(newStr.lastIndexOf(" "),
-						newStr.indexOf("€"));
+				newStr = newStr.substring(newStr.lastIndexOf(" "), newStr.indexOf("€"));
 				Matcher m2 = p.matcher(newStr);
 				while (m2.find()) {
 					String tmp = m2.group().replaceAll("€", "").trim();
@@ -231,7 +212,7 @@ public class AutofficinaLippolis extends BaseOrder {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in method getAmountFromString: ", e);
 		}
 		return allMatches;
 	}

@@ -3,7 +3,7 @@ package gc.model;
 public enum UM {
 	PZ, // pezzo
 	RT, // rotolo
-	N,  // numero
+	N, // numero
 	NR, // numero
 	CF, // confezione
 	MQ, // metro quadrato
@@ -11,5 +11,5 @@ public enum UM {
 	SA, // sacchetto
 	ML, // metro lineare
 	MT, // metro
-	LT  // litro
+	LT // litro
 }

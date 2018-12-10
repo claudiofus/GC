@@ -12,6 +12,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import gc.model.types.BaseOrder;
@@ -19,10 +21,11 @@ import gc.model.types.Deadline;
 import gc.utils.Utils;
 
 public class Mag extends BaseOrder {
+	private static final Logger logger = LogManager.getLogger(Mag.class.getName());
+
 	private static final Rectangle ID_FATT = new Rectangle(84, 140, 80, 11);
 	private static final Rectangle DATA_FATT = new Rectangle(23, 140, 60, 11);
-	private static final Rectangle SCADENZE_FATT = new Rectangle(298, 719, 104,
-			24);
+	private static final Rectangle SCADENZE_FATT = new Rectangle(298, 719, 104, 24);
 	private static String DDT_DESCR = "DDT n.";
 	private static Rectangle ORDERS_AREA = new Rectangle(22, 346, 543, 266);
 	private static String DB_CODE = "mag";
@@ -32,19 +35,15 @@ public class Mag extends BaseOrder {
 	public Mag() {
 	}
 
-	public Mag(int id, String productID, String productDesc, String um,
-			float quantity, float price, float discount, float adj_price,
-			float iva, java.sql.Date sqlDate) {
-		super(id, productID, productDesc, um, quantity, price, discount,
-				adj_price, iva, sqlDate);
+	public Mag(int id, String productID, String productDesc, String um, float quantity, float price, float discount,
+			float adj_price, float iva, java.sql.Date sqlDate) {
+		super(id, productID, productDesc, um, quantity, price, discount, adj_price, iva, sqlDate);
 	}
 
-	public Mag(String productID, String productDesc, String um, float quantity,
-			float price, float discount, float adj_price, float iva,
-			java.sql.Date sqlDate) {
+	public Mag(String productID, String productDesc, String um, float quantity, float price, float discount,
+			float adj_price, float iva, java.sql.Date sqlDate) {
 
-		super(productID, productDesc, um, quantity, price, discount, adj_price,
-				iva, sqlDate);
+		super(productID, productDesc, um, quantity, price, discount, adj_price, iva, sqlDate);
 	}
 
 	@Override
@@ -85,7 +84,7 @@ public class Mag extends BaseOrder {
 			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
 			return sqlDate;
 		} catch (ParseException e) {
-			e.printStackTrace();
+
 		}
 		return null;
 	}
@@ -100,15 +99,14 @@ public class Mag extends BaseOrder {
 		try {
 			for (int i = 0; i < dateList.size(); i++) {
 				Deadline sc = new Deadline();
-				java.util.Date date = new SimpleDateFormat("dd/MM/yy")
-						.parse(dateList.get(i));
+				java.util.Date date = new SimpleDateFormat("dd/MM/yy").parse(dateList.get(i));
 				java.sql.Date sqlDate = new java.sql.Date(date.getTime());
 				sc.setDeadlineDate(sqlDate);
 				sc.setAmount(amount.get(i));
 				scadList.add(sc);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in method getDeadlines: ", e);
 		}
 		return scadList;
 	}
@@ -119,16 +117,14 @@ public class Mag extends BaseOrder {
 		Arrays.stream(str.split("\\r?\\n")).forEach(line -> {
 			try {
 				if (line != null && !line.isEmpty()) {
-					Pattern p = Pattern
-							.compile("([0-9]{1,3}[.])*[0-9]{1,3},[0-9]{1,2}");
+					Pattern p = Pattern.compile("([0-9]{1,3}[.])*[0-9]{1,3},[0-9]{1,2}");
 					Matcher m = p.matcher(line);
 					while (m.find()) {
-						allMatches.add(
-								numberFormat.parse(m.group()).floatValue());
+						allMatches.add(numberFormat.parse(m.group()).floatValue());
 					}
 				}
 			} catch (ParseException e) {
-				e.printStackTrace();
+				logger.error("Error in method getAmountFromString: ", e);
 			}
 		});
 		return allMatches;

@@ -3,15 +3,12 @@ import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
 @Injectable()
-export class TableProductsService implements OnInit {
+export class TableProductsService {
   protected url = 'http://localhost:8000/GCRest/rest/product/products/prices';
   protected url2 = 'http://localhost:8000/GCRest/rest/product/price/';
 
   static getProductColumns(): string[] {
     return ['Fornitore', 'Codice', 'Descrizione', 'Prezzo medio'];
-  }
-
-  ngOnInit(): void {
   }
 
   constructor(private http: HttpClient) {

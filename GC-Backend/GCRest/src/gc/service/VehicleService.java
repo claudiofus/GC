@@ -11,6 +11,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.dao.VehicleDaoImpl;
 import gc.model.Event;
 import gc.model.Vehicle;
@@ -19,10 +22,12 @@ import gc.utils.Utils;
 
 @Path("/vehicle")
 public class VehicleService {
+	private static final Logger logger = LogManager.getLogger(VehicleService.class.getName());
 	EventService evService = new EventService();
 
 	/**
 	 * Add a vehicle
+	 * 
 	 * @param vehicle to add
 	 * @return added vehicle
 	 * @throws IOException
@@ -42,15 +47,13 @@ public class VehicleService {
 		vehicleList = vehicleDaoImpl.getVehicles();
 
 		if (Utils.containsPlate(vehicleList, vehicle.getPlate())) {
-			System.out.println("Il veicolo esiste già nel database.");
+			logger.warn("Il veicolo esiste già nel database.");
 		} else {
 			Event ev = new Event();
-			String vehicleStr = "€ - " + vehicle.getPlate() + " - "
-					+ vehicle.getBrand() + " " + vehicle.getModel();
+			String vehicleStr = "€ - " + vehicle.getPlate() + " - " + vehicle.getBrand() + " " + vehicle.getModel();
 
 			if (vehicle.getInsurance() != null) {
-				ev.setTitle("Scadenza assicurazione - "
-						+ vehicle.getInsurance().getAmount() + vehicleStr);
+				ev.setTitle("Scadenza assicurazione - " + vehicle.getInsurance().getAmount() + vehicleStr);
 				ev.setStart_date(vehicle.getInsurance().getDeadlineDate());
 				ev.setPaid(false);
 				evService.addEvent(ev);
@@ -58,8 +61,7 @@ public class VehicleService {
 			}
 			if (vehicle.getCarTax() != null) {
 				ev = new Event();
-				ev.setTitle("Scadenza bollo - "
-						+ vehicle.getCarTax().getAmount() + vehicleStr);
+				ev.setTitle("Scadenza bollo - " + vehicle.getCarTax().getAmount() + vehicleStr);
 				ev.setStart_date(vehicle.getCarTax().getDeadlineDate());
 				ev.setPaid(false);
 				evService.addEvent(ev);
@@ -67,8 +69,7 @@ public class VehicleService {
 			}
 			if (vehicle.getRevision() != null) {
 				ev = new Event();
-				ev.setTitle("Scadenza revisione - "
-						+ vehicle.getRevision().getAmount() + vehicleStr);
+				ev.setTitle("Scadenza revisione - " + vehicle.getRevision().getAmount() + vehicleStr);
 				ev.setStart_date(vehicle.getRevision().getDeadlineDate());
 				ev.setPaid(false);
 				evService.addEvent(ev);
@@ -82,6 +83,7 @@ public class VehicleService {
 
 	/**
 	 * Get all vehicles
+	 * 
 	 * @return list of vehicles
 	 */
 	@GET
@@ -96,6 +98,7 @@ public class VehicleService {
 
 	/**
 	 * Get the insurance of all vehicles
+	 * 
 	 * @return list of insurances
 	 */
 	@GET
@@ -110,6 +113,7 @@ public class VehicleService {
 
 	/**
 	 * Get the car tax of all vehicles
+	 * 
 	 * @return list of car taxes
 	 */
 	@GET
@@ -124,6 +128,7 @@ public class VehicleService {
 
 	/**
 	 * Get the revision of all vehicles
+	 * 
 	 * @return list of revisions
 	 */
 	@GET
@@ -138,6 +143,7 @@ public class VehicleService {
 
 	/**
 	 * Get the penalties of all vehicles
+	 * 
 	 * @return list of penalties
 	 */
 	@GET
@@ -152,6 +158,7 @@ public class VehicleService {
 
 	/**
 	 * Add a penalty
+	 * 
 	 * @param vehicle of the penalty
 	 * @return vehicle obj updated with penalty
 	 * @throws IOException
@@ -174,27 +181,22 @@ public class VehicleService {
 			for (int i = 0; i < vehicles.size() && !found; i++) {
 				if (vehicles.get(i) instanceof Vehicle) {
 					exVehicle = (Vehicle) vehicles.get(i);
-					if (exVehicle.getPlate()
-							.equalsIgnoreCase(vehicle.getPlate())) {
+					if (exVehicle.getPlate().equalsIgnoreCase(vehicle.getPlate())) {
 						found = true;
 					}
 				}
 			}
 
 			if (!found) {
-				return Response.status(Response.Status.PRECONDITION_FAILED)
-						.build();
+				return Response.status(Response.Status.PRECONDITION_FAILED).build();
 			}
 
 			VehicleDaoImpl vehicleDaoImpl = new VehicleDaoImpl();
 
-			String vehicleStr = "€ - " + vehicle.getPlate() + " - "
-					+ exVehicle.getBrand() + " " + exVehicle.getModel();
-			java.sql.Date penDate = vehicle.getPenalty().get(0)
-					.getDeadlineDate();
+			String vehicleStr = "€ - " + vehicle.getPlate() + " - " + exVehicle.getBrand() + " " + exVehicle.getModel();
+			java.sql.Date penDate = vehicle.getPenalty().get(0).getDeadlineDate();
 			Event ev = new Event();
-			ev.setTitle("Multa del "
-					+ Utils.sqlDateToDate(penDate, "dd/MM/yyyy") + " - "
+			ev.setTitle("Multa del " + Utils.sqlDateToDate(penDate, "dd/MM/yyyy") + " - "
 					+ vehicle.getPenalty().get(0).getAmount() + vehicleStr);
 			ev.setStart_date(penDate);
 			ev.setPaid(vehicle.getPenalty().get(0).isPaid());
@@ -210,6 +212,7 @@ public class VehicleService {
 
 	/**
 	 * Update insurance, car tax or revision of a vehicle
+	 * 
 	 * @param vehicle to update
 	 * @return updated vehicle
 	 * @throws IOException

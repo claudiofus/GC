@@ -1,157 +1,164 @@
-<h2>Scadenze</h2>
+<div class="container-fluid" style="margin: 0!important;">
+  <h2>Scadenze</h2>
 
-<div class="row text-center">
-  <div class="col-md-4">
-    <div class="btn-group">
-      <div
-        class="btn btn-primary"
-        mwlCalendarPreviousView
-        [view]="view"
-        [(viewDate)]="viewDate"
-        (viewDateChange)="activeDayIsOpen = false">
-        <<
+  <div class="row text-center">
+    <div class="col-md-4">
+      <div class="btn-group">
+        <div
+          class="btn btn-primary"
+          mwlCalendarPreviousView
+          [view]="view"
+          [(viewDate)]="viewDate"
+          (viewDateChange)="activeDayIsOpen = false"
+          (click)="selEvent = undefined">
+          <<
+        </div>
+        <div
+          class="btn btn-outline-secondary"
+          mwlCalendarToday
+          [(viewDate)]="viewDate">
+          Oggi
+        </div>
+        <div
+          class="btn btn-primary"
+          mwlCalendarNextView
+          [view]="view"
+          [(viewDate)]="viewDate"
+          (viewDateChange)="activeDayIsOpen = false"
+          (click)="selEvent = undefined">
+          >>
+        </div>
       </div>
-      <div
-        class="btn btn-outline-secondary"
-        mwlCalendarToday
-        [(viewDate)]="viewDate">
-        Oggi
-      </div>
-      <div
-        class="btn btn-primary"
-        mwlCalendarNextView
-        [view]="view"
-        [(viewDate)]="viewDate"
-        (viewDateChange)="activeDayIsOpen = false">
-        >>
+    </div>
+    <div class="col-md-4">
+      <h3 [hidden]="view!=='month'">{{ viewDate | date:'MMMM yyyy':'it' | titlecase }}</h3>
+      <h3 [hidden]="view!=='week'">Settimana n. {{ viewDate | date:'w' }} del {{viewDate | date:'yyyy'}}</h3>
+    </div>
+    <div class="col-md-4">
+      <div class="btn-group">
+        <div
+          class="btn btn-primary"
+          (click)="view = 'month'; selEvent = undefined"
+          [class.active]="view === 'month'">
+          Mese
+        </div>
+        <div
+          class="btn btn-primary"
+          (click)="view = 'week'; selEvent = undefined"
+          [class.active]="view === 'week'">
+          Settimana
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <h3 [hidden]="view!=='month'">{{ viewDate | date:'MMMM yyyy':'it' | titlecase }}</h3>
-    <h3 [hidden]="view!=='week'">Settimana n. {{ viewDate | date:'w' }} del {{viewDate | date:'yyyy'}}</h3>
+  <br>
+  <div [ngSwitch]="view" style="background: white">
+    <mwl-calendar-month-view
+      *ngSwitchCase="'month'"
+      [viewDate]="viewDate"
+      [events]="events"
+      [refresh]="refresh"
+      [weekStartsOn]="weekStartsOn"
+      [activeDayIsOpen]="activeDayIsOpen"
+      (dayClicked)="dayClicked($event.day)"
+      (eventTimesChanged)="eventTimesChanged($event)"
+      (eventClicked)="showDetails($event.event)">
+    </mwl-calendar-month-view>
+
+    <mwl-calendar-week-view
+      *ngSwitchCase="'week'"
+      [viewDate]="viewDate"
+      [events]="events"
+      [refresh]="refresh"
+      [weekStartsOn]="weekStartsOn"
+      (eventTimesChanged)="eventTimesChanged($event)"
+      (eventClicked)="showDetails($event.event)">
+    </mwl-calendar-week-view>
   </div>
-  <div class="col-md-4">
-    <div class="btn-group">
-      <div
-        class="btn btn-primary"
-        (click)="view = 'month'"
-        [class.active]="view === 'month'">
-        Mese
-      </div>
-      <div
-        class="btn btn-primary"
-        (click)="view = 'week'"
-        [class.active]="view === 'week'">
-        Settimana
-      </div>
+
+  <div class="row mt10">
+    <div class="col-md-4 align-self-center">
+      <button class="btn btn-primary" (click)="addEvent()">
+        Aggiungi scadenza
+      </button>
+    </div>
+
+    <div class="col-md-5 offset-3 align-self-center text-right">
+      <span class="dot red"></span><b>DA PAGARE</b>
+      <span class="dot blue"></span><b>PAGATO</b>
     </div>
   </div>
-</div>
-<br>
-<div [ngSwitch]="view" style="background: white">
-  <mwl-calendar-month-view
-    *ngSwitchCase="'month'"
-    [viewDate]="viewDate"
-    [events]="events"
-    [refresh]="refresh"
-    [weekStartsOn]="weekStartsOn"
-    [activeDayIsOpen]="activeDayIsOpen"
-    (dayClicked)="dayClicked($event.day)"
-    (eventTimesChanged)="eventTimesChanged($event)">
-  </mwl-calendar-month-view>
-  <mwl-calendar-week-view
-    *ngSwitchCase="'week'"
-    [viewDate]="viewDate"
-    [events]="events"
-    [refresh]="refresh"
-    [weekStartsOn]="weekStartsOn"
-    (eventTimesChanged)="eventTimesChanged($event)">
-  </mwl-calendar-week-view>
-</div>
 
-<br>
+  <ng-template [ngIf]="selEvent">
+    <div class="mt10">
+      <table class="table table-bordered" style="background: white;">
+        <thead>
+        <tr>
+          <th>Titolo</th>
+          <th>Giorno</th>
+          <th>Pagato</th>
+          <th>Posticipa di</th>
+          <th colspan="2">Azioni</th>
+        </tr>
+        </thead>
 
-<button class="btn btn-primary" [hidden]="showEvents" (click)="showEvents = !showEvents">
-  Mostra / Aggiungi eventi
-</button>
+        <tbody>
+        <tr [ngStyle]="{'background': selEvent.color ? selEvent.color.secondary : ''}">
+          <td>
+          <textarea
+            type="text"
+            class="form-control"
+            [(ngModel)]="selEvent.title"
+            (keyup)="refresh.next()"></textarea>
+          </td>
+          <td>
+            <input
+              class="form-control"
+              type="text"
+              mwlFlatpickr
+              [(ngModel)]="selEvent.start"
+              (ngModelChange)="updateEv(event)"
+              [altInput]="true"
+              [locale]="locale"
+              dateFormat="Y-m-d"
+              altFormat="d/m/Y"
+              placeholder="Non impostata">
+          </td>
+          <td>
+            <select class="form-control" [(ngModel)]="selEvent.paid">
+              <option value="false">NO</option>
+              <option value="true">SI</option>
+            </select>
+          </td>
+          <td>
+            <select class="form-control" (change)="postponeEv($event.target.value, selEvent)">
+              <option value="0">0 giorni</option>
+              <option value="30">30 giorni</option>
+              <option value="60">60 giorni</option>
+              <option value="90">90 giorni</option>
+              <option value="120">120 giorni</option>
+              <option value="150">150 giorni</option>
+              <option value="365">365 giorni</option>
+            </select>
+          </td>
+          <td>
+            <button
+              class="btn btn-success center"
+              (click)="save(selEvent, true)">
+              Salva
+            </button>
+          </td>
+          <td>
+            <button
+              class="btn btn-danger"
+              (click)="deleteFunc(selEvent)">
+              Cancella
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
 
-<div class="mt10" [hidden]="!showEvents">
-  <h3>
-    Lista eventi
-    <button
-      class="btn btn-primary"
-      (click)="addEvent()">
-      Aggiungi
-    </button>
-    <div class="clearfix"></div>
-  </h3>
-
-  <table class="table table-bordered" style="background: white;" [hidden]="events.length === 0">
-    <thead>
-    <tr>
-      <th>Titolo</th>
-      <th>Giorno</th>
-      <th>Pagato</th>
-      <th>Posticipa di</th>
-      <th colspan="2">Azioni</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    <tr *ngFor="let event of events; let index = index">
-      <td>
-        <textarea
-          type="text"
-          class="form-control"
-          [(ngModel)]="event.title"
-          (keyup)="refresh.next()"></textarea>
-      </td>
-      <td>
-        <input
-          class="form-control"
-          type="text"
-          mwlFlatpickr
-          [(ngModel)]="event.start"
-          (ngModelChange)="updateEv(event)"
-          [altInput]="true"
-          [locale]="locale"
-          dateFormat="Y-m-d"
-          altFormat="d/m/Y"
-          placeholder="Non impostata">
-      </td>
-      <td>
-        <select class="form-control" [(ngModel)]="event.paid">
-          <option value="false">NO</option>
-          <option value="true">SI</option>
-        </select>
-      </td>
-      <td>
-        <select class="form-control" (change)="postponeEv($event.target.value, event)">
-          <option value="0">0 giorni</option>
-          <option value="30">30 giorni</option>
-          <option value="60">60 giorni</option>
-          <option value="90">90 giorni</option>
-          <option value="120">120 giorni</option>
-          <option value="150">150 giorni</option>
-          <option value="365">365 giorni</option>
-        </select>
-      </td>
-      <td>
-        <button
-          class="btn btn-success center"
-          (click)="save(event)">
-          Salva
-        </button>
-      </td>
-      <td>
-        <button
-          class="btn btn-danger"
-          (click)="deleteFunc(event)">
-          Cancella
-        </button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
 </div>

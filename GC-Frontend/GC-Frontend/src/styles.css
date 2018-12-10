@@ -269,6 +269,16 @@ table.redTable tfoot .links a {
   margin        : 2px;
 }
 
+table.redTable tfoot .links a:hover {
+  background-color : lightgoldenrodyellow !important;
+  color            : black;
+}
+
+table.redTable tfoot .links a .active {
+  background-color : lightgoldenrodyellow !important;
+  color            : black;
+}
+
 table.redTable td button {
   cursor           : pointer;
   border           : 1px solid #7b2f3d;
@@ -500,5 +510,13 @@ table.redTable td button {
 }
 
 .form-control[readonly] {
-  background-color : transparent;
+  background-color : white;
+}
+
+.cal-time-events {
+  display : none !important;
+}
+
+.cal-week-view .cal-event {
+  color: #fff;
 }

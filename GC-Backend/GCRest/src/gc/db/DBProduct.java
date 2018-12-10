@@ -7,30 +7,32 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.model.Product;
 
 public class DBProduct {
+	private static final Logger logger = LogManager.getLogger(DBProduct.class.getName());
 
-	public static void insertProduct(Connection conn, Product product)
-			throws SQLException {
+	public static void insertProduct(Connection conn, Product product) throws SQLException {
 		String sql = "INSERT INTO product(id, name, provider_code) VALUES (?,?,?)";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, product.getCode());
 		pstm.setString(2, product.getName());
 		pstm.setString(3, product.getProviderCode());
-		System.out.println("insertProduct: " + pstm.toString());
+		logger.info("insertProduct: " + pstm.toString());
 
 		pstm.executeUpdate();
 		pstm.close();
 	}
 
-	public static List<Product> queryProduct(Connection conn)
-			throws SQLException {
+	public static List<Product> queryProduct(Connection conn) throws SQLException {
 		String sql = "SELECT id, name, provider_code FROM gestione_cantieri.product";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		System.out.println("queryProduct: " + pstm.toString());
+		logger.info("queryProduct: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Product> list = new ArrayList<Product>();
@@ -46,14 +48,13 @@ public class DBProduct {
 		return list;
 	}
 
-	public static Product findProduct(Connection conn, Product prd)
-			throws SQLException {
+	public static Product findProduct(Connection conn, Product prd) throws SQLException {
 		String sql = "SELECT id, name, provider_code FROM gestione_cantieri.product WHERE id = ? AND name = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, prd.getCode());
 		pstm.setString(2, prd.getName());
-		System.out.println("findProduct: " + pstm.toString());
+		logger.info("findProduct: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		Product product = null;

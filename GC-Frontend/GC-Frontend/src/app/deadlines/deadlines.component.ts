@@ -7,8 +7,8 @@ import {Italian} from 'flatpickr/dist/l10n/it';
 import {DeadlinesService} from './deadlines.service';
 
 const colors: any = {
-  red: {primary: '#ad2121', secondary: '#FAE3E3'},
-  blue: {primary: '#1e90ff', secondary: '#D1E8FF'},
+  red: {primary: '#ad2121', secondary: '#ff6666'},
+  blue: {primary: '#1e90ff', secondary: '#78bcff'},
   yellow: {primary: '#e3bc08', secondary: '#FDF1BA'}
 };
 
@@ -19,12 +19,12 @@ const colors: any = {
 })
 
 export class DeadlinesComponent implements OnInit {
-  showEvents = false;
+  selEvent = undefined;
   view = 'month';
   viewDate: Date = new Date();
   weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
   locale = Italian;
-
+  eventOpen = false;
   refresh: Subject<any> = new Subject();
   events: CalendarEvent[] = [];
   activeDayIsOpen = this.events.length > 0 && this.events.some(function (ev) {
@@ -35,7 +35,7 @@ export class DeadlinesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getAllItems();
+    this.getAllItems(false);
   }
 
   dayClicked({date, events}: { date: Date; events: CalendarEvent[] }): void {
@@ -54,39 +54,64 @@ export class DeadlinesComponent implements OnInit {
     this.refresh.next();
   }
 
+  showDetails(event) {
+    if (!this.selEvent) {
+      this.eventOpen = true;
+      const selEventArr = this.events.filter(function (ev) {
+        if (ev.id === event.id) {
+          return ev;
+        }
+      });
+      if (selEventArr && selEventArr.length === 1) {
+        this.selEvent = selEventArr[0];
+      }
+    } else {
+      this.selEvent = undefined;
+      this.eventOpen = false;
+      this.getAllItems(true);
+    }
+  }
+
   addEvent(): void {
     this.events.push({
       title: 'Nuovo evento',
-      start: new Date()
+      start: new Date(),
+      allDay: true
     });
     const lastEv = this.events.pop();
-    this.save(lastEv);
+    this.save(lastEv, false);
+    this.selEvent = lastEv;
     this.refresh.next();
   }
 
   updateEv(event): void {
     event.start = new Date(event.start);
-    this.save(event);
+    this.save(event, true);
     this.refresh.next();
   }
 
-  save(ev): void {
+  save(ev, resetEv): void {
     delete ev.color;
-    this.deadlinesService.addEvent(ev).then(_ => {
-      this.getAllItems();
+    this.deadlinesService.addEvent(ev).then(newEv => {
+      this.getAllItems(resetEv);
+      this.selEvent = newEv;
     }).catch(error => {
       console.error(error);
     });
   }
 
-  getAllItems(): void {
+  getAllItems(resetEv): void {
     this.deadlinesService.getAll().subscribe(
       restItems => {
         restItems.forEach(ev => {
           ev.start = new Date(ev.start);
           ev.color = ev.paid ? colors.blue : colors.red;
+          ev.allDay = true;
         });
         this.events = restItems;
+        if (resetEv) {
+          this.selEvent = undefined;
+        }
       }
     );
   }
@@ -94,7 +119,7 @@ export class DeadlinesComponent implements OnInit {
   deleteFunc(event): void {
     this.deadlinesService.deleteEvent(event).then(_ => {
       this.events.splice(event.id, 1);
-      this.getAllItems();
+      this.getAllItems(true);
       this.refresh.next();
     }).catch(error => {
       console.error(error);

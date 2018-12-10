@@ -18,19 +18,22 @@ import gc.model.types.BaseOrder;
 public abstract class Order {
 	@JsonIgnore
 	public abstract String getDDT();
+
 	@JsonIgnore
 	public abstract Rectangle getORDERS_AREA();
+
 	@JsonIgnore
 	public abstract String getDBCODE();
+
 	@JsonIgnore
 	public abstract String getDATEORDER();
+
 	@JsonIgnore
 	public abstract String getDATEFORMAT();
+
 	@JsonIgnore
-	public abstract LinkedMap<String, ArrayList<Order>> parseOrder(
-			PDDocument document, Connection conn, int page,
-			LinkedMap<String, ArrayList<Order>> map)
-			throws InvalidPasswordException, IOException;
+	public abstract LinkedMap<String, ArrayList<Order>> parseOrder(PDDocument document, Connection conn, int page,
+			LinkedMap<String, ArrayList<Order>> map) throws InvalidPasswordException, IOException;
 
 	private int id;
 	private Integer building_id;
@@ -49,9 +52,8 @@ public abstract class Order {
 		super();
 	}
 
-	public Order(int id, String code, String name, String um, float quantity,
-			float price, float discount, float adj_price, float iva,
-			java.sql.Date date_order) {
+	public Order(int id, String code, String name, String um, float quantity, float price, float discount,
+			float adj_price, float iva, java.sql.Date date_order) {
 		super();
 		this.id = id;
 		this.code = code;
@@ -65,9 +67,8 @@ public abstract class Order {
 		this.date_order = new java.sql.Date(date_order.getTime());
 	}
 
-	public Order(String code, String name, String um, float quantity,
-			float price, float discount, float adj_price, float iva,
-			java.sql.Date date_order) {
+	public Order(String code, String name, String um, float quantity, float price, float discount, float adj_price,
+			float iva, java.sql.Date date_order) {
 		super();
 		this.code = code;
 		this.name = name;

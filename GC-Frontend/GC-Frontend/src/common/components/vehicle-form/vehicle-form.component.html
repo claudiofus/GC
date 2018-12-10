@@ -160,7 +160,7 @@
       <div class="col_full">
         <input class="button" type="reset" value="Pulisci">
         <input class="button" type="button" [disabled]="!addForm.valid"
-               (click)="sendVehicle(newVehicle); addForm.reset();"
+               (click)="sendVehicle(); addForm.reset();"
                value="Aggiungi">
       </div>
     </div>

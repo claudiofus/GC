@@ -25,8 +25,7 @@ public class Vehicle {
 	public Vehicle() {
 	}
 
-	public Vehicle(String brand, String model, String color,
-			java.sql.Date firstRegistration, String plate) {
+	public Vehicle(String brand, String model, String color, java.sql.Date firstRegistration, String plate) {
 		super();
 		this.brand = brand;
 		this.model = model;

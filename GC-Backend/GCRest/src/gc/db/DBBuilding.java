@@ -8,18 +8,21 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.model.Building;
 import gc.model.types.Address;
 
 public class DBBuilding {
+	private static final Logger logger = LogManager.getLogger(DBBuilding.class.getName());
 
-	public static List<Building> queryBuilding(Connection conn)
-			throws SQLException {
+	public static List<Building> queryBuilding(Connection conn) throws SQLException {
 		String sql = "SELECT id, name, open, start_date, end_date, address_type, address_name, address_number, cap, city,"
 				+ " province, state, req_amount FROM gestione_cantieri.building";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		System.out.println("queryBuilding: " + pstm.toString());
+		logger.info("queryBuilding: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Building> list = new ArrayList<Building>();
@@ -62,14 +65,13 @@ public class DBBuilding {
 		return list;
 	}
 
-	public static Building findBuilding(Connection conn, String nameToFind)
-			throws SQLException {
+	public static Building findBuilding(Connection conn, String nameToFind) throws SQLException {
 		String sql = "SELECT id, name, start_date, end_date, open, address_type, address_name, address_number, cap, city,"
 				+ " province, state, req_amount FROM gestione_cantieri.building where name = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, nameToFind);
-		System.out.println("findBuilding: " + pstm.toString());
+		logger.info("findBuilding: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		Building building = null;
@@ -109,13 +111,11 @@ public class DBBuilding {
 		return building;
 	}
 
-	public static int insertBuilding(Connection conn, Building buildingData)
-			throws SQLException {
+	public static int insertBuilding(Connection conn, Building buildingData) throws SQLException {
 		String sql = "INSERT INTO gestione_cantieri.building (name, start_date, end_date, open, address_type, address_name,"
 				+ " address_number, cap, city, province, state, req_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, buildingData.getName());
 		pstm.setDate(2, buildingData.getStart_date());
 		pstm.setDate(3, buildingData.getEnd_date());
@@ -129,20 +129,18 @@ public class DBBuilding {
 		pstm.setString(11, buildingData.getAddress().getState());
 		pstm.setFloat(12, buildingData.getReq_amount());
 
-		System.out.println("insertBuilding: " + pstm.toString());
+		logger.info("insertBuilding: " + pstm.toString());
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
-			throw new SQLException(
-					"Inserting building failed, no rows affected.");
+			throw new SQLException("Inserting building failed, no rows affected.");
 		}
 
 		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
 			if (generatedKeys.next()) {
 				buildingData.setId(generatedKeys.getInt(1));
 			} else {
-				throw new SQLException(
-						"Inserting building failed, no ID obtained.");
+				throw new SQLException("Inserting building failed, no ID obtained.");
 			}
 		}
 		pstm.close();

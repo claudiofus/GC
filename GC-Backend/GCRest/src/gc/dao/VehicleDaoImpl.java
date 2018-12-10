@@ -5,6 +5,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.conn.JDBCConnection;
 import gc.db.DBVehicle;
 import gc.model.Vehicle;
@@ -14,6 +17,7 @@ import gc.model.types.Penalty;
 import gc.model.types.Revision;
 
 public class VehicleDaoImpl {
+	private static final Logger logger = LogManager.getLogger(VehicleDaoImpl.class.getName());
 
 	public List<Vehicle> getVehicles() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
@@ -23,7 +27,7 @@ public class VehicleDaoImpl {
 		try {
 			vehiclesData = DBVehicle.queryVehicle(connection);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getVehicles: ", e);
 		}
 
 		return vehiclesData;
@@ -37,7 +41,7 @@ public class VehicleDaoImpl {
 		try {
 			vehiclesData = DBVehicle.queryInsurance(connection);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getInsurances: ", e);
 		}
 
 		return vehiclesData;
@@ -51,7 +55,7 @@ public class VehicleDaoImpl {
 		try {
 			vehiclesData = DBVehicle.queryCarTax(connection);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getCarTaxes: ", e);
 		}
 
 		return vehiclesData;
@@ -65,12 +69,12 @@ public class VehicleDaoImpl {
 		try {
 			vehiclesData = DBVehicle.queryRevision(connection);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getRevisions: ", e);
 		}
 
 		return vehiclesData;
 	}
-	
+
 	public List<Vehicle> getPenalties() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection connection = jdbcConnection.getConnnection();
@@ -79,7 +83,7 @@ public class VehicleDaoImpl {
 		try {
 			vehiclesData = DBVehicle.queryPenalty(connection);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getPenalties: ", e);
 		}
 
 		return vehiclesData;
@@ -91,31 +95,28 @@ public class VehicleDaoImpl {
 
 		try {
 			if (vehicle.getInsurance() != null) {
-				Insurance ins = DBVehicle.insertInsurance(conn,
-						vehicle.getInsurance(), vehicle.getPlate());
+				Insurance ins = DBVehicle.insertInsurance(conn, vehicle.getInsurance(), vehicle.getPlate());
 				vehicle.setInsurance(ins);
 			}
 
 			if (vehicle.getCarTax() != null) {
-				CarTax cartax = DBVehicle.insertCarTax(conn,
-						vehicle.getCarTax(), vehicle.getPlate());
+				CarTax cartax = DBVehicle.insertCarTax(conn, vehicle.getCarTax(), vehicle.getPlate());
 				vehicle.setCarTax(cartax);
 			}
 
 			if (vehicle.getRevision() != null) {
-				Revision rev = DBVehicle.insertRevision(conn,
-						vehicle.getRevision(), vehicle.getPlate());
+				Revision rev = DBVehicle.insertRevision(conn, vehicle.getRevision(), vehicle.getPlate());
 				vehicle.setRevision(rev);
 			}
 
 			DBVehicle.insertVehicle(conn, vehicle);
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method insertVehicle: ", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				logger.error("Error in connection rollback: ", e1);
 			}
 		}
 
@@ -135,17 +136,17 @@ public class VehicleDaoImpl {
 
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method insertPenalty: ", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				logger.error("Error in connection rollback: ", e1);
 			}
 		}
 
 		return vehicle;
 	}
-	
+
 	public Vehicle updateInsurance(Vehicle vehicle) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
@@ -154,17 +155,17 @@ public class VehicleDaoImpl {
 			DBVehicle.updateInsurance(conn, vehicle);
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method updateInsurance: ", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				logger.error("Error in connection rollback: ", e1);
 			}
 		}
 
 		return vehicle;
 	}
-	
+
 	public Vehicle updateCarTax(Vehicle vehicle) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
@@ -173,17 +174,17 @@ public class VehicleDaoImpl {
 			DBVehicle.updateCarTax(conn, vehicle);
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method updateCarTax: ", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				logger.error("Error in connection rollback: ", e1);
 			}
 		}
 
 		return vehicle;
 	}
-	
+
 	public Vehicle updateRevision(Vehicle vehicle) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
@@ -192,11 +193,11 @@ public class VehicleDaoImpl {
 			DBVehicle.updateRevision(conn, vehicle);
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method updateRevision: ", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				logger.error("Error in connection rollback: ", e1);
 			}
 		}
 

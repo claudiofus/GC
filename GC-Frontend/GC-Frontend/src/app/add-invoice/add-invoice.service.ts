@@ -2,16 +2,13 @@ import {Injectable, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 
 @Injectable()
-export class AddInvoiceService implements OnInit {
+export class AddInvoiceService {
   protected url = 'http://localhost:8000/GCRest/rest/invoice/addInvoice';
   protected url2 = 'http://localhost:8000/GCRest/rest/provider/providers/';
   protected url3 = 'http://localhost:8000/GCRest/rest/building/assignBuilding/';
 
   static getOrderColumns(): string[] {
-    return ['Codice', 'Descrizione', 'UM', 'Quantità', 'Prezzo', 'Sconto', 'Prezzo tot.', 'Iva'];
-  }
-
-  ngOnInit(): void {
+    return ['Codice', 'Descrizione', 'UM', 'Quantità', 'Prezzo', 'Sconto', 'Totale (NO IVA)', 'Iva'];
   }
 
   constructor(private http: HttpClient) {

@@ -2,8 +2,10 @@
   <form>
     <div class="form-inline" style="margin-bottom: 5px;">
       <label for="searchString">Filtra per nome o codice del prodotto o per fornitore</label>
-      <input id="searchString" type="search" [(ngModel)]="searchString" class="form-control mb-2 mr-sm-2 mb-sm-0" name="searchString"
+      <input id="searchString" type="search" [(ngModel)]="searchString" class="form-control mb-2 mr-sm-2 mb-sm-0"
+             name="searchString"
              placeholder="Scrivi per cercare...">
+      <button class="button" style="margin-left: 0" type="reset">Pulisci</button>
     </div>
   </form>
 
@@ -13,19 +15,8 @@
       <th *ngFor="let c of columns">{{c}}</th>
     </tr>
     </thead>
-    <!--<tfoot>-->
-    <!--<tr>-->
-    <!--<td colspan="2">-->
-    <!--<div class="links">-->
-    <!--<a href="#">&laquo;</a>-->
-    <!--<a class="active" href="#">1</a>-->
-    <!--<a *ngFor="let pageNum of pages" href="/{{pageNum}}">{{pageNum}}</a>-->
-    <!--<a href="#">&raquo;</a></div>-->
-    <!--</td>-->
-    <!--</tr>-->
-    <!--</tfoot>-->
     <tbody>
-    <ng-template ngFor let-item [ngForOf]="products | filtername: searchString">
+    <ng-template ngFor let-item [ngForOf]="getProducts() | filtername: searchString">
       <tr>
         <td>{{item.providerCode | titlecase}}</td>
         <td>{{item.code}}</td>
@@ -45,5 +36,20 @@
       </ng-container>
     </ng-template>
     </tbody>
+    <tfoot *ngIf="pager.pages && pager.pages.length && !searchString">
+    <tr>
+      <td colspan="4">
+        <div class="links">
+          <a [hidden]="pager.currentPage === 1 || pager.pages.includes(1)" (click)="setPage(1)">1</a>
+          <a [ngClass]="{disabled:pager.currentPage === 1}" (click)="setPage(pager.currentPage - 1)">&laquo;</a>
+          <a *ngFor="let page of pager.pages" [ngClass]="{'highlight':pager.currentPage === page}"
+             (click)="setPage(page)">{{page}}</a>
+          <a [ngClass]="{disabled:pager.currentPage === pager.totalPages}" (click)="setPage(pager.currentPage + 1)">&raquo;</a>
+          <a [hidden]="pager.currentPage === pager.totalPages || pager.pages.includes(pager.totalPages)"
+             (click)="setPage(pager.totalPages)">{{pager.totalPages}}</a>
+        </div>
+      </td>
+    </tr>
+    </tfoot>
   </table>
 </div>

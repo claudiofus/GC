@@ -10,21 +10,24 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.types.BaseOrder;
 
 public class DBOrder {
+	private static final Logger logger = LogManager.getLogger(DBOrder.class.getName());
 
-	public static List<Order> findOrder(Connection conn, String buildingName)
-			throws SQLException {
+	public static List<Order> findOrder(Connection conn, String buildingName) throws SQLException {
 		String sql = "SELECT ord.id, ord.product_id, ord.building_id, ord.product_name, ord.um, ord.quantity, "
 				+ "ord.price, ord.discount, ord.adj_price, ord.iva, ord.date_ins FROM gestione_cantieri.order ord "
 				+ "INNER JOIN gestione_cantieri.building bui ON ord.building_id = bui.id WHERE bui.name = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setString(1, buildingName);
-		System.out.println("findOrder: " + pstm.toString());
+		logger.info("findOrder: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Order> list = new ArrayList<Order>();
@@ -47,8 +50,7 @@ public class DBOrder {
 		return list;
 	}
 
-	public static int insertOrdine(Connection conn, Order ordine,
-			boolean building) throws SQLException {
+	public static int insertOrdine(Connection conn, Order ordine, boolean building) throws SQLException {
 		String sql = null;
 
 		if (building) {
@@ -59,8 +61,7 @@ public class DBOrder {
 					+ " iva, date_ins) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		}
 
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, ordine.getCode());
 
 		int index = 2;
@@ -77,7 +78,7 @@ public class DBOrder {
 		pstm.setFloat(index++, ordine.getIva());
 		pstm.setDate(index++, ordine.getDate_order());
 
-		System.out.println("insertOrdine: " + pstm.toString());
+		logger.info("insertOrdine: " + pstm.toString());
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
@@ -88,43 +89,37 @@ public class DBOrder {
 			if (generatedKeys.next()) {
 				ordine.setId(generatedKeys.getInt(1));
 			} else {
-				throw new SQLException(
-						"Inserting order failed, no ID obtained.");
+				throw new SQLException("Inserting order failed, no ID obtained.");
 			}
 		}
 		pstm.close();
 		return ordine.getId();
 	}
 
-	public static Order selectOrdine(Connection conn, Order ordine)
-			throws Exception {
+	public static Order selectOrdine(Connection conn, Order ordine) throws Exception {
 		String sql = "SELECT id, product_id, building_id, product_name, um, quantity, price, discount, adj_price, iva,"
 				+ " date_ins FROM gestione_cantieri.order WHERE id = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setInt(1, ordine.getId());
-		System.out.println("selectOrdine: " + pstm.toString());
+		logger.info("selectOrdine: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		Order ord = null;
 		while (rs.next()) {
 			ord = ordine.getClass()
-					.getConstructor(int.class, String.class, String.class,
-							String.class, float.class, float.class, float.class,
-							float.class, float.class, java.sql.Date.class)
-					.newInstance(rs.getInt("id"), rs.getString("product_id"),
-							rs.getString("product_name"), rs.getString("um"),
-							rs.getFloat("quantity"), rs.getFloat("price"),
-							rs.getFloat("discount"), rs.getFloat("adj_price"),
-							rs.getFloat("iva"), rs.getDate("date_ins"));
+					.getConstructor(int.class, String.class, String.class, String.class, float.class, float.class,
+							float.class, float.class, float.class, java.sql.Date.class)
+					.newInstance(rs.getInt("id"), rs.getString("product_id"), rs.getString("product_name"),
+							rs.getString("um"), rs.getFloat("quantity"), rs.getFloat("price"), rs.getFloat("discount"),
+							rs.getFloat("adj_price"), rs.getFloat("iva"), rs.getDate("date_ins"));
 			ord.setBuilding_id(rs.getInt("building_id"));
 		}
 		pstm.close();
 		return ord;
 	}
 
-	public static void updateOrdine(Connection conn, Order ordine)
-			throws SQLException {
+	public static void updateOrdine(Connection conn, Order ordine) throws SQLException {
 		String sql = "UPDATE gestione_cantieri.order SET um = ?, quantity = ?, price = ?, discount = ?, adj_price = ?,"
 				+ " iva = ?, building_id = ? WHERE id = ?";
 
@@ -143,21 +138,20 @@ public class DBOrder {
 		}
 		pstm.setInt(8, ordine.getId());
 
-		System.out.println("updateOrdine: " + pstm.toString());
+		logger.info("updateOrdine: " + pstm.toString());
 
 		pstm.executeUpdate();
 		pstm.close();
 	}
 
-	public static List<Product> queryProductPrice(Connection connection)
-			throws SQLException {
+	public static List<Product> queryProductPrice(Connection connection) throws SQLException {
 		String sql = "SELECT prices.product_id, prices.product_name, prices.provider_code, AVG(prices.price) AS medPrice "
 				+ "FROM (SELECT ord.product_id, ord.product_name, ord.quantity, prd.provider_code, (ord.adj_price/quantity) AS price "
 				+ "FROM gestione_cantieri.order ord inner join gestione_cantieri.product prd on ord.product_id = prd.id) AS prices "
 				+ "GROUP BY prices.product_id, prices.product_name order by prices.provider_code, prices.product_id, prices.product_name;";
 
 		PreparedStatement pstm = connection.prepareStatement(sql);
-		System.out.println("queryProductPrice: " + pstm.toString());
+		logger.info("queryProductPrice: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Product> list = new ArrayList<Product>();
@@ -174,14 +168,14 @@ public class DBOrder {
 		return list;
 	}
 
-	public static List<HashMap<String, Object>> queryPricesHistory(
-			Connection connection, String prdName) throws SQLException {
+	public static List<HashMap<String, Object>> queryPricesHistory(Connection connection, String prdName)
+			throws SQLException {
 		String sql = "SELECT (adj_price/quantity) AS price, date_ins FROM gestione_cantieri.order WHERE product_name = ?"
 				+ " ORDER BY date_ins ASC";
 
 		PreparedStatement pstm = connection.prepareStatement(sql);
 		pstm.setString(1, prdName);
-		System.out.println("queryPricesHistory: " + pstm.toString());
+		logger.info("queryPricesHistory: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();

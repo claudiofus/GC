@@ -15,9 +15,10 @@ import gc.model.Product;
 
 @Path("/product")
 public class ProductService {
-	
+
 	/**
 	 * Get all products of all providers.
+	 * 
 	 * @return List of all products.
 	 */
 	@GET
@@ -32,6 +33,7 @@ public class ProductService {
 
 	/**
 	 * Get the product with code passe in input.
+	 * 
 	 * @param name of the product to find.
 	 * @return Product with name specified.
 	 */
@@ -41,14 +43,14 @@ public class ProductService {
 	public Response getProduct(@PathParam("name") String name) {
 
 		ProductDaoImpl productDaoImpl = new ProductDaoImpl();
-		List<HashMap<String, Object>> product = productDaoImpl
-				.getProductDetails(name);
+		List<HashMap<String, Object>> product = productDaoImpl.getProductDetails(name);
 
 		return Response.ok(product).build();
 	}
 
 	/**
 	 * Get all products of all providers with medium price per unit.
+	 * 
 	 * @return List of all products.
 	 */
 	@GET

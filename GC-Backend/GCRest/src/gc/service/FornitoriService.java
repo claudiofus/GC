@@ -14,9 +14,10 @@ import gc.model.Provider;
 
 @Path("/provider")
 public class FornitoriService {
-	
+
 	/**
 	 * Get all providers
+	 * 
 	 * @return list of providers
 	 */
 	@GET
@@ -31,6 +32,7 @@ public class FornitoriService {
 
 	/**
 	 * Get the details of a provider
+	 * 
 	 * @param code of the provider
 	 * @return the provider found
 	 */

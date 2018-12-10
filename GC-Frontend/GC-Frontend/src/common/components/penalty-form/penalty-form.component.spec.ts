@@ -1,6 +1,6 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {PenaltyFormComponent} from './penalty-form.component';
+import { PenaltyFormComponent } from './penalty-form.component';
 
 describe('PenaltyFormComponent', () => {
   let component: PenaltyFormComponent;

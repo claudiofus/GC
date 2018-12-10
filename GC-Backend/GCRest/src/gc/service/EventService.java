@@ -20,6 +20,7 @@ public class EventService {
 
 	/**
 	 * Get all events.
+	 * 
 	 * @return List of all events.
 	 */
 	@GET
@@ -31,9 +32,10 @@ public class EventService {
 
 		return Response.status(200).entity(eventList).build();
 	}
-	
+
 	/**
 	 * Get event from id
+	 * 
 	 * @param eventID of the event
 	 * @return event found
 	 */
@@ -49,9 +51,10 @@ public class EventService {
 
 	/**
 	 * Add an event
+	 * 
 	 * @param event to add
 	 * @return event added
-	 * @throws IOException if a same title is found 
+	 * @throws IOException if a same title is found
 	 */
 	@POST
 	@Path("/addEvent")
@@ -78,6 +81,7 @@ public class EventService {
 
 	/**
 	 * Update an event
+	 * 
 	 * @param ev to update
 	 * @return event updated
 	 */
@@ -93,6 +97,7 @@ public class EventService {
 
 	/**
 	 * Delete an event
+	 * 
 	 * @param ev to delete
 	 * @return true if delete succeded
 	 */

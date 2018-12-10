@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import gc.conn.JDBCConnection;
@@ -21,6 +23,7 @@ import gc.service.EventService;
 import gc.utils.Utils;
 
 public class InvoiceDaoImpl {
+	private static final Logger logger = LogManager.getLogger(InvoiceDaoImpl.class.getName());
 
 	public List<Invoice> addInvoice(String provider, File file) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
@@ -38,11 +41,9 @@ public class InvoiceDaoImpl {
 
 			document = PDDocument.load(file);
 			for (int page = 0; page < document.getNumberOfPages(); page++) {
-				inv_number = ord.getNumber(document, page).replaceAll("\\s+",
-						"");
+				inv_number = ord.getNumber(document, page).replaceAll("\\s+", "");
 
-				if (inv_number != null
-						&& !inv_number.equalsIgnoreCase(inv.getNum_doc())) {
+				if (inv_number != null && !inv_number.equalsIgnoreCase(inv.getNum_doc())) {
 					inv = new Invoice();
 					inv.setNum_doc(inv_number);
 					map = new LinkedMap<>();
@@ -59,11 +60,8 @@ public class InvoiceDaoImpl {
 				if (deadlines != null && deadlines.size() > 0) {
 					EventService evService = new EventService();
 					for (int i = 0; i < deadlines.size(); i++) {
-						String title = deadlines.get(i).getAmount()
-								+ "€ - rata n." + (i + 1) + ", fattura n."
-								+ inv.getNum_doc() + " del "
-								+ Utils.sqlDateToDate(inv.getData_doc(),
-										"dd/MM/yyyy")
+						String title = deadlines.get(i).getAmount() + "€ - rata n." + (i + 1) + ", fattura n."
+								+ inv.getNum_doc() + " del " + Utils.sqlDateToDate(inv.getData_doc(), "dd/MM/yyyy")
 								+ " - " + provider;
 						Event tmp = new Event(title);
 						tmp.setPaid(false);
@@ -75,13 +73,13 @@ public class InvoiceDaoImpl {
 
 			return invList;
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error in method addInvoice: ", e);
 		} finally {
 			try {
 				document.close();
 				conn.close();
 			} catch (SQLException | IOException e) {
-				e.printStackTrace();
+				logger.error("Error document or connection close: ", e);
 			}
 		}
 		return null;

@@ -10,12 +10,10 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class RESTUtil {
-	static public <T extends Object> T jsonDeserialize(String msg, Class<T> cl)
-			throws Exception {
+	static public <T extends Object> T jsonDeserialize(String msg, Class<T> cl) throws Exception {
 		if (msg != null) {
 			ObjectMapper mapper = new ObjectMapper();
-			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-					false);
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			return mapper.readValue(msg, cl);
 		}
 		return null;
@@ -27,8 +25,7 @@ public class RESTUtil {
 		return mapper.writeValueAsString(o);
 	}
 
-	static public <T extends Object> List<T> jsonDeserializeCollection(
-			String msg, Class<T> cl) throws Exception {
+	static public <T extends Object> List<T> jsonDeserializeCollection(String msg, Class<T> cl) throws Exception {
 		if (msg != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

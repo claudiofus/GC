@@ -5,11 +5,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.conn.JDBCConnection;
 import gc.db.DBBuilding;
 import gc.model.Building;
 
 public class BuildingDaoImpl {
+	private static final Logger logger = LogManager.getLogger(BuildingDaoImpl.class.getName());
 
 	public List<Building> getBuildings() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
@@ -19,7 +23,7 @@ public class BuildingDaoImpl {
 		try {
 			buildingData = DBBuilding.queryBuilding(conn);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getBuildings: ", e);
 		}
 
 		return buildingData;
@@ -29,16 +33,16 @@ public class BuildingDaoImpl {
 		Building building = new Building();
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		
+
 		try {
 			building = DBBuilding.findBuilding(conn, name);
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method getBuildingDetails: ", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				logger.error("Error in connection rollback: ", e1);
 			}
 		}
 
@@ -53,11 +57,11 @@ public class BuildingDaoImpl {
 			DBBuilding.insertBuilding(conn, building);
 			conn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error in method insertBuilding: ", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				logger.error("Error in connection rollback: ", e1);
 			}
 		}
 

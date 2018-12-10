@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 
@@ -25,23 +27,21 @@ import gc.model.UM;
 import gc.utils.Utils;
 
 public class BaseOrder extends Order implements IInvoice {
+	private static final Logger logger = LogManager.getLogger(BaseOrder.class.getName());
+
 	public BaseOrder() {
 		super();
 	}
 
-	public BaseOrder(int id, String productID, String productDesc, String um,
-			float quantity, float price, float discount, float adj_price,
-			float iva, java.sql.Date sqlDate) {
-		super(id, productID, productDesc, um, quantity, price, discount,
-				adj_price, iva, sqlDate);
+	public BaseOrder(int id, String productID, String productDesc, String um, float quantity, float price,
+			float discount, float adj_price, float iva, java.sql.Date sqlDate) {
+		super(id, productID, productDesc, um, quantity, price, discount, adj_price, iva, sqlDate);
 	}
 
-	public BaseOrder(String productID, String productDesc, String um,
-			float quantity, float price, float discount, float adj_price,
-			float iva, java.sql.Date sqlDate) {
+	public BaseOrder(String productID, String productDesc, String um, float quantity, float price, float discount,
+			float adj_price, float iva, java.sql.Date sqlDate) {
 
-		super(productID, productDesc, um, quantity, price, discount, adj_price,
-				iva, sqlDate);
+		super(productID, productDesc, um, quantity, price, discount, adj_price, iva, sqlDate);
 	}
 
 	@Override
@@ -70,14 +70,11 @@ public class BaseOrder extends Order implements IInvoice {
 	}
 
 	@Override
-	public LinkedMap<String, ArrayList<Order>> parseOrder(PDDocument document,
-			Connection conn, int page, LinkedMap<String, ArrayList<Order>> map)
-			throws InvalidPasswordException, IOException {
-		String descDDT = getDDT(), dateOrderRegex = getDATEORDER(),
-				dateFormat = getDATEFORMAT();
+	public LinkedMap<String, ArrayList<Order>> parseOrder(PDDocument document, Connection conn, int page,
+			LinkedMap<String, ArrayList<Order>> map) throws InvalidPasswordException, IOException {
+		String descDDT = getDDT(), dateOrderRegex = getDATEORDER(), dateFormat = getDATEFORMAT();
 		Rectangle rect = getORDERS_AREA();
-		final NumberFormat format = NumberFormat
-				.getNumberInstance(Locale.getDefault());
+		final NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
 		if (format instanceof DecimalFormat) {
 			((DecimalFormat) format).setParseBigDecimal(true);
 		}
@@ -86,15 +83,14 @@ public class BaseOrder extends Order implements IInvoice {
 		String[] righe = esito.split("\n");
 		for (String riga : righe) {
 			if (riga.startsWith(descDDT)) {
-				sqlDate = Utils.extractOrderDate(dateOrderRegex, riga,
-						dateFormat);
+				sqlDate = Utils.extractOrderDate(dateOrderRegex, riga, dateFormat);
 				if (!map.containsKey(riga)) {
 					map.put(riga, null);
 				}
 			} else if (map.size() > 0) {
 				/**
-				 * nel caso in cui la seconda pagina faccia riferimento al ddt
-				 * definito nella prima pagina sqlDate = null
+				 * nel caso in cui la seconda pagina faccia riferimento al ddt definito nella
+				 * prima pagina sqlDate = null
 				 */
 				if (sqlDate == null) {
 					List<Order> arr = map.getValue(map.values().size() - 1);
@@ -105,16 +101,14 @@ public class BaseOrder extends Order implements IInvoice {
 					populateMap(sqlDate, map, conn, riga);
 					conn.commit();
 				} catch (Exception e) {
-					System.err.println("Error parsing : " + riga);
-					System.out.println(
-							"Strategy changed, retry to parse : " + riga);
+					logger.error("Error parsing : " + riga);
+					logger.info("Strategy changed, retry to parse : " + riga);
 					try {
 						conn.rollback();
 						populateMap(sqlDate, map, conn, riga);
 						conn.commit();
 					} catch (Exception e1) {
-						System.err.println("Unable to parse : " + riga);
-						e.printStackTrace();
+						logger.error("Unable to parse : " + riga, e);
 					}
 				}
 			}
@@ -122,20 +116,16 @@ public class BaseOrder extends Order implements IInvoice {
 		return map;
 	}
 
-	public void populateMap(java.sql.Date sqlDate,
-			LinkedMap<String, ArrayList<Order>> map, Connection conn,
+	public void populateMap(java.sql.Date sqlDate, LinkedMap<String, ArrayList<Order>> map, Connection conn,
 			String riga) throws Exception {
-		final NumberFormat format = NumberFormat
-				.getNumberInstance(Locale.getDefault());
+		final NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
 		if (format instanceof DecimalFormat) {
 			((DecimalFormat) format).setParseBigDecimal(true);
 		}
 
 		String dbCode = getDBCODE();
 		String lastKey = map.lastKey();
-		ArrayList<Order> items = map.get(lastKey) == null
-				? new ArrayList<>()
-				: map.get(lastKey);
+		ArrayList<Order> items = map.get(lastKey) == null ? new ArrayList<>() : map.get(lastKey);
 		String[] itemParts = riga.trim().replaceAll(" +", ";").split(";");
 
 		if (itemParts.length > 5) {
@@ -160,8 +150,7 @@ public class BaseOrder extends Order implements IInvoice {
 			}
 
 			int val = 0;
-			if (itemParts.length != indice + 5 + 1
-					&& itemParts.length != indice + 4 + 1) {
+			if (itemParts.length != indice + 5 + 1 && itemParts.length != indice + 4 + 1) {
 				return;
 			} else if (itemParts.length == indice + 5 + 1) {
 				val = 1;
@@ -174,18 +163,14 @@ public class BaseOrder extends Order implements IInvoice {
 			String um = itemParts[indice];
 			float quantity = format.parse(itemParts[indice + 1]).floatValue();
 			float price = format.parse(itemParts[indice + 2]).floatValue();
-			float adj_price = format.parse(itemParts[indice + val + 3])
-					.floatValue();
+			float adj_price = format.parse(itemParts[indice + val + 3]).floatValue();
 			float iva = format.parse(itemParts[indice + val + 4]).floatValue();
-			float discount = Utils
-					.round(Utils.calcDiscount(price, adj_price / quantity), 2);
+			float discount = Utils.round(Utils.calcDiscount(price, adj_price / quantity), 2);
 			ord = this.getClass()
-					.getConstructor(String.class, String.class, String.class,
-							float.class, float.class, float.class, float.class,
-							float.class, java.sql.Date.class)
-					.newInstance(productID, productDesc, um, quantity, price,
-							discount < 1 ? 0 : discount, adj_price, iva,
-							sqlDate);
+					.getConstructor(String.class, String.class, String.class, float.class, float.class, float.class,
+							float.class, float.class, java.sql.Date.class)
+					.newInstance(productID, productDesc, um, quantity, price, discount < 1 ? 0 : discount, adj_price,
+							iva, sqlDate);
 
 			Product prdToFind = DBProduct.findProduct(conn, prd);
 			if (prdToFind == null) {

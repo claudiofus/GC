@@ -8,15 +8,19 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.model.Event;
 
 public class DBEvent {
+	private static final Logger logger = LogManager.getLogger(DBEvent.class.getName());
 
 	public static List<Event> queryEvent(Connection conn) throws SQLException {
 		String sql = "SELECT id, title, start_date, paid FROM gestione_cantieri.event ORDER BY start_date ASC";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		System.out.println("queryEvent: " + pstm.toString());
+		logger.info("queryEvent: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		List<Event> list = new ArrayList<Event>();
@@ -37,13 +41,12 @@ public class DBEvent {
 		return list;
 	}
 
-	public static Event getEvent(Connection conn, int evID)
-			throws SQLException {
+	public static Event getEvent(Connection conn, int evID) throws SQLException {
 		String sql = "SELECT id, title, start_date, paid FROM gestione_cantieri.event WHERE id = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setInt(1, evID);
-		System.out.println("getEvent: " + pstm.toString());
+		logger.info("getEvent: " + pstm.toString());
 
 		Event ev = null;
 		ResultSet rs = pstm.executeQuery();
@@ -62,16 +65,14 @@ public class DBEvent {
 		return ev;
 	}
 
-	public static int insertEvent(Connection conn, Event eventData)
-			throws SQLException {
+	public static int insertEvent(Connection conn, Event eventData) throws SQLException {
 		String sql = "INSERT INTO gestione_cantieri.event (title, start_date, paid) VALUES (?, ?, ?)";
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, eventData.getTitle());
 		pstm.setDate(2, eventData.getStart_date());
 		pstm.setBoolean(3, eventData.isPaid());
 
-		System.out.println("insertEvent: " + pstm.toString());
+		logger.info("insertEvent: " + pstm.toString());
 
 		int affectedRows = pstm.executeUpdate();
 		if (affectedRows == 0) {
@@ -82,16 +83,14 @@ public class DBEvent {
 			if (generatedKeys.next()) {
 				eventData.setId(generatedKeys.getInt(1));
 			} else {
-				throw new SQLException(
-						"Inserting event failed, no ID obtained.");
+				throw new SQLException("Inserting event failed, no ID obtained.");
 			}
 		}
 		pstm.close();
 		return eventData.getId();
 	}
 
-	public static void updateEvent(Connection conn, Event ev)
-			throws SQLException {
+	public static void updateEvent(Connection conn, Event ev) throws SQLException {
 		String sql = "UPDATE gestione_cantieri.event SET title = ?, start_date = ?, paid = ? WHERE id = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
@@ -100,27 +99,26 @@ public class DBEvent {
 		pstm.setBoolean(3, ev.isPaid());
 		pstm.setInt(4, ev.getId());
 
-		System.out.println("updateEvent: " + pstm.toString());
+		logger.info("updateEvent: " + pstm.toString());
 
 		pstm.executeUpdate();
 		pstm.close();
 	}
 
-	public static boolean deleteEvent(Connection conn, int id)
-			throws SQLException {
+	public static boolean deleteEvent(Connection conn, int id) throws SQLException {
 		String sql = "DELETE FROM gestione_cantieri.event WHERE id = ?";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setInt(1, id);
-		System.out.println("deleteEvent: " + pstm.toString());
+		logger.info("deleteEvent: " + pstm.toString());
 
 		int result = pstm.executeUpdate();
 		pstm.close();
 		if (result != 0) {
-			System.out.println("Event with id = " + id + " deleted");
+			logger.info("Event with id = " + id + " deleted");
 			return true;
 		} else {
-			System.out.println("No event was deleted with id = " + id);
+			logger.info("No event was deleted with id = " + id);
 			return false;
 		}
 	}
@@ -130,7 +128,7 @@ public class DBEvent {
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setInt(1, id);
-		System.out.println("selectEvent: " + pstm.toString());
+		logger.info("selectEvent: " + pstm.toString());
 
 		ResultSet rs = pstm.executeQuery();
 		Event event = null;
