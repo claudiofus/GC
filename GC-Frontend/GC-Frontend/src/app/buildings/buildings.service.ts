@@ -1,13 +1,14 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class BuildingsService {
-  protected url = 'http://localhost:8000/GCRest/rest/building/all';
-  protected url2 = 'http://localhost:8000/GCRest/rest/building/addBuilding';
-  protected url3 = 'http://localhost:8000/GCRest/rest/building/details/';
-  protected url4 = 'http://localhost:8000/GCRest/rest/building/directions/';
+  protected url = environment.contextBase + '/GCRest/rest/building/all';
+  protected url2 = environment.contextBase + '/GCRest/rest/building/addBuilding';
+  protected url3 = environment.contextBase + '/GCRest/rest/building/details/';
+  protected url4 = environment.contextBase + '/GCRest/rest/building/directions/';
 
   constructor(private http: HttpClient) {
   }

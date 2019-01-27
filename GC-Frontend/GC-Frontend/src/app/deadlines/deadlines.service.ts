@@ -1,12 +1,13 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class DeadlinesService {
-  protected url = 'http://localhost:8000/GCRest/rest/event/all';
-  protected url2 = 'http://localhost:8000/GCRest/rest/event/addEvent';
-  protected url3 = 'http://localhost:8000/GCRest/rest/event/deleteEvent';
+  protected url = environment.contextBase + '/GCRest/rest/event/all';
+  protected url2 = environment.contextBase + '/GCRest/rest/event/addEvent';
+  protected url3 = environment.contextBase + '/GCRest/rest/event/deleteEvent';
 
   constructor(private http: HttpClient) {
   }

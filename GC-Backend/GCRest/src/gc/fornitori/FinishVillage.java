@@ -99,6 +99,8 @@ public class FinishVillage extends BaseOrder {
 						String um = itemParts[indice];
 						float quantity = format.parse(itemParts[indice + 1]).floatValue();
 						float price = format.parse(itemParts[indice + 2]).floatValue();
+						if (sqlDate == null) sqlDate = Utils.extractOrderDate(DATE_ORDER_REGEX, lastKey, DATE_FORMAT);
+
 						// 0-based
 						if (itemParts.length == indice + 6 + 1) {
 							float adj_price = format.parse(itemParts[indice + 5]).floatValue();

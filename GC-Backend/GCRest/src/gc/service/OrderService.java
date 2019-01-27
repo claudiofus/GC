@@ -32,7 +32,7 @@ import gc.utils.Utils;
 @Path("/order")
 public class OrderService {
 	private static final Logger logger = LogManager.getLogger(OrderService.class.getName());
-	private static final String UPLOAD_FOLDER = "D:\\GC\\GCRest\\WebContent\\WEB-INF\\UPLOADED\\";
+	private static final String UPLOAD_FOLDER = "/opt/";
 
 	/**
 	 * Returns text response to caller containing uploaded file location

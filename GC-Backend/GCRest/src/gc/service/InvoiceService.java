@@ -24,7 +24,7 @@ import gc.utils.Utils;
 @Path("/invoice")
 public class InvoiceService {
 	private static final Logger logger = LogManager.getLogger(InvoiceService.class.getName());
-	private static final String UPLOAD_FOLDER = "C:\\Users\\Claudio\\Desktop\\Fatture uploaded\\";
+	private static final String UPLOAD_FOLDER = "/opt/tomcat/fatture/";
 
 	/**
 	 * Add an invoice

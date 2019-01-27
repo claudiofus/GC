@@ -101,7 +101,7 @@ public class Utils {
 	public static void createFolderIfNotExists(String dirName) {
 		File theDir = new File(dirName);
 		if (!theDir.exists()) {
-			boolean created = theDir.mkdir();
+			boolean created = theDir.mkdirs();
 			if (!created) {
 				logger.error("Directory not created in: " + dirName);
 			}

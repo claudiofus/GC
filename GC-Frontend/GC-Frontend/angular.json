@@ -45,6 +45,17 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true
+            },
+            "dev": {
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": false
             }
           }
         },
@@ -56,6 +67,9 @@
           "configurations": {
             "production": {
               "browserTarget": "GC-Frontend:build:production"
+            },
+            "dev": {
+              "browserTarget": "GC-Frontend:build:dev"
             }
           }
         },
