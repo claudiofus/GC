@@ -4,7 +4,7 @@ import {AddInvoiceService} from './add-invoice.service';
 import {Building} from '../../classes/building';
 import {BuildingsService} from '../buildings/buildings.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {formatDate} from '@angular/common';
+import {PaymentMod} from '../../classes/paymentMod';
 
 @Component({
   selector: 'app-add-invoice',
@@ -26,6 +26,7 @@ export class AddInvoiceComponent implements OnInit {
   building: Building;
   buildings: Building[];
   assignResult: string;
+  mode = PaymentMod;
   addInvoiceFG = new FormGroup({
     provider: new FormControl(null, [Validators.required])
   });
@@ -70,13 +71,8 @@ export class AddInvoiceComponent implements OnInit {
   }
 
   submitForm() {
-    let row = '';
     this.waitDiv = true;
     this.orderColumns = AddInvoiceService.getOrderColumns();
-    this.addInvoiceService.getProvider(this.addInvoiceFG.value.provider)
-      .then(result => {
-        this.providerObj = result;
-      });
     this.addInvoiceService.addOrder(this.files[0], this.addInvoiceFG.value.provider)
       .then(result => {
         this.waitDiv = false;
@@ -86,21 +82,15 @@ export class AddInvoiceComponent implements OnInit {
         this.invoices = result;
 
         for (let i = 0; i < this.invoices.length; i++) {
+          this.providerObj = this.invoices[i].provider;
           const ddtMap = this.obj_to_map(this.invoices[i].ddtorders);
           this.deliveryNotes[i] = Array.from(ddtMap.keys());
           for (const el of this.deliveryNotes[i]) {
             if (ddtMap.get(el)) {
-              this.itemsOrder[el] = Array.from(ddtMap.get(el).values());
+              this.itemsOrder[el] = ddtMap.get(el);
             }
           }
-          if (this.invoices[i].scadenze) {
-            this.invoices[i].scadenze.forEach(sc => {
-              row += formatDate(sc.deadlineDate, 'dd/MM/yyyy', 'it') + ' - ' + sc.amount + '€\n';
-            });
-          }
         }
-
-        alert('Scadenze inserite:\n' + row);
       })
       .catch(error => {
         this.waitDiv = false;
@@ -133,15 +123,41 @@ export class AddInvoiceComponent implements OnInit {
   }
 
   assignBuilding(deliveryNote, dnIndex) {
+    this.waitDiv = true;
     const building = this.itemsOrder[dnIndex].building;
     this.addInvoiceService.assignBuilding(building.name, deliveryNote)
       .then(result => {
         console.log(result);
         deliveryNote.assignResult = 'OK';
+        this.waitDiv = false;
       })
       .catch(error => {
         console.error(error);
         deliveryNote.assignResult = 'KO';
+        this.waitDiv = false;
       });
+  }
+
+  openBase64(fileName, data) {
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) { // IE workaround
+      const byteCharacters = atob(data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], {type: 'application/pdf'});
+      window.navigator.msSaveOrOpenBlob(blob, fileName);
+    } else if (/Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) {
+      const a = document.createElement('a');
+      a.href = 'data:application/pdf;charset=utf-8;base64,' + data;
+      a.target = '_blank';
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+    } else {
+      window.open('data:application/pdf;base64,' + data);
+    }
+    return false;
   }
 }

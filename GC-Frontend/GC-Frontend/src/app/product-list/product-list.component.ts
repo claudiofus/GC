@@ -20,7 +20,7 @@ export class ProductListComponent implements OnInit {
     um: new FormControl(null, [Validators.required]),
     quantity: new FormControl(null, [Validators.required]),
     price: new FormControl(null, [Validators.required]),
-    adj_price: new FormControl(null, [Validators.required]),
+    noIvaPrice: new FormControl(null, [Validators.required]),
     iva: new FormControl(null, [Validators.required]),
     discount: new FormControl({value: null, disabled: true}),
     date_order: new FormControl(null, [Validators.required, Validators.maxLength(10)]),
@@ -48,8 +48,8 @@ export class ProductListComponent implements OnInit {
     return this.addOrderFG.get('price');
   }
 
-  get adj_price() {
-    return this.addOrderFG.get('adj_price');
+  get noIvaPrice() {
+    return this.addOrderFG.get('noIvaPrice');
   }
 
   get iva() {
@@ -86,9 +86,9 @@ export class ProductListComponent implements OnInit {
     );
   }
 
-  calcDiscount(price, adj_price, quantity) {
+  calcDiscount(price, noIvaPrice, quantity) {
     let discount = 0;
-    if (!price || !adj_price || !quantity || price === 0 || adj_price === 0) {
+    if (!price || !noIvaPrice || !quantity || price === 0 || noIvaPrice === 0) {
       this.addOrderFG.controls['discount'].setValue(discount.toFixed(2));
       return;
     }
@@ -99,8 +99,8 @@ export class ProductListComponent implements OnInit {
       return;
     }
 
-    adj_price = adj_price / quantity;
-    discount = (1 - (adj_price / price)) * 100;
+    noIvaPrice = noIvaPrice / quantity;
+    discount = (1 - (noIvaPrice / price)) * 100;
     this.addOrderFG.controls['discount'].setValue(discount.toFixed(2));
   }
 
@@ -108,7 +108,7 @@ export class ProductListComponent implements OnInit {
     if (event.name && event.code) {
       this.addOrderFG.controls['name'].setValue(event.name);
       this.addOrderFG.controls['code'].setValue(event.code);
-      this.addOrderFG.controls['provider'].setValue(event.providerCode);
+      this.addOrderFG.controls['provider'].setValue(event.providerName);
     }
   }
 

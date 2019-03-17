@@ -1,27 +1,9 @@
-<h2>Lista Prodotti</h2>
-
 <button type="button" class="button" (click)="addPanel = !addPanel;">Aggiungi ordine</button>
 <div class="mb10" *ngIf="addPanel">
   <div class="form_wrapper card">
     <form [formGroup]="addOrderFG" (submit)="addOrder()">
       <div class="row">
-        <div class="col22">
-          <label for="code">Codice</label>
-          <input type="text" id="code" auto-complete [formControlName]="'code'" [source]="products"
-                 list-formatter="code" (valueChanged)="updateProduct($event)"
-                 no-match-found-text="Nessun risultato trovato"/>
-
-          <div *ngIf="code && code.invalid && (code.dirty || code.touched)" class="error">
-            <div *ngIf="code.errors.required">
-              Inserire il codice del prodotto.
-            </div>
-            <div *ngIf="code.errors.minlength">
-              Il codice del prodotto deve essere lungo almeno 3 caratteri.
-            </div>
-          </div>
-        </div>
-
-        <div class="col33">
+        <div class="col44">
           <label for="name">Descrizione</label>
           <input type="text" id="name" auto-complete [formControlName]="'name'" [source]="products"
                  list-formatter="name" (valueChanged)="updateProduct($event)"
@@ -51,7 +33,7 @@
           <label for="quantity">Quantità</label>
           <input type="number" step="0.01" min="0" id="quantity" [formControlName]="'quantity'"
                  (blur)="this.addOrderFG.controls['quantity'].setValue(utils.fixAmount(this.addOrderFG.value.quantity));"
-                 (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.adj_price, this.addOrderFG.value.quantity)"/>
+                 (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.noIvaPrice, this.addOrderFG.value.quantity)"/>
 
           <div *ngIf="quantity && quantity.invalid && (quantity.dirty || quantity.touched)" class="error">
             <div *ngIf="quantity.errors.required">
@@ -66,7 +48,7 @@
           <label for="price">Prezzo unit. (€)</label>
           <input type="number" step="0.01" min="0" id="price" [formControlName]="'price'"
                  (blur)="this.addOrderFG.controls['price'].setValue(utils.fixAmount(this.addOrderFG.value.price))"
-                 (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.adj_price, this.addOrderFG.value.quantity)"/>
+                 (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.noIvaPrice, this.addOrderFG.value.quantity)"/>
 
           <div *ngIf="price && price.invalid && (price.dirty || price.touched)" class="error">
             <div *ngIf="price.errors.required">
@@ -76,13 +58,13 @@
         </div>
 
         <div class="col22">
-          <label for="adj_price">Prezzo totale (€)</label>
-          <input type="number" step="0.01" min="0" id="adj_price" [formControlName]="'adj_price'"
-                 (blur)="this.addOrderFG.controls['adj_price'].setValue(utils.fixAmount(this.addOrderFG.value.adj_price))"
-                 (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.adj_price, this.addOrderFG.value.quantity)"/>
+          <label for="noIvaPrice">Prezzo totale (€)</label>
+          <input type="number" step="0.01" min="0" id="noIvaPrice" [formControlName]="'noIvaPrice'"
+                 (blur)="this.addOrderFG.controls['noIvaPrice'].setValue(utils.fixAmount(this.addOrderFG.value.noIvaPrice))"
+                 (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.noIvaPrice, this.addOrderFG.value.quantity)"/>
 
-          <div *ngIf="adj_price && adj_price.invalid && (adj_price.dirty || adj_price.touched)" class="error">
-            <div *ngIf="adj_price.errors.required">
+          <div *ngIf="noIvaPrice && noIvaPrice.invalid && (noIvaPrice.dirty || noIvaPrice.touched)" class="error">
+            <div *ngIf="noIvaPrice.errors.required">
               Inserire il prezzo totale del prodotto.
             </div>
           </div>

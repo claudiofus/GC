@@ -1,10 +1,11 @@
 import {Injectable, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
+import {environment} from "../../../environments/environment";
 
 @Injectable()
 export class BuildingListService implements OnInit {
-  protected url = 'http://localhost:8000/GCRest/rest/building/all';
+  protected url = environment.contextBase + '/GCRest/rest/building/all';
 
   ngOnInit(): void {
   }

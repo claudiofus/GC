@@ -1,14 +1,15 @@
 import {Injectable, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
+import {environment} from "../../../environments/environment";
 
 @Injectable()
 export class TableProductsService {
-  protected url = 'http://localhost:8000/GCRest/rest/product/products/prices';
-  protected url2 = 'http://localhost:8000/GCRest/rest/product/price/';
+  protected url = environment.contextBase + '/GCRest/rest/product/products/prices';
+  protected url2 = environment.contextBase + '/GCRest/rest/product/price/';
 
   static getProductColumns(): string[] {
-    return ['Fornitore', 'Codice', 'Descrizione', 'Prezzo medio'];
+    return ['Fornitore', 'Descrizione', 'Prezzo medio'];
   }
 
   constructor(private http: HttpClient) {

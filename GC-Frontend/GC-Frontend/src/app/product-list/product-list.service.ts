@@ -1,14 +1,15 @@
 import {Injectable, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class ProductListService {
-  protected url = 'http://localhost:8000/GCRest/rest/product/products';
-  protected url2 = 'http://localhost:8000/GCRest/rest/order/addOrder/';
+  protected url = environment.contextBase + '/GCRest/rest/product/products';
+  protected url2 = environment.contextBase + '/GCRest/rest/order/addOrder/';
 
   static getProductColumns(): string[] {
-    return ['Fornitore', 'Codice', 'Descrizione'];
+    return ['Fornitore', 'Descrizione'];
   }
 
   constructor(private http: HttpClient) {

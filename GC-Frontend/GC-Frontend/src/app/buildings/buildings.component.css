@@ -35,3 +35,11 @@ img {
   display          : block;
   width            : 100%;
 }
+
+.recap {
+  background-color : var(--main-bg-color) !important;
+}
+
+.recap td {
+  color : white;
+}

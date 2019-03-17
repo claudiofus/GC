@@ -1,17 +1,18 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class VehiclesService {
-  protected url = 'http://localhost:8000/GCRest/rest/vehicle/all';
-  protected url2 = 'http://localhost:8000/GCRest/rest/vehicle/addVehicle';
-  protected url3 = 'http://localhost:8000/GCRest/rest/vehicle/addPenalty';
-  protected url4 = 'http://localhost:8000/GCRest/rest/vehicle/updateVehicle';
-  protected url5 = 'http://localhost:8000/GCRest/rest/vehicle/insurance/all';
-  protected url6 = 'http://localhost:8000/GCRest/rest/vehicle/cartax/all';
-  protected url7 = 'http://localhost:8000/GCRest/rest/vehicle/revision/all';
-  protected url8 = 'http://localhost:8000/GCRest/rest/vehicle/penalty/all';
+  protected url = environment.contextBase + '/GCRest/rest/vehicle/all';
+  protected url2 = environment.contextBase + '/GCRest/rest/vehicle/addVehicle';
+  protected url3 = environment.contextBase + '/GCRest/rest/vehicle/addPenalty';
+  protected url4 = environment.contextBase + '/GCRest/rest/vehicle/updateVehicle';
+  protected url5 = environment.contextBase + '/GCRest/rest/vehicle/insurance/all';
+  protected url6 = environment.contextBase + '/GCRest/rest/vehicle/cartax/all';
+  protected url7 = environment.contextBase + '/GCRest/rest/vehicle/revision/all';
+  protected url8 = environment.contextBase + '/GCRest/rest/vehicle/penalty/all';
 
   constructor(private http: HttpClient) {
   }

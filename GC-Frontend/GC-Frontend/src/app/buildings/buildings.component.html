@@ -1,29 +1,32 @@
-<a href="https://www.basisystems.com/pilates-equipment/options/sitting-box">Style</a>
-<h2>Cantieri</h2>
+<app-confirm-dialog></app-confirm-dialog>
 
-<div class="row" style="margin: 0">
-  <div class="col-6">
-    <button type="button" class="button" (click)="addPanel = !addPanel;">Aggiungi cantiere</button>
-  </div>
-  <div class="col-6 align-items-center">
-    <div class="float-right">
-      <span>Filtra per </span>
-      <button type="button" class="button" [ngStyle]="{'background-color': showOpened ? 'lightyellow' : 'white' }"
-              (click)="showOpened = !showOpened;">Cantieri aperti
-      </button>
-      <button type="button" class="button" [ngStyle]="{'background-color': showClosed ? 'lightyellow' : 'white' }"
-              (click)="showClosed = !showClosed;">Cantieri chiusi
-      </button>
+<div *ngIf="!showBuildingOrd">
+  <a href="https://www.basisystems.com/pilates-equipment/options/sitting-box">Style</a>
+
+  <div class="row" style="margin: 0">
+    <div class="col-6">
+      <button type="button" class="button" (click)="addPanel = !addPanel;">Aggiungi cantiere</button>
+    </div>
+    <div class="col-6 align-items-center">
+      <div class="float-right">
+        <span>Filtra per </span>
+        <button type="button" class="button" [ngStyle]="{'background-color': showOpened ? 'lightyellow' : 'white' }"
+                (click)="showOpened = !showOpened;">Cantieri aperti
+        </button>
+        <button type="button" class="button" [ngStyle]="{'background-color': showClosed ? 'lightyellow' : 'white' }"
+                (click)="showClosed = !showClosed;">Cantieri chiusi
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="card" *ngIf="addPanel">
-  <app-building-form (submit)="addBuilding($event)"></app-building-form>
-</div>
+  <div class="card" *ngIf="addPanel">
+    <app-building-form (submit)="addBuilding($event)"></app-building-form>
+  </div>
 
-<div class="mt10" *ngIf="buildings.length === 0">
-  <p>Non sono stati inseriti cantieri</p>
+  <div class="mt10" *ngIf="buildings.length === 0">
+    <p>Non sono stati inseriti cantieri</p>
+  </div>
 </div>
 
 <div *ngIf="buildings.length > 0">
@@ -46,26 +49,56 @@
                 {{building.address.state}}
               </div>
             </div>
-            <div class="card_text" *ngIf="building.address.distance && building.address.timeToReach">
-              <div class="card_box">
-                <h5 class="text-center">distante</h5>
-                <div style="border-bottom: 2px solid #7b2f3d;">
-                  {{building.address.distance}}
-                </div>
-              </div>
-              <div class="card_box">
-                <div>
-                  {{building.address.timeToReach}}
-                </div>
-              </div>
-            </div>
           </div>
           <div *ngIf="building.details">
             <app-generic-table [records]="projects" [settings]="projectSettings" [header]="header"></app-generic-table>
+            <button class="button float-right mt10" *ngIf="this.buildingOrders.length > 0"
+                    (click)="getDetailsOfSel(building)">
+              Mostra ordini
+            </button>
           </div>
           <button class="button" [hidden]="building.details" (click)="getBuildingDet(building)">Dettagli</button>
         </div>
       </div>
     </li>
   </ul>
+</div>
+
+<div class="container" *ngIf="showBuildingOrd">
+  <div class="row" style="margin: 0;">
+    <h2 class="col-sm-10 offset-sm-1 center">{{buildingSel}}</h2>
+    <button class="col-sm-1 button float-right mb10" (click)="resetView()">Indietro</button>
+  </div>
+  <table class="redTable">
+    <thead>
+    <tr>
+      <th *ngFor="let c of orderColumns">{{c}}</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor='let order of buildingOrders'>
+      <td>{{order.name}}</td>
+      <td>{{order.um | uppercase}}</td>
+      <td>{{order.quantity}}</td>
+      <td>{{order.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
+      <td>{{order.discount}} %</td>
+      <td>{{order.noIvaPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
+      <td>{{order.iva}} %</td>
+      <td>{{order.ivaPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+      <td>
+        <button (click)="updateOrder(order)">Rimuovi</button>
+      </td>
+    </tr>
+    <tr class="recap">
+      <td colspan="5"><strong>Totale dei materiali</strong></td>
+      <td><strong>{{orderSum | currency: 'EUR':'symbol':'1.2-3':'it'}}</strong></td>
+      <td><strong>{{orderIvaSum - orderSum | currency: 'EUR':'symbol':'1.2-2':'it'}}</strong></td>
+      <td><strong>{{orderIvaSum | currency: 'EUR':'symbol':'1.2-2':'it'}}</strong></td>
+      <td></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <button class="button mt10 float-right" style="margin-bottom: 50px" (click)="resetView()">Indietro</button>
 </div>

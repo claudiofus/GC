@@ -42,6 +42,8 @@ import {PenaltyFormComponent} from '../common/components/penalty-form/penalty-fo
 import {DeadlineFormComponent} from '../common/components/deadline-form/deadline-form.component';
 import {adapterFactory} from 'angular-calendar/date-adapters/date-fns';
 import {PagerService} from '../common/components/table-products/pager.service';
+import {ConfirmDialogComponent} from "../common/components/confirm-dialog/confirm-dialog.component";
+import {ConfirmDialogService} from "../common/components/confirm-dialog/confirm-dialog.service";
 
 registerLocaleData(localeIt, 'it');
 
@@ -62,7 +64,7 @@ registerLocaleData(localeIt, 'it');
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory
-    })
+    }),
   ],
   declarations: [
     AppComponent,
@@ -86,6 +88,7 @@ registerLocaleData(localeIt, 'it');
     VehicleFormComponent,
     PenaltyFormComponent,
     DeadlineFormComponent,
+    ConfirmDialogComponent
   ],
   providers: [{
     provide: LOCALE_ID,
@@ -97,7 +100,8 @@ registerLocaleData(localeIt, 'it');
     TableProductsService,
     BuildingsService,
     DeadlinesService,
-    VehiclesService
+    VehiclesService,
+    ConfirmDialogService
   ],
   bootstrap: [AppComponent],
   exports: [

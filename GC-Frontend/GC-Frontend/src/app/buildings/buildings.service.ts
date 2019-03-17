@@ -8,7 +8,7 @@ export class BuildingsService {
   protected url = environment.contextBase + '/GCRest/rest/building/all';
   protected url2 = environment.contextBase + '/GCRest/rest/building/addBuilding';
   protected url3 = environment.contextBase + '/GCRest/rest/building/details/';
-  protected url4 = environment.contextBase + '/GCRest/rest/building/directions/';
+  protected url4 = environment.contextBase + '/GCRest/rest/order/updateOrder';
 
   constructor(private http: HttpClient) {
   }
@@ -38,11 +38,12 @@ export class BuildingsService {
       .pipe(map(data => data));
   }
 
-  getDirections(address): Promise<any> {
-    console.log('Invoking service getDirections');
+  updateOrder(json) {
+    console.log('Invoking service updateOrder');
 
     return this.http
-      .get<any[]>(this.url4 + address).toPromise()
+      .post<any[]>(this.url4, json)
+      .toPromise()
       .then(data => data);
   }
 }

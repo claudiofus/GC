@@ -18,19 +18,19 @@
     <tbody>
     <ng-template ngFor let-item [ngForOf]="getProducts() | filtername: searchString">
       <tr>
-        <td>{{item.providerCode | titlecase}}</td>
-        <td>{{item.code}}</td>
+        <td>{{item.providerName | titlecase}}</td>
         <td>{{item.name}}</td>
+        <!--TODO controllare se itemName finisce per %2022% rimuoverlo o gestirlo dal BE-->
         <td>
           <button type="button" (click)="addRow(item)">
-            {{item.medPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}
+            {{item.medPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}
           </button>
         </td>
       </tr>
       <ng-container *ngIf="item.showDetails">
         <tr *ngFor="let elem of prices">
-          <td colspan="2"></td>
-          <td>{{elem.price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+          <td colspan="1"></td>
+          <td>{{elem.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
           <td>{{elem.date_ins | date:'dd/MM/yyyy'}}</td>
         </tr>
       </ng-container>

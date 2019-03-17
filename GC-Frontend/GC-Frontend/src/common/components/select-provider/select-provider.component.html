@@ -2,6 +2,6 @@
   <label for="provider">Fornitore </label>
   <select id="provider" [formControlName]="'provider'">
     <option disabled selected value></option>
-    <option *ngFor="let c of providers" [ngValue]="c.code">{{c.name}}</option>
+    <option *ngFor="let c of providers" [ngValue]="c.name">{{c.name}}</option>
   </select>
 </div>

@@ -6,8 +6,9 @@ export class Order {
   quantity: string;
   price: string;
   discount: string;
-  adj_price: string;
+  noIvaPrice: string;
   iva: string;
+  ivaPrice: string;
   provider: string;
   date_order: string;
 }

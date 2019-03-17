@@ -1,36 +1,45 @@
-<h2>Aggiungi fattura</h2>
-
 <div class="form_wrapper card mb10">
   <form #uploadForm='ngForm' (submit)="submitForm()" enctype="multipart/form-data">
-    <div [hidden]="providerObj">
+    <div class="container" [hidden]="providerObj">
       <div class="row">
-        <div class="col22">
-          <app-select-provider [group]="addInvoiceFG"></app-select-provider>
-
-          <div *ngIf="provider && provider.invalid && (provider.dirty || provider.touched)" class="error">
-            <div *ngIf="provider.errors.required">
-              Inserire il fornitore del prodotto.
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col_full">
-          <div class="mt10 fakefile" style="position: relative" [hidden]="showFileUploader()">
+        <div class="col-sm">
+          <div class="mt10 fakefile" style="position: relative">
             <input id="fileToUpload" type="file" name="file" ngModel (change)="getFiles($event)" size="50"
-                   accept="application/pdf"/>
+                   accept=".xml.p7m, .xml"/>
             <button class="button" [disabled]="!files || !files[0]" type="submit">Carica file</button>
           </div>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col_full">
-        <div *ngIf="providerObj">
-          <p>Hai caricato la fattura del fornitore: <strong>{{providerObj.name}}</strong></p>
-          <button type="reset" class="button" (click)="resetForm(uploadForm)">Aggiungi fattura</button>
+    <div class="container" *ngIf="providerObj">
+      <div class="row">
+        <div class="col-sm-10">
+          <div class="col-sm-12">
+            <h5><strong>{{providerObj | uppercase}}</strong></h5>
+          </div>
+          <div class="col-sm-12" [hidden]="!(invoices[0].deadlines && invoices[0].deadlines.length > 0)">
+            <div *ngFor="let invoice of invoices">
+              <div *ngFor="let deadline of invoice.deadlines">
+                <strong>{{deadline.paymentDets.importoPagamento | currency:'EUR':'symbol':'1.2-3':'it'}}</strong>
+                tramite <strong>{{mode[deadline.paymentDets.modalitaPagamento]}}</strong>
+                <ng-container *ngIf="deadline.paymentDets.dataScadenzaPagamento">
+                  in data <strong>{{deadline.paymentDets.dataScadenzaPagamento | date:'dd/MM/yyyy'}}</strong>
+                </ng-container>
+                <ng-container *ngIf="deadline.paymentDets.iban">
+                  sul conto IBAN: <strong>{{deadline.paymentDets.iban}}</strong>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-2" *ngIf="invoices[0].attachments">
+          <a (click)="openBase64('Fattura ' + invoices[0].id, invoices[0].attachments[0]);">
+            <img src="../../assets/images/invoice.png" alt="Premi qui per scaricare la fattura"
+                 title="Premi qui per scaricare la fattura">
+          </a>
         </div>
       </div>
+      <button type="reset" class="button" (click)="resetForm(uploadForm)">Aggiungi fattura</button>
     </div>
   </form>
 </div>
@@ -57,14 +66,14 @@
         <tbody>
         <tr *ngFor='let order of itemsOrder[dn]'>
           <td><input type="checkbox" (change)="order.state = !order.state" [checked]="order.state"/></td>
-          <td>{{order.code}}</td>
           <td>{{order.name}}</td>
-          <td>{{order.um}}</td>
+          <td>{{order.um | uppercase}}</td>
           <td>{{order.quantity}}</td>
-          <td>{{order.price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+          <td>{{order.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
           <td>{{order.discount}} %</td>
-          <td>{{order.adj_price | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+          <td>{{order.noIvaPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
           <td>{{order.iva}} %</td>
+          <td>{{order.ivaPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
         </tr>
         </tbody>
       </table>

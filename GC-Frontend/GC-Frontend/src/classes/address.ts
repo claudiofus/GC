@@ -6,6 +6,4 @@ export class Address {
   cap: string;
   province: string;
   state: string;
-  distance: string;
-  timeToReach: string;
 }

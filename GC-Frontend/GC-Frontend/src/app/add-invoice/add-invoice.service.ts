@@ -1,15 +1,15 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from "../../environments/environment";
 
 @Injectable()
 export class AddInvoiceService {
-  protected url = environment.contextBase + '/GCRest/rest/invoice/addInvoice';
+  protected url = environment.contextBase + '/GCRest/rest/einvoice/addInvoice';
   protected url2 = environment.contextBase + '/GCRest/rest/provider/providers/';
   protected url3 = environment.contextBase + '/GCRest/rest/building/assignBuilding/';
 
   static getOrderColumns(): string[] {
-    return ['Codice', 'Descrizione', 'UM', 'Quantità', 'Prezzo', 'Sconto', 'Totale (NO IVA)', 'Iva'];
+    return ['Descrizione', 'UM', 'Quantità', 'Prezzo', 'Sconto', 'Totale (NO IVA)', 'Iva', 'Totale (CON IVA)'];
   }
 
   constructor(private http: HttpClient) {
