@@ -1,5 +1,6 @@
 package gc.db;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -59,7 +60,7 @@ public class DBVehicle {
 			String plate = rs.getString("i.plate");
 			int eventID = rs.getInt("i.eventID");
 			java.sql.Date deadlineDate = rs.getDate("e.start_date");
-			float amount = rs.getFloat("i.amount");
+			BigDecimal amount = rs.getBigDecimal("i.amount");
 			boolean paid = rs.getBoolean("e.paid");
 
 			vehicle = new Vehicle();
@@ -91,7 +92,7 @@ public class DBVehicle {
 			String plate = rs.getString("c.plate");
 			int eventID = rs.getInt("c.eventID");
 			java.sql.Date deadlineDate = rs.getDate("e.start_date");
-			float amount = rs.getFloat("c.amount");
+			BigDecimal amount = rs.getBigDecimal("c.amount");
 			boolean paid = rs.getBoolean("e.paid");
 
 			vehicle = new Vehicle();
@@ -123,7 +124,7 @@ public class DBVehicle {
 			String plate = rs.getString("r.plate");
 			int eventID = rs.getInt("r.eventID");
 			java.sql.Date deadlineDate = rs.getDate("e.start_date");
-			float amount = rs.getFloat("r.amount");
+			BigDecimal amount = rs.getBigDecimal("r.amount");
 			boolean paid = rs.getBoolean("e.paid");
 
 			vehicle = new Vehicle();
@@ -156,7 +157,7 @@ public class DBVehicle {
 			String plate = rs.getString("p.plate");
 			int eventID = rs.getInt("p.eventID");
 			java.sql.Date deadlineDate = rs.getDate("p.date");
-			float amount = rs.getFloat("p.amount");
+			BigDecimal amount = rs.getBigDecimal("p.amount");
 			String description = rs.getString("p.description");
 			int points = rs.getInt("p.points");
 			boolean paid = rs.getBoolean("e.paid");
@@ -213,7 +214,7 @@ public class DBVehicle {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		try {
 			pstm.setInt(1, vehicleData.getInsurance().getEventID());
-			pstm.setFloat(2, vehicleData.getInsurance().getAmount());
+			pstm.setBigDecimal(2, vehicleData.getInsurance().getAmount());
 			pstm.setString(3, vehicleData.getPlate());
 
 			logger.info("updateInsurance: " + pstm.toString());
@@ -241,7 +242,7 @@ public class DBVehicle {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		try {
 			pstm.setInt(1, vehicleData.getCarTax().getEventID());
-			pstm.setFloat(2, vehicleData.getCarTax().getAmount());
+			pstm.setBigDecimal(2, vehicleData.getCarTax().getAmount());
 			pstm.setString(3, vehicleData.getPlate());
 
 			logger.info("updateCarTax: " + pstm.toString());
@@ -269,7 +270,7 @@ public class DBVehicle {
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		try {
 			pstm.setInt(1, vehicleData.getRevision().getEventID());
-			pstm.setFloat(2, vehicleData.getRevision().getAmount());
+			pstm.setBigDecimal(2, vehicleData.getRevision().getAmount());
 			pstm.setString(3, vehicleData.getPlate());
 
 			logger.info("updateRevision: " + pstm.toString());
@@ -296,7 +297,7 @@ public class DBVehicle {
 		String sql = "INSERT INTO gestione_cantieri.insurance (plate, amount, eventID) VALUES (?, ?, ?)";
 		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, plate);
-		pstm.setFloat(2, ins.getAmount());
+		pstm.setBigDecimal(2, ins.getAmount());
 		pstm.setInt(3, ins.getEventID());
 
 		logger.info("insertInsurance: " + pstm.toString());
@@ -313,7 +314,7 @@ public class DBVehicle {
 		String sql = "INSERT INTO gestione_cantieri.car_tax (plate, amount, eventID) VALUES (?, ?, ?)";
 		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, plate);
-		pstm.setFloat(2, cartax.getAmount());
+		pstm.setBigDecimal(2, cartax.getAmount());
 		pstm.setInt(3, cartax.getEventID());
 
 		logger.info("insertCarTax: " + pstm.toString());
@@ -330,7 +331,7 @@ public class DBVehicle {
 		String sql = "INSERT INTO gestione_cantieri.revision (plate, amount, eventID) VALUES (?, ?, ?)";
 		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, plate);
-		pstm.setFloat(2, rev.getAmount());
+		pstm.setBigDecimal(2, rev.getAmount());
 		pstm.setInt(3, rev.getEventID());
 
 		logger.info("insertRevision: " + pstm.toString());
@@ -352,7 +353,7 @@ public class DBVehicle {
 		Penalty penalty = penalties.get(penalties.size() - 1);
 		pstm.setString(1, plate);
 		pstm.setDate(2, penalty.getDeadlineDate());
-		pstm.setFloat(3, penalty.getAmount());
+		pstm.setBigDecimal(3, penalty.getAmount());
 		pstm.setInt(4, penalty.getEventID());
 		pstm.setString(5, penalty.getDescription());
 		pstm.setInt(6, penalty.getPoints());

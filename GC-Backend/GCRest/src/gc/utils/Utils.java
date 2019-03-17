@@ -1,85 +1,105 @@
 package gc.utils;
 
-import java.awt.Rectangle;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.Security;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.TimeZone;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripperByArea;
-import org.apache.pdfbox.text.TextPosition;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import gc.einvoice.DatiDDTType;
 import gc.model.Product;
+import gc.model.Provider;
 import gc.model.Vehicle;
 
 public class Utils {
-	private static final Logger logger = LogManager.getLogger(Utils.class.getName());
+	private static DatatypeFactory datatypeFactory;
 
-	public static <E extends Enum<E>> boolean isInEnum(String value, Class<E> enumClass, boolean useDot) {
-		if (useDot) {
-			for (E e : enumClass.getEnumConstants()) {
-				if (e.name().equalsIgnoreCase(value) || (e.name() + ".").equalsIgnoreCase(value)) {
-					return true;
-				}
-			}
-		} else {
-			for (E e : enumClass.getEnumConstants()) {
-				if (e.name().equalsIgnoreCase(value)) {
-					return true;
-				}
-			}
+	private static final Logger logger = LogManager
+			.getLogger(Utils.class.getName());
+
+	public static boolean containsName(final List<Product> list,
+			final String name) {
+		return list.stream().filter(o -> o.getName().equalsIgnoreCase(name))
+				.findFirst().isPresent();
+	}
+
+	// TODO GENERALIZZARE
+	public static boolean containsProvName(final List<Provider> list,
+			final String name) {
+		return list.stream().filter(o -> o.getName().equalsIgnoreCase(name))
+				.findFirst().isPresent();
+	}
+
+	public static boolean containsPlate(final List<Vehicle> list,
+			final String plate) {
+		return list.stream().filter(o -> o.getPlate().equals(plate)).findFirst()
+				.isPresent();
+	}
+
+	public static boolean containsRifLinea(final List<DatiDDTType> list) {
+		return list.stream()
+				.filter(o -> !o.getRiferimentoNumeroLinea().isEmpty())
+				.findFirst().isPresent();
+	}
+
+	public static BigDecimal calcDiscount(BigDecimal original,
+			BigDecimal discount) {
+		if (original.compareTo(BigDecimal.ZERO) == 0
+				&& discount.compareTo(BigDecimal.ZERO) == 0) {
+			return BigDecimal.ZERO;
 		}
-		return false;
+
+		BigDecimal divRes = divide(discount, original);
+		BigDecimal subRes = BigDecimal.ONE.subtract(divRes);
+
+		return subRes.scaleByPowerOfTen(2);
 	}
 
-	public static boolean containsName(final List<Product> list, final String name) {
-		return list.stream().filter(o -> o.getName().equalsIgnoreCase(name)).findFirst().isPresent();
+	public static BigDecimal divide(BigDecimal dividend, BigDecimal divisor) {
+		return dividend.divide(divisor, 2, BigDecimal.ROUND_HALF_UP);
 	}
 
-	public static boolean containsCode(final List<Product> list, final String code) {
-		return list.stream().filter(o -> o.getCode().equalsIgnoreCase(code)).findFirst().isPresent();
+	public static BigDecimal divide(BigDecimal dividend, int divisor) {
+		BigDecimal divisorBD = new BigDecimal(divisor);
+		return dividend.divide(divisorBD, 2, BigDecimal.ROUND_HALF_UP);
 	}
 
-	public static boolean containsPlate(final List<Vehicle> list, final String plate) {
-		return list.stream().filter(o -> o.getPlate().equals(plate)).findFirst().isPresent();
-	}
-
-	public static float calcDiscount(float original, float discount) {
-		if (original == 0 && discount == 0) {
-			return 0;
-		}
-
-		return (1 - (discount / original)) * 100;
-	}
-
-	public static float round(float number, int scale) {
-		int pow = 10;
-		for (int i = 1; i < scale; i++)
-			pow *= 10;
-		float tmp = number * pow;
-		return ((float) ((int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp))) / pow;
+	public static BigDecimal addIva(BigDecimal price, BigDecimal iva) {
+		return price.multiply(BigDecimal.ONE.add(divide(iva, 100)));
 	}
 
 	/**
 	 * Utility method to save InputStream data to target location/file
 	 * 
-	 * @param inStream - InputStream to be saved
-	 * @param target   - full path to destination file
+	 * @param inStream
+	 *            - InputStream to be saved
+	 * @param target
+	 *            - full path to destination file
 	 * @throws IOException
 	 */
-	public static void saveToFile(InputStream inStream, String target) throws IOException {
+	public static void saveToFile(InputStream inStream, String target)
+			throws IOException {
 		OutputStream out = null;
 		int read = 0;
 		byte[] bytes = new byte[1024];
@@ -94,9 +114,10 @@ public class Utils {
 	/**
 	 * Creates a folder to desired location if it not already exists
 	 * 
-	 * @param dirName - full path to the folder
-	 * @throws SecurityException - in case you don't have permission to create the
-	 *                           folder
+	 * @param dirName
+	 *            - full path to the folder
+	 * @throws SecurityException
+	 *             - in case you don't have permission to create the folder
 	 */
 	public static void createFolderIfNotExists(String dirName) {
 		File theDir = new File(dirName);
@@ -108,82 +129,10 @@ public class Utils {
 		}
 	}
 
-	public static String extractDataNoSpaces(PDDocument document, Rectangle rect, int page) {
-		String readText = "";
-		StringBuffer buf = new StringBuffer();
-		try {
-			if (!document.isEncrypted()) {
-				PDFTextStripperByArea stripper = new PDFTextStripperByArea() {
-					@Override
-					protected void processTextPosition(TextPosition text) {
-						String character = text.getUnicode();
-						if (character != null && character.trim().length() != 0)
-							super.processTextPosition(text);
-					}
-				};
-				stripper.setSortByPosition(true);
-				stripper.addRegion("class1", rect);
-				stripper.extractRegions(document.getPage(page));
-				buf.append(stripper.getTextForRegion("class1"));
-			}
-			readText = buf.toString();
-			logger.info("readText: " + readText);
-		} catch (IOException e) {
-			logger.error("Exception while trying to read pdf document - " + e);
-		}
-		return readText;
-	}
-
-	// public static String extractData(PDDocument document, Rectangle rect,
-	// int page) {
-	// String readText = "";
-	// StringBuffer buf = new StringBuffer();
-	// try {
-	// if (!document.isEncrypted()) {
-	// PDFTextStripperByArea stripper = new PDFTextStripperByArea();
-	// stripper.setSortByPosition(true);
-	// stripper.addRegion("class1", rect);
-	// stripper.extractRegions(document.getPage(page));
-	// buf.append(stripper.getTextForRegion("class1"));
-	// }
-	// readText = buf.toString();
-	// logger.info("readText: " + readText);
-	// } catch (IOException e) {
-	// logger.error(
-	// "Exception while trying to read pdf document - " + e);
-	// }
-	// return readText;
-	// }
-
-	public static java.sql.Date extractOrderDate(String regex, String text, String dateFormat) {
-		java.sql.Date sqlDate = null;
-		Matcher m = Pattern.compile(regex).matcher(text);
-		if (m.find()) {
-			String date = m.group();
-			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-			Date dob = null;
-			try {
-				dob = sdf.parse(date);
-				sqlDate = new java.sql.Date(dob.getTime() + 24 * 60 * 60 * 1000);
-			} catch (ParseException e) {
-				logger.error("Parse exception, incorrect input in text: " + text + " with regex: " + regex, e);
-			}
-		} else if (sqlDate == null) {
-			// Bad input
-			logger.warn("Errors while trying to get date in text: " + text + " with regex: " + regex);
-			logger.info("I will use the actual date.");
-			sqlDate = new java.sql.Date(new Date().getTime());
-		}
-		return sqlDate;
-	}
-
-	public static List<String> getDateFromString(String str) {
-		List<String> allMatches = new ArrayList<>();
-		Matcher m = Pattern.compile("\\d{1,2}\\/\\d{1,2}\\/\\d{2,4}").matcher(str);
-		while (m.find()) {
-			allMatches.add(m.group());
-		}
-		return allMatches;
+	public static String getStringFromDate(Date date, boolean time) {
+		String dtFormat = time ? "dd/MM/yyyy HH:mm:ss" : "dd/MM/yyyy";
+		DateFormat dateFormat = new SimpleDateFormat(dtFormat);
+		return dateFormat.format(date);
 	}
 
 	public static String sqlDateToDate(java.sql.Date sqlDate, String format) {
@@ -191,31 +140,67 @@ public class Utils {
 		return DATE_FORMAT.format(sqlDate);
 	}
 
-	public static String getNowInString(String format) {
-		DateFormat dateFormat = new SimpleDateFormat(format);
-		Date date = new Date();
-		return dateFormat.format(date);
+	public static Date fromXMLGrToDate(XMLGregorianCalendar cal) {
+		try {
+			int timezone = DatatypeConstants.FIELD_UNDEFINED;
+			int year = cal.getYear();
+			int month = cal.getMonth();
+			int day = cal.getDay();
+			XMLGregorianCalendar newDate = addGMT(getDatatypeFactory().newXMLGregorianCalendarDate(year,
+					month, day, timezone));
+			return newDate.toGregorianCalendar().getTime();
+		} catch (DatatypeConfigurationException e) {
+			// Should never happen if JDK is correctly configured.
+			throw new RuntimeException(
+					"Error in instancing XMLGregorianCalendar XML datatype", e);
+		}
 	}
 
-	public static int getInvoicesNumb(File file, Rectangle rect) {
-		int count = 0;
-		try (PDDocument document = PDDocument.load(file)) {
-			if (!document.isEncrypted()) {
-				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
-				stripper.setSortByPosition(true);
-				stripper.addRegion("class1", rect);
-				String invID = "";
-				for (int page = 0; page < document.getNumberOfPages(); page++) {
-					stripper.extractRegions(document.getPage(page));
-					if (!invID.equalsIgnoreCase(stripper.getTextForRegion("class1"))) {
-						invID = stripper.getTextForRegion("class1");
-						count++;
-					}
-				}
-			}
-		} catch (IOException e) {
-			logger.error("Exception while trying to read pdf document - " + e);
+	private static XMLGregorianCalendar addGMT(XMLGregorianCalendar dataXML) {
+		int offset = TimeZone.getTimeZone("GMT").getDSTSavings();
+		dataXML.setTimezone(offset);
+		return dataXML;
+	}
+
+	private static DatatypeFactory getDatatypeFactory()
+			throws DatatypeConfigurationException {
+		if (datatypeFactory == null) {
+			datatypeFactory = DatatypeFactory.newInstance();
 		}
-		return count;
+		return datatypeFactory;
+	}
+
+	public static byte[] removeP7MCodes(final String fileFullPath) {
+		if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+			Security.addProvider(new BouncyCastleProvider());
+		}
+
+		try {
+			byte[] p7bytes = Files.readAllBytes(Paths.get(fileFullPath));
+			if (p7bytes == null
+					|| !fileFullPath.toUpperCase().endsWith(".P7M")) {
+				return p7bytes;
+			}
+			try {
+				p7bytes = org.bouncycastle.util.encoders.Base64.decode(p7bytes);
+			} catch (Exception e) {
+				logger.warn("File P7m not in base64, keep standard content: "
+						+ e.getMessage());
+			}
+
+			CMSSignedData cms = new CMSSignedData(p7bytes);
+			if (cms.getSignedContent() == null)
+				logger.warn(
+						"Impossible to find signed Content while decoding from P7M for file: "
+								+ fileFullPath);
+
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			cms.getSignedContent().write(out);
+			out.flush();
+			return out.toByteArray();
+		} catch (CMSException | IOException e) {
+			logger.error("Impossible to decode P7M for file:", e);
+			return null;
+		}
 	}
 }

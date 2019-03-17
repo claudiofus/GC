@@ -17,17 +17,26 @@ import gc.model.types.Penalty;
 import gc.model.types.Revision;
 
 public class VehicleDaoImpl {
-	private static final Logger logger = LogManager.getLogger(VehicleDaoImpl.class.getName());
+	private static final Logger logger = LogManager
+			.getLogger(VehicleDaoImpl.class.getName());
 
 	public List<Vehicle> getVehicles() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
+		Connection conn = jdbcConnection.getConnnection();
 		List<Vehicle> vehiclesData = new ArrayList<>();
 
 		try {
-			vehiclesData = DBVehicle.queryVehicle(connection);
+			vehiclesData = DBVehicle.queryVehicle(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getVehicles: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return vehiclesData;
@@ -35,13 +44,21 @@ public class VehicleDaoImpl {
 
 	public List<Vehicle> getInsurances() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
+		Connection conn = jdbcConnection.getConnnection();
 		List<Vehicle> vehiclesData = new ArrayList<>();
 
 		try {
-			vehiclesData = DBVehicle.queryInsurance(connection);
+			vehiclesData = DBVehicle.queryInsurance(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getInsurances: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return vehiclesData;
@@ -49,13 +66,21 @@ public class VehicleDaoImpl {
 
 	public List<Vehicle> getCarTaxes() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
+		Connection conn = jdbcConnection.getConnnection();
 		List<Vehicle> vehiclesData = new ArrayList<>();
 
 		try {
-			vehiclesData = DBVehicle.queryCarTax(connection);
+			vehiclesData = DBVehicle.queryCarTax(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getCarTaxes: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return vehiclesData;
@@ -63,13 +88,21 @@ public class VehicleDaoImpl {
 
 	public List<Vehicle> getRevisions() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
+		Connection conn = jdbcConnection.getConnnection();
 		List<Vehicle> vehiclesData = new ArrayList<>();
 
 		try {
-			vehiclesData = DBVehicle.queryRevision(connection);
+			vehiclesData = DBVehicle.queryRevision(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getRevisions: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return vehiclesData;
@@ -77,13 +110,21 @@ public class VehicleDaoImpl {
 
 	public List<Vehicle> getPenalties() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
+		Connection conn = jdbcConnection.getConnnection();
 		List<Vehicle> vehiclesData = new ArrayList<>();
 
 		try {
-			vehiclesData = DBVehicle.queryPenalty(connection);
+			vehiclesData = DBVehicle.queryPenalty(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getPenalties: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return vehiclesData;
@@ -95,17 +136,20 @@ public class VehicleDaoImpl {
 
 		try {
 			if (vehicle.getInsurance() != null) {
-				Insurance ins = DBVehicle.insertInsurance(conn, vehicle.getInsurance(), vehicle.getPlate());
+				Insurance ins = DBVehicle.insertInsurance(conn,
+						vehicle.getInsurance(), vehicle.getPlate());
 				vehicle.setInsurance(ins);
 			}
 
 			if (vehicle.getCarTax() != null) {
-				CarTax cartax = DBVehicle.insertCarTax(conn, vehicle.getCarTax(), vehicle.getPlate());
+				CarTax cartax = DBVehicle.insertCarTax(conn,
+						vehicle.getCarTax(), vehicle.getPlate());
 				vehicle.setCarTax(cartax);
 			}
 
 			if (vehicle.getRevision() != null) {
-				Revision rev = DBVehicle.insertRevision(conn, vehicle.getRevision(), vehicle.getPlate());
+				Revision rev = DBVehicle.insertRevision(conn,
+						vehicle.getRevision(), vehicle.getPlate());
 				vehicle.setRevision(rev);
 			}
 
@@ -117,6 +161,14 @@ public class VehicleDaoImpl {
 				conn.rollback();
 			} catch (SQLException e1) {
 				logger.error("Error in connection rollback: ", e1);
+			}
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
 			}
 		}
 
@@ -130,7 +182,8 @@ public class VehicleDaoImpl {
 		try {
 			List<Penalty> penalty = new ArrayList<Penalty>();
 			if (vehicle.getPenalty() != null) {
-				penalty.add(DBVehicle.insertPenalty(conn, vehicle.getPenalty(), vehicle.getPlate()));
+				penalty.add(DBVehicle.insertPenalty(conn, vehicle.getPenalty(),
+						vehicle.getPlate()));
 				vehicle.setPenalty(penalty);
 			}
 
@@ -141,6 +194,14 @@ public class VehicleDaoImpl {
 				conn.rollback();
 			} catch (SQLException e1) {
 				logger.error("Error in connection rollback: ", e1);
+			}
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
 			}
 		}
 
@@ -161,6 +222,14 @@ public class VehicleDaoImpl {
 			} catch (SQLException e1) {
 				logger.error("Error in connection rollback: ", e1);
 			}
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return vehicle;
@@ -180,6 +249,14 @@ public class VehicleDaoImpl {
 			} catch (SQLException e1) {
 				logger.error("Error in connection rollback: ", e1);
 			}
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return vehicle;
@@ -198,6 +275,14 @@ public class VehicleDaoImpl {
 				conn.rollback();
 			} catch (SQLException e1) {
 				logger.error("Error in connection rollback: ", e1);
+			}
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
 			}
 		}
 

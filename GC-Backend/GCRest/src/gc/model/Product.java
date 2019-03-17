@@ -1,27 +1,17 @@
 package gc.model;
 
 public class Product {
-	private String code;
 	private String name;
-	private String providerCode;
+	private String providerName;
 	private float medPrice;
 
 	public Product() {
 
 	}
 
-	public Product(String code, String name, String providerCode) {
-		this.code = code;
+	public Product(String name, String providerName) {
 		this.name = name;
-		this.providerCode = providerCode;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
+		this.providerName = providerName;
 	}
 
 	public String getName() {
@@ -32,12 +22,12 @@ public class Product {
 		this.name = name;
 	}
 
-	public String getProviderCode() {
-		return providerCode;
+	public String getProviderName() {
+		return providerName;
 	}
 
-	public void setProviderCode(String providerCode) {
-		this.providerCode = providerCode;
+	public void setProviderName(String providerName) {
+		this.providerName = providerName;
 	}
 
 	public float getMedPrice() {

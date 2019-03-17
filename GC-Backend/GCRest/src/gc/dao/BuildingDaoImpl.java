@@ -13,7 +13,8 @@ import gc.db.DBBuilding;
 import gc.model.Building;
 
 public class BuildingDaoImpl {
-	private static final Logger logger = LogManager.getLogger(BuildingDaoImpl.class.getName());
+	private static final Logger logger = LogManager
+			.getLogger(BuildingDaoImpl.class.getName());
 
 	public List<Building> getBuildings() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
@@ -24,6 +25,14 @@ public class BuildingDaoImpl {
 			buildingData = DBBuilding.queryBuilding(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getBuildings: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return buildingData;
@@ -44,6 +53,14 @@ public class BuildingDaoImpl {
 			} catch (SQLException e1) {
 				logger.error("Error in connection rollback: ", e1);
 			}
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return building;
@@ -62,6 +79,14 @@ public class BuildingDaoImpl {
 				conn.rollback();
 			} catch (SQLException e1) {
 				logger.error("Error in connection rollback: ", e1);
+			}
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
 			}
 		}
 

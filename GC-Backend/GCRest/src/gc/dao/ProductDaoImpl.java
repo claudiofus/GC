@@ -15,17 +15,26 @@ import gc.db.DBProduct;
 import gc.model.Product;
 
 public class ProductDaoImpl {
-	private static final Logger logger = LogManager.getLogger(ProductDaoImpl.class.getName());
+	private static final Logger logger = LogManager
+			.getLogger(ProductDaoImpl.class.getName());
 
 	public List<Product> getProducts() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
+		Connection conn = jdbcConnection.getConnnection();
 		List<Product> productData = new ArrayList<>();
 
 		try {
-			productData = DBProduct.queryProduct(connection);
+			productData = DBProduct.queryProduct(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getProducts: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return productData;
@@ -33,13 +42,21 @@ public class ProductDaoImpl {
 
 	public List<Product> getProductsPrices() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
+		Connection conn = jdbcConnection.getConnnection();
 		List<Product> productData = new ArrayList<>();
 
 		try {
-			productData = DBOrder.queryProductPrice(connection);
+			productData = DBOrder.queryProductPrice(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getProductsPrices: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return productData;
@@ -47,28 +64,46 @@ public class ProductDaoImpl {
 
 	public List<HashMap<String, Object>> getProductDetails(String prdName) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
+		Connection conn = jdbcConnection.getConnnection();
 		List<HashMap<String, Object>> productData = null;
 
 		try {
-			productData = DBOrder.queryPricesHistory(connection, prdName);
+			productData = DBOrder.queryPricesHistory(conn, prdName);
 		} catch (SQLException e) {
 			logger.error("Error in method getProductDetails: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return productData;
 	}
 
-	public Product insertProduct(String code, String name, String providerCode) {
+	public Product insertProduct(String name, String providerName) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnnection();
-		Product productData = new Product(code, name, providerCode);
+		Connection conn = jdbcConnection.getConnnection();
+		Product productData = new Product();
+		productData.setName(name);
+		productData.setProviderName(providerName);
 
 		try {
-			DBProduct.insertProduct(connection, productData);
-			connection.commit();
+			DBProduct.insertProduct(conn, productData);
+			conn.commit();
 		} catch (SQLException e) {
 			logger.error("Error in method insertProduct: ", e);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return productData;

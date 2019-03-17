@@ -10,10 +10,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -22,7 +18,6 @@ import gc.dao.OrderDaoImpl;
 import gc.model.Building;
 import gc.model.Order;
 import gc.model.types.Address;
-import gc.model.types.GMap;
 
 @Path("/building")
 public class BuildingService {
@@ -48,29 +43,6 @@ public class BuildingService {
 		}
 
 		return Response.status(200).entity(buildingList).build();
-	}
-
-	/**
-	 * Get the distance from Google Maps API
-	 * 
-	 * @param dest address of building
-	 * @return distance and time to reach
-	 */
-	// https://maps.googleapis.com/maps/api/directions/json?origin=Noci&destination=PiazzaMassariBari
-	@GET
-	@Path("/directions/{dest : .+}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getDirections(@PathParam("dest") String dest) {
-
-		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target("https://maps.googleapis.com/maps/api/directions/json")
-				.queryParam("origin", "Via V. Guerra, 5, 70015 Noci BA").queryParam("destination", dest)
-				.queryParam("language", "it");
-		Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
-		Response response = invocationBuilder.get();
-		GMap route = response.readEntity(GMap.class);
-
-		return Response.status(200).entity(route).build();
 	}
 
 	/**

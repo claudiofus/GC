@@ -1,8 +1,10 @@
 package gc.model.types;
 
+import java.math.BigDecimal;
+
 public abstract class BaseDeadline {
 	private java.sql.Date deadlineDate;
-	private float amount;
+	private BigDecimal amount;
 	private int eventID;
 	private boolean paid;
 
@@ -14,11 +16,11 @@ public abstract class BaseDeadline {
 		this.deadlineDate = deadlineDate;
 	}
 
-	public float getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	public void setAmount(float amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 

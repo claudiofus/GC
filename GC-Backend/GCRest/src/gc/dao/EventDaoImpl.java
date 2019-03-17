@@ -24,6 +24,14 @@ public class EventDaoImpl {
 			eventData = DBEvent.queryEvent(conn);
 		} catch (SQLException e) {
 			logger.error("Error in method getEvents: ", e);
+		}finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return eventData;
@@ -38,6 +46,14 @@ public class EventDaoImpl {
 			eventData = DBEvent.getEvent(conn, eventID);
 		} catch (SQLException e) {
 			logger.error("Error in method getEventByID: ", e);
+		}finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return eventData;
@@ -58,6 +74,14 @@ public class EventDaoImpl {
 			} catch (SQLException e1) {
 				logger.error("Error in connection rollback: ", e1);
 			}
+		}finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
 		}
 
 		return ev;
@@ -69,7 +93,7 @@ public class EventDaoImpl {
 		Event updEv = null;
 
 		try {
-			updEv = ev.getClass().getConstructor().newInstance();
+			updEv = new Event();
 			updEv.setId(ev.getId());
 			updEv.setTitle(ev.getTitle());
 			updEv.setStart_date(ev.getStart_date());
@@ -87,9 +111,12 @@ public class EventDaoImpl {
 				logger.error("Error in connection rollback: ", e1);
 			}
 		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
 			}
 		}
 
@@ -111,10 +138,12 @@ public class EventDaoImpl {
 				logger.error("Error in connection rollback: ", e1);
 			}
 		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				logger.error("Error in connection close: ", e);
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
 			}
 		}
 

@@ -6,38 +6,48 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import gc.model.types.Deadline;
+import gc.model.types.Scadenza;
 
 @JsonDeserialize(as = Invoice.class)
 public class Invoice {
-	int id;
-	String num_doc;
+	String id;
+	String doc_num;
+	String provider;
 	java.sql.Date data_doc;
 
 	/**
 	 * String = Descrizione - DDT ArrayList<Order> = Ordini del DDT
 	 */
 	Map<String, ArrayList<Order>> DDTOrders;
-	List<Deadline> scadenze;
+	List<Scadenza> deadlines;
+	List<String> attachments;
 
 	public Invoice() {
 		super();
 	}
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setId(String string) {
+		this.id = string;
 	}
 
-	public String getNum_doc() {
-		return num_doc;
+	public String getDoc_num() {
+		return doc_num;
 	}
 
-	public void setNum_doc(String num_doc) {
-		this.num_doc = num_doc;
+	public void setDoc_num(String doc_num) {
+		this.doc_num = doc_num;
+	}
+
+	public String getProvider() {
+		return provider;
+	}
+
+	public void setProvider(String provider) {
+		this.provider = provider;
 	}
 
 	public java.sql.Date getData_doc() {
@@ -56,11 +66,19 @@ public class Invoice {
 		DDTOrders = dDTOrders;
 	}
 
-	public List<Deadline> getScadenze() {
-		return scadenze;
+	public List<Scadenza> getDeadlines() {
+		return deadlines;
 	}
 
-	public void setScadenze(List<Deadline> scadenze) {
-		this.scadenze = scadenze;
+	public void setDeadlines(List<Scadenza> deadlines) {
+		this.deadlines = deadlines;
+	}
+
+	public List<String> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<String> attachments) {
+		this.attachments = attachments;
 	}
 }
