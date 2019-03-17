@@ -4,7 +4,7 @@ import {environment} from "../../environments/environment";
 
 @Injectable()
 export class AddInvoiceService {
-  protected url = environment.contextBase + '/GCRest/rest/einvoice/addInvoice';
+  protected url = environment.contextBase + '/GCRest/rest/einvoice/addEinvoice';
   protected url2 = environment.contextBase + '/GCRest/rest/provider/providers/';
   protected url3 = environment.contextBase + '/GCRest/rest/building/assignBuilding/';
 
