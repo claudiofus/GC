@@ -1,6 +1,7 @@
 package gc.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import gc.dao.OrderDaoImpl;
 import gc.model.Building;
 import gc.model.Order;
 import gc.model.types.Address;
+import gc.model.types.job.Job;
 
 @Path("/building")
 public class BuildingService {
@@ -48,7 +50,8 @@ public class BuildingService {
 	/**
 	 * Add a building
 	 * 
-	 * @param building to add
+	 * @param building
+	 *            to add
 	 * @return building added
 	 * @throws IOException
 	 */
@@ -86,8 +89,10 @@ public class BuildingService {
 	/**
 	 * Assign a list of orders to a building
 	 * 
-	 * @param name      of the building
-	 * @param orderList to assign
+	 * @param name
+	 *            of the building
+	 * @param orderList
+	 *            to assign
 	 * @return valid response
 	 * @throws IOException
 	 */
@@ -101,20 +106,23 @@ public class BuildingService {
 		Building building = buildingDaoImpl.getBuildingDetails(name);
 
 		OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
+		List<Integer> updOrderList = new ArrayList<>();
 		for (Order el : orderList) {
 			if (el.isState()) {
 				el.setBuilding_id(building.getId());
 				orderDaoImpl.updateOrder(el);
+				updOrderList.add(el.getId());
 			}
 		}
 
-		return Response.ok().build();
+		return Response.ok(updOrderList).build();
 	}
 
 	/**
 	 * Get a summary of utils for the building
 	 * 
-	 * @param name of the building
+	 * @param name
+	 *            of the building
 	 * @return list of expenses for the building
 	 * @throws IOException
 	 */
@@ -127,5 +135,26 @@ public class BuildingService {
 		orderList = orderDaoImpl.getOrders(name);
 
 		return Response.ok(orderList).build();
+	}
+
+	@GET
+	@Path("/jobs/{name}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getBuildingJobs(@PathParam("name") String name) throws IOException {
+		BuildingDaoImpl buildingDaoImpl = new BuildingDaoImpl();
+		Building building = buildingDaoImpl.getBuildingDetails(name);
+
+		List<Job> jobs = buildingDaoImpl.getJobs(building.getId());
+		return Response.ok(jobs).build();
+	}
+
+	@POST
+	@Path("/jobsDel")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response deleteJob(final int job_id) {
+		BuildingDaoImpl buildingDaoImpl = new BuildingDaoImpl();
+		boolean result = buildingDaoImpl.deleteJob(job_id);
+		return Response.ok(result).build();
 	}
 }

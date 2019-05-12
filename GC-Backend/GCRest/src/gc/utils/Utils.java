@@ -76,6 +76,11 @@ public class Utils {
 		return subRes.scaleByPowerOfTen(2);
 	}
 
+	public static BigDecimal multiply(BigDecimal a, int multiplicand) {
+		BigDecimal multiplicandBD = new BigDecimal(multiplicand);
+		return a.multiply(multiplicandBD);
+	}
+	
 	public static BigDecimal divide(BigDecimal dividend, BigDecimal divisor) {
 		return dividend.divide(divisor, 2, BigDecimal.ROUND_HALF_UP);
 	}
@@ -84,7 +89,7 @@ public class Utils {
 		BigDecimal divisorBD = new BigDecimal(divisor);
 		return dividend.divide(divisorBD, 2, BigDecimal.ROUND_HALF_UP);
 	}
-
+	
 	public static BigDecimal addIva(BigDecimal price, BigDecimal iva) {
 		return price.multiply(BigDecimal.ONE.add(divide(iva, 100)));
 	}

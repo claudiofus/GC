@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import gc.model.Building;
 import gc.model.types.Address;
+import gc.model.types.job.Job;
 
 public class DBBuilding {
 	private static final Logger logger = LogManager.getLogger(DBBuilding.class.getName());
@@ -145,5 +146,46 @@ public class DBBuilding {
 		}
 		pstm.close();
 		return buildingData.getId();
+	}
+
+	public static List<Job> getJobs(Connection conn, int id) throws SQLException {
+		String sql = "SELECT id, worker_id, dateOfWork, hoursOfWork FROM gestione_cantieri.building_worker "
+				+ "WHERE building_id = ? ORDER BY dateOfWork DESC";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, id);
+
+		logger.info("getJobs: " + pstm.toString());
+
+		ResultSet rs = pstm.executeQuery();
+		List<Job> jobs = new ArrayList<Job>();
+		Job job = null;
+		while (rs.next()) {
+			job = new Job();
+			job.setId(rs.getInt("id"));
+			job.setWorker_id(rs.getInt("worker_id"));
+			job.setDateOfWork(rs.getDate("dateOfWork"));
+			job.setHoursOfWork(rs.getInt("hoursOfWork"));
+			jobs.add(job);
+		}
+
+		pstm.close();
+		return jobs;
+	}
+
+	public static void deleteJob(Connection conn, int id) throws SQLException {
+		String sql = "DELETE FROM gestione_cantieri.building_worker WHERE id = ?";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, id);
+		
+		int result = pstm.executeUpdate();
+		pstm.close();
+		
+		if (result != 0) {
+			logger.info("Event with id = " + id + " deleted");
+		} else {
+			logger.info("No event was deleted with id = " + id);
+		}
 	}
 }

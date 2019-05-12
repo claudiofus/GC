@@ -1,29 +1,18 @@
 package gc.model.types.job;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class Salary {
-	private int daysOfWork;
-	private int hoursOfWork;
+	private int id;
 	private BigDecimal salaryForHour;
 	private BigDecimal salaryForDay;
-	private Date dateOfWork;
 
-	public int getDaysOfWork() {
-		return daysOfWork;
+	public int getId() {
+		return id;
 	}
 
-	public void setDaysOfWork(int daysOfWork) {
-		this.daysOfWork = daysOfWork;
-	}
-
-	public int getHoursOfWork() {
-		return hoursOfWork;
-	}
-
-	public void setHoursOfWork(int hoursOfWork) {
-		this.hoursOfWork = hoursOfWork;
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public BigDecimal getSalaryForHour() {
@@ -40,13 +29,5 @@ public class Salary {
 
 	public void setSalaryForDay(BigDecimal salaryForDay) {
 		this.salaryForDay = salaryForDay;
-	}
-
-	public Date getDateOfWork() {
-		return dateOfWork;
-	}
-
-	public void setDateOfWork(Date dateOfWork) {
-		this.dateOfWork = dateOfWork;
 	}
 }

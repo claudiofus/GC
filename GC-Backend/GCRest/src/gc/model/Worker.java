@@ -1,8 +1,7 @@
 package gc.model;
 
-import gc.einvoice.ContattiType;
+import gc.model.types.Contacts;
 import gc.model.types.job.ContractTerms;
-import gc.model.types.job.JobType;
 import gc.model.types.job.Salary;
 
 public class Worker {
@@ -15,11 +14,10 @@ public class Worker {
 	private String birthProvPlace;
 	private String gender;
 	private boolean married;
-	private ContattiType contacts;
+	private Contacts contacts;
 	private ContractTerms contractTerms;
-	private JobType jobType;
 	private Salary salary;
-	
+
 	public int getId() {
 		return id;
 	}
@@ -92,11 +90,11 @@ public class Worker {
 		this.married = married;
 	}
 
-	public ContattiType getContacts() {
+	public Contacts getContacts() {
 		return contacts;
 	}
 
-	public void setContacts(ContattiType contacts) {
+	public void setContacts(Contacts contacts) {
 		this.contacts = contacts;
 	}
 
@@ -106,14 +104,6 @@ public class Worker {
 
 	public void setContractTerms(ContractTerms contractTerms) {
 		this.contractTerms = contractTerms;
-	}
-
-	public JobType getJobType() {
-		return jobType;
-	}
-
-	public void setJobType(JobType jobType) {
-		this.jobType = jobType;
 	}
 
 	public Salary getSalary() {

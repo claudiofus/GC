@@ -21,4 +21,11 @@ public enum Qualification {
 	public void setQualification(String qualification) {
 		this.qualification = qualification;
 	}
+	
+	public static String getEnumByString(String code){
+        for(Qualification e : Qualification.values()){
+            if(code == e.qualification) return e.name();
+        }
+        return null;
+    }
 }

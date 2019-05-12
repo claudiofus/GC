@@ -23,5 +23,12 @@ public enum ContractType {
 
 	public void setType(String type) {
 		this.type = type;
-	}	
+	}
+	
+	public static String getEnumByString(String code){
+        for(ContractType e : ContractType.values()){
+            if(code == e.type) return e.name();
+        }
+        return null;
+    }
 }
