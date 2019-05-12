@@ -20,13 +20,26 @@
           <div class="col-sm-12" [hidden]="!(invoices[0].deadlines && invoices[0].deadlines.length > 0)">
             <div *ngFor="let invoice of invoices">
               <div *ngFor="let deadline of invoice.deadlines">
-                <strong>{{deadline.paymentDets.ImportoPagamento | currency:'EUR':'symbol':'1.2-3':'it'}}</strong>
-                tramite <strong>{{mode[deadline.paymentDets.ModalitaPagamento]}}</strong>
-                <ng-container *ngIf="deadline.paymentDets.DataScadenzaPagamento">
-                  in data <strong>{{deadline.paymentDets.DataScadenzaPagamento | date:'dd/MM/yyyy'}}</strong>
+                <ng-container *ngIf="deadline.paymentDets.ImportoPagamento">
+                  <strong>{{deadline.paymentDets.ImportoPagamento | currency:'EUR':'symbol':'1.2-3':'it'}}</strong>
+                  tramite <strong>{{mode[deadline.paymentDets.ModalitaPagamento]}}</strong>
+                  <ng-container *ngIf="deadline.paymentDets.DataScadenzaPagamento">
+                    in data <strong>{{deadline.paymentDets.DataScadenzaPagamento | date:'dd/MM/yyyy'}}</strong>
+                  </ng-container>
+                  <ng-container *ngIf="deadline.paymentDets.IBAN">
+                    sul conto IBAN: <strong>{{deadline.paymentDets.IBAN}}</strong>
+                  </ng-container>
                 </ng-container>
-                <ng-container *ngIf="deadline.paymentDets.IBAN">
-                  sul conto IBAN: <strong>{{deadline.paymentDets.IBAN}}</strong>
+                
+                <ng-container *ngIf="deadline.paymentDets.importoPagamento">
+                  <strong>{{deadline.paymentDets.importoPagamento | currency:'EUR':'symbol':'1.2-3':'it'}}</strong>
+                  tramite <strong>{{mode[deadline.paymentDets.modalitaPagamento]}}</strong>
+                  <ng-container *ngIf="deadline.paymentDets.dataScadenzaPagamento">
+                    in data <strong>{{deadline.paymentDets.dataScadenzaPagamento | date:'dd/MM/yyyy'}}</strong>
+                  </ng-container>
+                  <ng-container *ngIf="deadline.paymentDets.iban">
+                    sul conto IBAN: <strong>{{deadline.paymentDets.iban}}</strong>
+                  </ng-container>
                 </ng-container>
               </div>
             </div>
