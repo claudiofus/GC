@@ -29,26 +29,6 @@ public class EinvoiceService {
 			.getLogger(EinvoiceService.class.getName());
 	private static final String UPLOAD_FOLDER = "D:\\tomcat\\apache-tomcat-9.0.8\\webapps\\GCRest\\WEB-INF\\UPLOADED\\";
 
-	@GET
-	@Path("/all")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getEinvoice() throws IOException {
-		String fileName = "C:\\Users\\bb99381\\git\\GC-Backend\\GCRest\\testXML\\27.xml";
-
-		try {
-			String xml = new String(Utils.removeP7MCodes(fileName));
-			EInvoice einv = JaxbUtil.jaxbUnMarshal(xml, EInvoice.class);
-
-			EInvoiceDaoImpl einvoiceDaoImpl = new EInvoiceDaoImpl();
-			einvoiceDaoImpl.getDeadlines(einv);
-			return Response.status(200).entity(einv).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return Response.status(200).entity(null).build();
-	}
-
 	/**
 	 * Add e-invoice
 	 * 
