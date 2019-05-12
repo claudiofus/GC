@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -25,25 +24,21 @@ import gc.utils.Utils;
 
 @Path("/einvoice")
 public class EinvoiceService {
-	private static final Logger logger = LogManager
-			.getLogger(EinvoiceService.class.getName());
+	private static final Logger logger = LogManager.getLogger(EinvoiceService.class.getName());
 	private static final String UPLOAD_FOLDER = "D:\\tomcat\\apache-tomcat-9.0.8\\webapps\\GCRest\\WEB-INF\\UPLOADED\\";
 
 	/**
 	 * Add e-invoice
 	 * 
-	 * @param uploadedInputStream
-	 *            invoice file
-	 * @param fileDetail
-	 *            file name
+	 * @param uploadedInputStream invoice file
+	 * @param fileDetail          file name
 	 * @return parsed invoice
 	 */
 	@POST
 	@Path("/addEinvoice")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response addEinvoice(
-			@FormDataParam("file") InputStream uploadedInputStream,
+	public Response addEinvoice(@FormDataParam("file") InputStream uploadedInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDetail) {
 
 		try {
@@ -55,8 +50,7 @@ public class EinvoiceService {
 			// create destination folder, if it not exists
 			Utils.createFolderIfNotExists(UPLOAD_FOLDER);
 
-			String uploadedFileLocation = UPLOAD_FOLDER
-					+ fileDetail.getFileName();
+			String uploadedFileLocation = UPLOAD_FOLDER + fileDetail.getFileName();
 			Utils.saveToFile(uploadedInputStream, uploadedFileLocation);
 
 			String xml = new String(Utils.removeP7MCodes(uploadedFileLocation));
@@ -66,9 +60,6 @@ public class EinvoiceService {
 
 			// Creating orders
 			List<Invoice> inv = einvoiceDaoImpl.getOrders(einv);
-
-			// Creating deadlines
-			einvoiceDaoImpl.getDeadlines(einv);
 
 			// Creating attachments
 			List<String> attachmentList = einvoiceDaoImpl.getAttachments(einv);
@@ -82,9 +73,7 @@ public class EinvoiceService {
 			return Response.status(500).entity("Cannot save file!").build();
 		} catch (SecurityException e) {
 			logger.error("Error adding invoice or copying file", e);
-			return Response.status(500)
-					.entity("Cannot create destination folder on server!")
-					.build();
+			return Response.status(500).entity("Cannot create destination folder on server!").build();
 		}
 	}
 }
