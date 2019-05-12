@@ -1,1 +1,61 @@
-<h2>Operai</h2>
+<div>
+  <div class="row" style="margin: 0">
+    <div class="col-6">
+      <button type="button" class="button" (click)="closePanel();">
+        {{addEditPanel ? 'Chiudi pannello' : 'Aggiungi operaio'}}
+      </button>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="addEditPanel">
+    <app-worker-form [model]="selWorker" (submit)="addWorker($event)"></app-worker-form>
+  </div>
+
+  <div class="mt10" *ngIf="workers.length === 0 && !selWorker">
+    <p>Non sono stati inseriti operai</p>
+  </div>
+
+  <div *ngIf="workers.length > 0">
+    <ul class="cards">
+      <li class="cards_item" *ngFor="let worker of workers">
+        <div class="card">
+          <div class="card_content">
+            <div class="card_title">{{worker.name}} {{worker.surname}}</div>
+            <div class="row">
+              <div class="parentDiv col-sm-8">
+                <div class="card_text">
+                  <strong>Codice fiscale : </strong> {{worker.fiscalCode | uppercase}} <br/>
+                  <strong>Data di nascita : </strong> {{worker.birthDate | date:'dd/MM/yyyy'}} <br/>
+                  <strong>Luogo di nascita : </strong> {{worker.birthPlace | uppercase}} ({{worker.birthProvPlace |
+                  uppercase}})<br/>
+                  <strong>Sposato : </strong> {{worker.married ? 'SI' : 'NO'}} <br/>
+                  <strong>Recapiti : </strong>{{worker.contacts.telephone}}{{worker.contacts.email ? ' - ' +
+                  worker.contacts.email : ''}}
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <img [src]="worker.gender == 'M' ? '/GC/assets/images/man.png' : '/GC/assets/images/woman.png'"
+                     width="64px">
+              </div>
+              <div class="col-sm-12">
+                <div *ngIf="worker.details">
+                  <div class="card_title" style="font-size: 1rem">Dettaglio ore lavorate</div>
+                  <app-generic-table [records]="projects" [settings]="projectSettings"
+                                     [header]="header"></app-generic-table>
+                </div>
+              </div>
+            </div>
+            <div class="row mt10">
+              <div class="col-sm-12">
+                <button class="button float-right ml10" (click)="edit(worker)">Modifica</button>
+                <button class="button float-right" [hidden]="worker.details" (click)="hoursForBuilding(worker)">
+                  Dettagli
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>

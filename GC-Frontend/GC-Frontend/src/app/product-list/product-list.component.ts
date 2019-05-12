@@ -15,7 +15,6 @@ export class ProductListComponent implements OnInit {
   locale = Italian;
   public utils = Utils;
   addOrderFG = new FormGroup({
-    code: new FormControl(null, [Validators.required, Validators.minLength(3)]),
     name: new FormControl(null, [Validators.required, Validators.minLength(3)]),
     um: new FormControl(null, [Validators.required]),
     quantity: new FormControl(null, [Validators.required]),
@@ -23,22 +22,11 @@ export class ProductListComponent implements OnInit {
     noIvaPrice: new FormControl(null, [Validators.required]),
     iva: new FormControl(null, [Validators.required]),
     discount: new FormControl({value: null, disabled: true}),
+    ivaPrice: new FormControl(null, [Validators.required]),
     date_order: new FormControl(null, [Validators.required, Validators.maxLength(10)]),
     provider: new FormControl(null, [Validators.required]),
     building_id: new FormControl(null, [Validators.required])
   });
-
-  get code() {
-    return this.addOrderFG.get('code');
-  }
-
-  get name() {
-    return this.addOrderFG.get('name');
-  }
-
-  get um() {
-    return this.addOrderFG.get('um');
-  }
 
   get quantity() {
     return this.addOrderFG.get('quantity');
@@ -56,16 +44,8 @@ export class ProductListComponent implements OnInit {
     return this.addOrderFG.get('iva');
   }
 
-  get date_order() {
-    return this.addOrderFG.get('date_order');
-  }
-
   get provider() {
     return this.addOrderFG.get('provider');
-  }
-
-  get building_id() {
-    return this.addOrderFG.get('building_id');
   }
 
   constructor(public productListService: ProductListService) {
@@ -105,9 +85,8 @@ export class ProductListComponent implements OnInit {
   }
 
   updateProduct(event) {
-    if (event.name && event.code) {
+    if (event.name) {
       this.addOrderFG.controls['name'].setValue(event.name);
-      this.addOrderFG.controls['code'].setValue(event.code);
       this.addOrderFG.controls['provider'].setValue(event.providerName);
     }
   }
@@ -124,5 +103,20 @@ export class ProductListComponent implements OnInit {
       .catch(err => {
         console.error(err);
       });
+  }
+
+  formatValue(param) {
+    this.addOrderFG.controls[param].setValue(this.utils.fixAmount(this.addOrderFG.value[param]));
+  }
+
+  calcIVA() {
+    if (this.noIvaPrice.invalid || this.iva.invalid) {
+      return;
+    }
+
+    const ivaTot = this.noIvaPrice.value * this.iva.value / 100;
+    const noIvaPriceNum = typeof this.noIvaPrice.value === 'string' ? parseFloat(this.noIvaPrice.value) : this.noIvaPrice.value;
+    const ivaTotAmount = this.utils.fixAmount(noIvaPriceNum + ivaTot);
+    this.addOrderFG.controls['ivaPrice'].setValue(ivaTotAmount);
   }
 }

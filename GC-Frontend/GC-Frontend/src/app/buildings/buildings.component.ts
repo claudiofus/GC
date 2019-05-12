@@ -4,6 +4,9 @@ import {ColumnSetting} from '../../common/components/generic-table/layout.model'
 import {Address} from '../../classes/address';
 import {AddInvoiceService} from '../add-invoice/add-invoice.service';
 import {ConfirmDialogService} from '../../common/components/confirm-dialog/confirm-dialog.service';
+import {WorkersService} from '../workers/workers.service';
+import {Italian} from 'flatpickr/dist/l10n/it';
+import {Utils} from '../../classes/utils';
 
 @Component({
   selector: 'app-buildings',
@@ -17,15 +20,21 @@ export class BuildingsComponent implements OnInit {
   orderColumns: string[];
   orderSum: number;
   orderIvaSum: number;
+  workers: any[];
+  jobs: any[];
   addPanel: boolean;
   projects: any[];
   projectSettings: ColumnSetting[];
-  showOpened = false;
-  showClosed = false;
   showBuildingOrd = false;
+  showBuildingWorkers = false;
+  workedHours: number;
+  workedHoursCost: number;
   header = ['Descrizione', 'Importo'];
+  locale = Italian;
 
-  constructor(public buildingsService: BuildingsService, private confirmDialogService: ConfirmDialogService) {
+  constructor(public workersService: WorkersService,
+              public buildingsService: BuildingsService,
+              private confirmDialogService: ConfirmDialogService) {
   }
 
   ngOnInit() {
@@ -33,6 +42,7 @@ export class BuildingsComponent implements OnInit {
     this.getRestItems();
     this.addPanel = false;
     this.showBuildingOrd = false;
+    this.showBuildingWorkers = false;
     this.buildingSel = undefined;
   }
 
@@ -66,28 +76,113 @@ export class BuildingsComponent implements OnInit {
   }
 
   getBuildingDet(building) {
-    this.buildingOrders = [];
-    this.buildingSel = building.name;
-    for (const el of this.buildings) {
-      el.details = false;
-      if (building.name === el.name) {
-        this.orderSum = 0;
-        this.orderIvaSum = 0;
-        this.buildingsService.getBuildingDet(building.name).subscribe(
-          items => {
-            items.map(order => {
-              this.orderSum += order.noIvaPrice;
-              this.orderIvaSum += order.ivaPrice;
-            });
-            this.buildingOrders = items;
-            this.projects = [{name: 'Importo complessivo lavori', value: building.req_amount},
-              {name: 'Importo materiali', value: -this.orderIvaSum},
-              {name: 'Utili', value: building.req_amount - this.orderIvaSum}];
-          }
-        );
+    const self = this;
+    self.buildingOrders = [];
+    self.buildingSel = building.name;
+    self.buildingsService.getJobs(this.buildingSel).subscribe(
+      jobs => {
+        self.workedHours = 0;
+        self.workedHoursCost = 0;
+        if (jobs.length === 0) {
+          self.goOn(self, building);
+        } else {
+          const rowLen = jobs.length;
+          jobs.map((job, i) => {
+            self.workedHours += job.hoursOfWork;
+            self.buildingsService.calcCost(job)
+              .then(result => {
+                self.workedHoursCost += result;
+                if (rowLen === i + 1) {
+                  self.goOn(self, building);
+                }
+              })
+              .catch(error => {
+                console.error(error);
+              });
+          });
+        }
       }
+    );
+  }
+
+  assignWorker(building) {
+    this.jobs = [];
+    this.workers = [];
+    this.buildingSel = building.name;
+    this.buildings.splice(0, this.buildings.length);
+    this.showBuildingWorkers = true;
+    this.buildingsService.getJobs(this.buildingSel).subscribe(
+      restItems => {
+        restItems.map(job => {
+          this.jobs.push(job);
+        });
+        this.jobs.push({});
+      }
+    );
+    this.workersService.getAll().subscribe(
+      restItems => {
+        restItems.map(worker => {
+          this.workers.push(worker);
+        });
+      }
+    );
+  }
+
+  updateWorker(buildingName, job) {
+    if (this.isEmpty(job)) {
+      return;
     }
-    building.details = !building.details;
+    const self = this;
+    this.confirmDialogService.confirmThis('Vuoi confermare l\'operazione?',
+      function () {
+        self.buildingsService.assignWorker(buildingName, job)
+          .then(result => {
+            console.log(result);
+            self.buildingsService.getJobs(self.buildingSel).subscribe(
+              restItems => {
+                self.jobs = [];
+                restItems.map(el => {
+                  self.jobs.push(el);
+                });
+                self.jobs.push({hoursOfWork: 8});
+              }
+            );
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      },
+      function () {
+      });
+  }
+
+  deleteRow(job) {
+    if (this.isEmpty(job)) {
+      return;
+    }
+    const self = this;
+    this.confirmDialogService.confirmThis('Vuoi proseguire con la cancellazione?',
+      function () {
+        self.buildingsService.deleteJob(job.id)
+          .then(result => {
+            console.log(result);
+            self.buildingsService.getJobs(self.buildingSel).subscribe(
+              restItems => {
+                self.jobs = [];
+                restItems.map(el => {
+                  self.jobs.push(el);
+                });
+                self.jobs.push({hoursOfWork: 8});
+              }
+            );
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      },
+      function () {
+      }
+    );
   }
 
   isValidAddress(addr: Address): boolean {
@@ -101,7 +196,9 @@ export class BuildingsComponent implements OnInit {
   }
 
   resetView() {
-    this.buildingOrders.splice(0, this.buildingOrders.length);
+    if (this.buildingOrders) {
+      this.buildingOrders.splice(0, this.buildingOrders.length);
+    }
     this.ngOnInit();
   }
 
@@ -135,5 +232,37 @@ export class BuildingsComponent implements OnInit {
       },
       function () {
       });
+  }
+
+  isEmpty(obj) {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+  }
+
+  goOn(self, building) {
+    for (const el of self.buildings) {
+      el.details = false;
+      if (building.name === el.name) {
+        self.orderSum = 0;
+        self.orderIvaSum = 0;
+        self.buildingsService.getBuildingDet(self.buildingSel).subscribe(
+          items => {
+            items.map(order => {
+              self.orderSum += order.noIvaPrice;
+              self.orderIvaSum += order.ivaPrice;
+            });
+            const req_amount_round = Utils.round10(building.req_amount, -2);
+            const orderIvaSum_rounded = Utils.round10(self.orderIvaSum, -2);
+            const workedHoursCost_rounded = Utils.round10(self.workedHoursCost, -2);
+            const diff = req_amount_round - orderIvaSum_rounded - workedHoursCost_rounded;
+            self.buildingOrders = items;
+            self.projects = [{name: 'Importo complessivo lavori', value: building.req_amount},
+              {name: 'Importo materiali', value: -self.orderIvaSum},
+              {name: 'Costo operai', value: -self.workedHoursCost},
+              {name: 'Utili', value: diff}];
+          }
+        );
+        building.details = !building.details;
+      }
+    }
   }
 }

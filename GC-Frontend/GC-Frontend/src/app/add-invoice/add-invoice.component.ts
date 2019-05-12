@@ -27,6 +27,8 @@ export class AddInvoiceComponent implements OnInit {
   buildings: Building[];
   assignResult: string;
   mode = PaymentMod;
+  hideConfirm = true;
+  assignedOrders = [];
   addInvoiceFG = new FormGroup({
     provider: new FormControl(null, [Validators.required])
   });
@@ -68,6 +70,7 @@ export class AddInvoiceComponent implements OnInit {
   resetForm(uploadForm) {
     uploadForm.reset();
     this.providerObj = undefined;
+    this.assignedOrders = [];
   }
 
   submitForm() {
@@ -130,6 +133,11 @@ export class AddInvoiceComponent implements OnInit {
         console.log(result);
         deliveryNote.assignResult = 'OK';
         this.waitDiv = false;
+        for (const elem of result) {
+          if (!this.assignedOrders.includes(elem)) {
+            this.assignedOrders.push(elem);
+          }
+        }
       })
       .catch(error => {
         console.error(error);

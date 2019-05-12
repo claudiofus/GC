@@ -1,22 +1,13 @@
 <app-confirm-dialog></app-confirm-dialog>
 
-<div *ngIf="!showBuildingOrd">
-  <a href="https://www.basisystems.com/pilates-equipment/options/sitting-box">Style</a>
+<div *ngIf="!showBuildingOrd && !showBuildingWorkers">
+  <!--<a href="https://www.basisystems.com/pilates-equipment/options/sitting-box">Style</a>-->
 
   <div class="row" style="margin: 0">
     <div class="col-6">
-      <button type="button" class="button" (click)="addPanel = !addPanel;">Aggiungi cantiere</button>
-    </div>
-    <div class="col-6 align-items-center">
-      <div class="float-right">
-        <span>Filtra per </span>
-        <button type="button" class="button" [ngStyle]="{'background-color': showOpened ? 'lightyellow' : 'white' }"
-                (click)="showOpened = !showOpened;">Cantieri aperti
-        </button>
-        <button type="button" class="button" [ngStyle]="{'background-color': showClosed ? 'lightyellow' : 'white' }"
-                (click)="showClosed = !showClosed;">Cantieri chiusi
-        </button>
-      </div>
+      <button type="button" class="button" (click)="addPanel = !addPanel;">
+        {{addPanel ? 'Chiudi pannello' : 'Aggiungi cantiere'}}
+      </button>
     </div>
   </div>
 
@@ -32,8 +23,7 @@
 <div *ngIf="buildings.length > 0">
   <ul class="cards">
     <li class="cards_item" *ngFor="let building of buildings">
-      <div class="card"
-           *ngIf="(!this.showOpened && !this.showClosed) || (this.showOpened && building.open) || (this.showClosed && !building.open)">
+      <div class="card">
         <!--<div class="card_image" [style.background]="'url(/assets/images/cantieri/' + getImage(building.id) + ')'"></div>-->
         <div class="card_content">
           <div class="card_title">{{building.name}}</div>
@@ -52,12 +42,22 @@
           </div>
           <div *ngIf="building.details">
             <app-generic-table [records]="projects" [settings]="projectSettings" [header]="header"></app-generic-table>
+            <div class="mt10" *ngIf="building.details">
+              <p style="margin: 0">
+                <strong>{{workedHours}}</strong> ore di lavoro = <strong>{{workedHours/8}}</strong> giorni di lavoro
+              </p>
+            </div>
             <button class="button float-right mt10" *ngIf="this.buildingOrders.length > 0"
-                    (click)="getDetailsOfSel(building)">
+                    (click)="getDetailsOfSel()">
               Mostra ordini
             </button>
           </div>
-          <button class="button" [hidden]="building.details" (click)="getBuildingDet(building)">Dettagli</button>
+          <div class="parentDiv">
+            <div class="float-right">
+              <button class="button" [hidden]="building.details" (click)="getBuildingDet(building)">Dettagli</button>
+              <button class="button mt10 ml10" (click)="assignWorker(building)">Assegna operai</button>
+            </div>
+          </div>
         </div>
       </div>
     </li>
@@ -96,6 +96,70 @@
       <td><strong>{{orderIvaSum - orderSum | currency: 'EUR':'symbol':'1.2-2':'it'}}</strong></td>
       <td><strong>{{orderIvaSum | currency: 'EUR':'symbol':'1.2-2':'it'}}</strong></td>
       <td></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <button class="button mt10 float-right" style="margin-bottom: 50px" (click)="resetView()">Indietro</button>
+</div>
+
+<div class="container" *ngIf="showBuildingWorkers">
+  <div class="row" style="margin: 0;">
+    <h2 class="col-sm-10 offset-sm-1 center">{{buildingSel}}</h2>
+    <button class="col-sm-1 button float-right mb10" (click)="resetView()">Indietro</button>
+  </div>
+  <table class="redTable">
+    <thead>
+    <tr>
+      <th>Operaio</th>
+      <th>Data di lavoro</th>
+      <th>Ore di lavoro</th>
+      <th colspan="2"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let job of jobs">
+      <td>
+        <select [(ngModel)]="job.worker_id" class="form-control" required>
+          <option disabled selected value></option>
+          <option *ngFor="let w of workers" [ngValue]="w.id">{{w.surname}} {{w.name}}</option>
+        </select>
+      </td>
+      <td>
+        <input [(ngModel)]="job.dateOfWork"
+               name="work_date"
+               id="work_date"
+               class="form-control"
+               type="text"
+               mwlFlatpickr
+               [altInput]="true"
+               [locale]="locale"
+               dateFormat="Y-m-d"
+               altFormat="d/m/Y"
+               [allowInput]="true"
+               placeholder="Non impostata">
+      </td>
+      <td>
+        <select [(ngModel)]="job.hoursOfWork" class="form-control" required>
+          <option disabled selected value></option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </td>
+      <td>
+        <button (click)="updateWorker(buildingSel, job)">Conferma</button>
+      </td>
+      <td>
+        <button (click)="deleteRow(job)">Rimuovi</button>
+      </td>
     </tr>
     </tbody>
   </table>

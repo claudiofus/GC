@@ -42,8 +42,11 @@ import {PenaltyFormComponent} from '../common/components/penalty-form/penalty-fo
 import {DeadlineFormComponent} from '../common/components/deadline-form/deadline-form.component';
 import {adapterFactory} from 'angular-calendar/date-adapters/date-fns';
 import {PagerService} from '../common/components/table-products/pager.service';
-import {ConfirmDialogComponent} from "../common/components/confirm-dialog/confirm-dialog.component";
-import {ConfirmDialogService} from "../common/components/confirm-dialog/confirm-dialog.service";
+import {ConfirmDialogComponent} from '../common/components/confirm-dialog/confirm-dialog.component';
+import {ConfirmDialogService} from '../common/components/confirm-dialog/confirm-dialog.service';
+import {WorkersService} from './workers/workers.service';
+import {WorkerFormComponent} from '../common/components/worker-form/worker-form.component';
+import {UppercaseInputDirective} from "../common/components/worker-form/worker-form.directive";
 
 registerLocaleData(localeIt, 'it');
 
@@ -88,7 +91,9 @@ registerLocaleData(localeIt, 'it');
     VehicleFormComponent,
     PenaltyFormComponent,
     DeadlineFormComponent,
-    ConfirmDialogComponent
+    WorkerFormComponent,
+    ConfirmDialogComponent,
+    UppercaseInputDirective
   ],
   providers: [{
     provide: LOCALE_ID,
@@ -101,6 +106,7 @@ registerLocaleData(localeIt, 'it');
     BuildingsService,
     DeadlinesService,
     VehiclesService,
+    WorkersService,
     ConfirmDialogService
   ],
   bootstrap: [AppComponent],

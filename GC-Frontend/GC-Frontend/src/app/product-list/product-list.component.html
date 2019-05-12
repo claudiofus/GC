@@ -1,4 +1,6 @@
-<button type="button" class="button" (click)="addPanel = !addPanel;">Aggiungi ordine</button>
+<button type="button" class="button" (click)="addPanel = !addPanel;">
+  {{addPanel ? 'Chiudi pannello' : 'Aggiungi ordine'}}
+</button>
 <div class="mb10" *ngIf="addPanel">
   <div class="form_wrapper card">
     <form [formGroup]="addOrderFG" (submit)="addOrder()">
@@ -32,7 +34,7 @@
         <div class="col22">
           <label for="quantity">Quantità</label>
           <input type="number" step="0.01" min="0" id="quantity" [formControlName]="'quantity'"
-                 (blur)="this.addOrderFG.controls['quantity'].setValue(utils.fixAmount(this.addOrderFG.value.quantity));"
+                 (blur)="formatValue('quantity');"
                  (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.noIvaPrice, this.addOrderFG.value.quantity)"/>
 
           <div *ngIf="quantity && quantity.invalid && (quantity.dirty || quantity.touched)" class="error">
@@ -45,9 +47,9 @@
 
       <div class="row">
         <div class="col22">
-          <label for="price">Prezzo unit. (€)</label>
+          <label for="price">Prezzo unit. senza IVA (€)</label>
           <input type="number" step="0.01" min="0" id="price" [formControlName]="'price'"
-                 (blur)="this.addOrderFG.controls['price'].setValue(utils.fixAmount(this.addOrderFG.value.price))"
+                 (blur)="formatValue('price')"
                  (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.noIvaPrice, this.addOrderFG.value.quantity)"/>
 
           <div *ngIf="price && price.invalid && (price.dirty || price.touched)" class="error">
@@ -58,9 +60,9 @@
         </div>
 
         <div class="col22">
-          <label for="noIvaPrice">Prezzo totale (€)</label>
+          <label for="noIvaPrice">Prezzo totale senza IVA (€)</label>
           <input type="number" step="0.01" min="0" id="noIvaPrice" [formControlName]="'noIvaPrice'"
-                 (blur)="this.addOrderFG.controls['noIvaPrice'].setValue(utils.fixAmount(this.addOrderFG.value.noIvaPrice))"
+                 (blur)="formatValue('noIvaPrice')"
                  (change)="calcDiscount(this.addOrderFG.value.price, this.addOrderFG.value.noIvaPrice, this.addOrderFG.value.quantity)"/>
 
           <div *ngIf="noIvaPrice && noIvaPrice.invalid && (noIvaPrice.dirty || noIvaPrice.touched)" class="error">
@@ -73,7 +75,7 @@
         <div class="col22">
           <label for="iva">IVA (%)</label>
           <input type="number" step="0.01" min="0" id="iva" [formControlName]="'iva'"
-                 (blur)="this.addOrderFG.controls['iva'].setValue(utils.fixAmount(this.addOrderFG.value.iva))"/>
+                 (blur)="formatValue('iva')"/>
 
           <div *ngIf="iva && iva.invalid && (iva.dirty || iva.touched)" class="error">
             <div *ngIf="iva.errors.required">
@@ -90,6 +92,11 @@
 
       <div class="row">
         <div class="col22">
+          <label for="ivaPrice">Prezzo totale con IVA (€)</label>
+          <input type="number" id="ivaPrice" [formControlName]="'ivaPrice'" (blur)="formatValue('ivaPrice')"/>
+        </div>
+
+        <div class="col22">
           <label for="date_order">Data acquisto </label>
           <!--<input type="date" id="date_order" [formControlName]="'date_order'" min="2018-01-01"/>-->
           <input
@@ -102,6 +109,7 @@
             [locale]="locale"
             dateFormat="Y-m-d"
             altFormat="d/m/Y"
+            [allowInput]="true"
             placeholder="Non impostata">
 
           <div *ngIf="date_order && date_order.invalid && (date_order.dirty || date_order.touched)" class="error">
@@ -135,7 +143,10 @@
       </div>
 
       <div class="row">
-        <div class="col_full">
+        <div>
+          <input class="button" type="button" value="Calcola IVA" (click)="calcIVA()">
+        </div>
+        <div class="ml-auto">
           <input class="button" type="reset" value="Pulisci">
           <input class="button" type="submit" value="Aggiungi" [disabled]="!addOrderFG.valid">
         </div>
