@@ -64,49 +64,4 @@ public class Address {
 	public void setState(String state) {
 		this.state = state;
 	}
-
-	public static String getDescFromCode(String type) {
-		String desc = null;
-		switch (type) {
-		case "contr":
-			desc = "Contrada";
-			break;
-		case "cso":
-			desc = "Corso";
-			break;
-		case "lgo":
-			desc = "Largo";
-			break;
-		case "pzza":
-			desc = "Piazza";
-			break;
-		case "ple":
-			desc = "Piazzale";
-			break;
-		case "ptta":
-			desc = "Piazzetta";
-			break;
-		case "via":
-			desc = "Via";
-			break;
-		case "vle":
-			desc = "Viale";
-			break;
-		case "vico":
-			desc = "Vico";
-			break;
-		case "vicl":
-			desc = "Vicolo";
-			break;
-		case "zona":
-			desc = "Zona";
-			break;
-		case "zi":
-			desc = "Zona Industriale";
-			break;
-		default:
-			break;
-		}
-		return desc;
-	}
 }

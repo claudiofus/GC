@@ -1,10 +1,13 @@
 package gc.model.types;
 
-import java.io.Serializable;
+public class Insurance extends BaseDeadline {
+	private boolean sixmonths;
 
-public class Insurance extends BaseDeadline implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1152056749058861113L;
+	public boolean isSixmonths() {
+		return sixmonths;
+	}
+
+	public void setSixmonths(boolean sixmonths) {
+		this.sixmonths = sixmonths;
+	}
 }

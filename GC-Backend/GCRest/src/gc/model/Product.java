@@ -3,7 +3,7 @@ package gc.model;
 public class Product {
 	private String name;
 	private String providerName;
-	private float medPrice;
+	private float latestPrice;
 
 	public Product() {
 
@@ -30,11 +30,11 @@ public class Product {
 		this.providerName = providerName;
 	}
 
-	public float getMedPrice() {
-		return medPrice;
+	public float getLatestPrice() {
+		return latestPrice;
 	}
 
-	public void setMedPrice(float medPrice) {
-		this.medPrice = medPrice;
-	}
+	public void setLatestPrice(float latestPrice) {
+		this.latestPrice = latestPrice;
+	}	
 }

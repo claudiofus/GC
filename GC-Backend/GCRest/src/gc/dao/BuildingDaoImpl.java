@@ -92,6 +92,33 @@ public class BuildingDaoImpl {
 
 		return building;
 	}
+	
+	public Building updateBuilding(Building building) {
+		JDBCConnection jdbcConnection = new JDBCConnection();
+		Connection conn = jdbcConnection.getConnnection();
+
+		try {
+			DBBuilding.updateBuilding(conn, building);
+			conn.commit();
+		} catch (SQLException e) {
+			logger.error("Error in method updateBuilding: ", e);
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				logger.error("Error in connection rollback: ", e1);
+			}
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error("Error in closing connection: ", e);
+				}
+			}
+		}
+
+		return building;
+	}
 
 	public List<Job> getJobs(int id) {
 		List<Job> jobs = new ArrayList<Job>();

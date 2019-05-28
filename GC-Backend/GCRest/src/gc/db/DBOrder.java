@@ -18,11 +18,9 @@ import gc.model.Product;
 import gc.model.types.BaseOrder;
 
 public class DBOrder {
-	private static final Logger logger = LogManager
-			.getLogger(DBOrder.class.getName());
+	private static final Logger logger = LogManager.getLogger(DBOrder.class.getName());
 
-	public static List<Order> findOrder(Connection conn, String buildingName)
-			throws SQLException {
+	public static List<Order> findOrder(Connection conn, String buildingName) throws SQLException {
 		String sql = "SELECT ord.id, ord.product_name, ord.building_id, ord.product_name, ord.um, ord.quantity, "
 				+ "ord.price, ord.discount, ord.no_iva_price, ord.iva, ord.iva_price, ord.date_ins "
 				+ "FROM gestione_cantieri.order ord "
@@ -53,8 +51,7 @@ public class DBOrder {
 		return list;
 	}
 
-	public static int insertOrdine(Connection conn, Order ordine,
-			boolean building) throws SQLException {
+	public static int insertOrdine(Connection conn, Order ordine, boolean building) throws SQLException {
 		String sql = null;
 
 		if (building) {
@@ -65,8 +62,7 @@ public class DBOrder {
 					+ " iva, iva_price, date_ins) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		}
 
-		PreparedStatement pstm = conn.prepareStatement(sql,
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, ordine.getName());
 
 		int index = 2;
@@ -94,16 +90,14 @@ public class DBOrder {
 			if (generatedKeys.next()) {
 				ordine.setId(generatedKeys.getInt(1));
 			} else {
-				throw new SQLException(
-						"Inserting order failed, no ID obtained.");
+				throw new SQLException("Inserting order failed, no ID obtained.");
 			}
 		}
 		pstm.close();
 		return ordine.getId();
 	}
 
-	public static Order selectOrdine(Connection conn, Order ordine)
-			throws Exception {
+	public static Order selectOrdine(Connection conn, Order ordine) throws Exception {
 		String sql = "SELECT id, building_id, product_name, um, quantity, price, discount, no_iva_price, iva, iva_price, date_ins "
 				+ "FROM gestione_cantieri.order WHERE id = ?";
 
@@ -131,8 +125,7 @@ public class DBOrder {
 		return ord;
 	}
 
-	public static void updateOrdine(Connection conn, Order ordine)
-			throws SQLException {
+	public static void updateOrdine(Connection conn, Order ordine) throws SQLException {
 		String sql = "UPDATE gestione_cantieri.order SET um = ?, quantity = ?, price = ?, discount = ?, no_iva_price = ?,"
 				+ " iva = ?, iva_price = ?, building_id = ? WHERE id = ?";
 
@@ -158,13 +151,15 @@ public class DBOrder {
 		pstm.close();
 	}
 
-	public static List<Product> queryProductPrice(Connection connection)
-			throws SQLException {
-		String sql = "SELECT prices.product_name, prices.provider_name, AVG(prices.price) AS medPrice "
-				+ "FROM (SELECT ord.product_name, ord.quantity, prd.provider_name, (ord.iva_price/quantity) AS price "
-				+ "FROM gestione_cantieri.order ord inner join gestione_cantieri.product prd on ord.product_name = prd.name) AS prices "
-				+ "GROUP BY prices.product_name order by prices.provider_name, prices.product_name;";
-
+	public static List<Product> queryProductPrice(Connection connection) throws SQLException {
+		String sql = "SELECT product_name, provider_name, MAX(price) AS latestPrice FROM ( "
+				+ "SELECT ord.product_name, prd.provider_name, iva_price/quantity AS price FROM gestione_cantieri.order ord INNER JOIN "
+				+ "(SELECT product_name, MAX(date_ins) AS maxdate FROM gestione_cantieri.order WHERE building_id IS NOT NULL GROUP BY product_name) self "
+				+ "ON ord.product_name = self.product_name AND ord.date_ins = self.maxdate "
+				+ "INNER JOIN gestione_cantieri.product prd ON ord.product_name = prd.name "
+				+ "WHERE ord.building_id IS NOT NULL " + "ORDER BY ord.product_name ASC, price DESC "
+				+ ") t GROUP BY product_name ORDER BY provider_name;";
+		
 		PreparedStatement pstm = connection.prepareStatement(sql);
 		logger.info("queryProductPrice: " + pstm.toString());
 
@@ -173,19 +168,19 @@ public class DBOrder {
 		while (rs.next()) {
 			String name = rs.getString("product_name");
 			String providerName = rs.getString("provider_name");
-			float medPrice = rs.getFloat("medPrice");
+			float latestPrice = rs.getFloat("latestPrice");
 			Product product = new Product(name, providerName);
-			product.setMedPrice(medPrice);
+			product.setLatestPrice(latestPrice);
 			list.add(product);
 		}
 		pstm.close();
 		return list;
 	}
 
-	public static List<HashMap<String, Object>> queryPricesHistory(
-			Connection connection, String prdName) throws SQLException {
-		String sql = "SELECT (iva_price/quantity) AS price, date_ins FROM gestione_cantieri.order WHERE product_name = ?"
-				+ " ORDER BY date_ins ASC";
+	public static List<HashMap<String, Object>> queryPricesHistory(Connection connection, String prdName)
+			throws SQLException {
+		String sql = "SELECT (iva_price/quantity) AS price, date_ins FROM gestione_cantieri.order WHERE product_name = ? "
+				+ "AND building_id IS NOT NULL ORDER BY date_ins DESC, price DESC";
 
 		PreparedStatement pstm = connection.prepareStatement(sql);
 		pstm.setString(1, prdName);

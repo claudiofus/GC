@@ -14,15 +14,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import gc.dao.BuildingDaoImpl;
 import gc.dao.OrderDaoImpl;
 import gc.model.Building;
 import gc.model.Order;
-import gc.model.types.Address;
 import gc.model.types.job.Job;
 
 @Path("/building")
 public class BuildingService {
+	private static final Logger logger = LogManager.getLogger(BuildingService.class.getName());
 
 	/**
 	 * Get all buildings.
@@ -37,12 +40,6 @@ public class BuildingService {
 
 		BuildingDaoImpl buildingDaoImpl = new BuildingDaoImpl();
 		buildingList = buildingDaoImpl.getBuildings();
-
-		for (Building el : buildingList) {
-			String type = el.getAddress().getAddressType();
-			if (type != null)
-				el.getAddress().setAddressType(Address.getDescFromCode(type));
-		}
 
 		return Response.status(200).entity(buildingList).build();
 	}
@@ -69,17 +66,17 @@ public class BuildingService {
 		BuildingDaoImpl buildingDaoImpl = new BuildingDaoImpl();
 		buildingList = buildingDaoImpl.getBuildings();
 
-		for (Building el : buildingList) {
-			if (el.getName().equalsIgnoreCase(building.getName())) {
-				return Response.status(Response.Status.PRECONDITION_FAILED)
-						.entity("{\"error\": \"Building already exists with name: " + building.getName() + "\"}")
-						.build();
-			}
-		}
-
 		long todayMillis = new Date().getTime();
 		if (building.getEnd_date() == null || building.getEnd_date().after(new java.sql.Date(todayMillis))) {
 			building.setOpen(true);
+		}
+		
+		for (Building el : buildingList) {
+			if (el.getName().equalsIgnoreCase(building.getName())) {
+				logger.warn("Updating building : " + building.getName());
+				buildingDaoImpl.updateBuilding(building);
+				return Response.ok(building).build();
+			}
 		}
 
 		buildingDaoImpl.insertBuilding(building);

@@ -148,6 +148,36 @@ public class DBBuilding {
 		return buildingData.getId();
 	}
 
+	public static int updateBuilding(Connection conn, Building buildingData) throws SQLException {
+		String sql = "UPDATE gestione_cantieri.building SET name = ?, start_date = ?, end_date = ?, open = ?, address_type = ?,"
+				+ " address_name = ?, address_number = ?, cap = ?, city = ?, province = ?, state = ?, req_amount = ? WHERE id = ?";
+
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, buildingData.getName());
+		pstm.setDate(2, buildingData.getStart_date());
+		pstm.setDate(3, buildingData.getEnd_date());
+		pstm.setBoolean(4, buildingData.isOpen());
+		pstm.setString(5, buildingData.getAddress().getAddressType());
+		pstm.setString(6, buildingData.getAddress().getAddressName());
+		pstm.setString(7, buildingData.getAddress().getAddressNumber());
+		pstm.setString(8, buildingData.getAddress().getCap());
+		pstm.setString(9, buildingData.getAddress().getCity());
+		pstm.setString(10, buildingData.getAddress().getProvince());
+		pstm.setString(11, buildingData.getAddress().getState());
+		pstm.setFloat(12, buildingData.getReq_amount());
+		pstm.setInt(13, buildingData.getId());
+
+		logger.info("updateBuilding: " + pstm.toString());
+
+		int affectedRows = pstm.executeUpdate();
+		if (affectedRows == 0) {
+			throw new SQLException("Updating building failed, no rows affected.");
+		}
+
+		pstm.close();
+		return buildingData.getId();
+	}
+
 	public static List<Job> getJobs(Connection conn, int id) throws SQLException {
 		String sql = "SELECT id, worker_id, dateOfWork, hoursOfWork FROM gestione_cantieri.building_worker "
 				+ "WHERE building_id = ? ORDER BY dateOfWork DESC";
@@ -178,10 +208,10 @@ public class DBBuilding {
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		pstm.setInt(1, id);
-		
+
 		int result = pstm.executeUpdate();
 		pstm.close();
-		
+
 		if (result != 0) {
 			logger.info("Event with id = " + id + " deleted");
 		} else {

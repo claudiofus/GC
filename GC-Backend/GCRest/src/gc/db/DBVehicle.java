@@ -47,8 +47,8 @@ public class DBVehicle {
 	}
 
 	public static List<Vehicle> queryInsurance(Connection conn) throws SQLException {
-		String sql = "SELECT i.plate, i.eventID, e.start_date, i.amount, e.paid from gestione_cantieri.insurance i "
-				+ "INNER JOIN gestione_cantieri.event e ON i.eventID = e.id";
+		String sql = "SELECT i.plate, i.eventID, e.start_date, i.amount, e.paid, i.sixmonths "
+				+ "from gestione_cantieri.insurance i INNER JOIN gestione_cantieri.event e ON i.eventID = e.id";
 
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		logger.info("queryInsurance: " + pstm.toString());
@@ -62,6 +62,7 @@ public class DBVehicle {
 			java.sql.Date deadlineDate = rs.getDate("e.start_date");
 			BigDecimal amount = rs.getBigDecimal("i.amount");
 			boolean paid = rs.getBoolean("e.paid");
+			boolean sixmonths = rs.getBoolean("i.sixmonths");
 
 			vehicle = new Vehicle();
 			vehicle.setPlate(plate);
@@ -70,6 +71,7 @@ public class DBVehicle {
 			ins.setEventID(eventID);
 			ins.setAmount(amount);
 			ins.setPaid(paid);
+			ins.setSixmonths(sixmonths);
 			vehicle.setInsurance(ins);
 			list.add(vehicle);
 		}
@@ -210,12 +212,13 @@ public class DBVehicle {
 	}
 
 	public static Vehicle updateInsurance(Connection conn, Vehicle vehicleData) throws SQLException {
-		String sql = "UPDATE gestione_cantieri.insurance SET eventID = ?, amount = ? WHERE plate = ?";
+		String sql = "UPDATE gestione_cantieri.insurance SET eventID = ?, amount = ?, sixmonths = ? WHERE plate = ?";
 		PreparedStatement pstm = conn.prepareStatement(sql);
 		try {
 			pstm.setInt(1, vehicleData.getInsurance().getEventID());
 			pstm.setBigDecimal(2, vehicleData.getInsurance().getAmount());
-			pstm.setString(3, vehicleData.getPlate());
+			pstm.setBoolean(3, vehicleData.getInsurance().isSixmonths());
+			pstm.setString(4, vehicleData.getPlate());
 
 			logger.info("updateInsurance: " + pstm.toString());
 
@@ -294,11 +297,12 @@ public class DBVehicle {
 	}
 
 	public static Insurance insertInsurance(Connection conn, Insurance ins, String plate) throws SQLException {
-		String sql = "INSERT INTO gestione_cantieri.insurance (plate, amount, eventID) VALUES (?, ?, ?)";
+		String sql = "INSERT INTO gestione_cantieri.insurance (plate, amount, eventID, sixmonths) VALUES (?, ?, ?, ?)";
 		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		pstm.setString(1, plate);
 		pstm.setBigDecimal(2, ins.getAmount());
 		pstm.setInt(3, ins.getEventID());
+		pstm.setBoolean(4, ins.isSixmonths());
 
 		logger.info("insertInsurance: " + pstm.toString());
 
