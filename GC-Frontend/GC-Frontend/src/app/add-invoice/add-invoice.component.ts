@@ -132,12 +132,12 @@ export class AddInvoiceComponent implements OnInit {
       .then(result => {
         console.log(result);
         deliveryNote.assignResult = 'OK';
-        this.waitDiv = false;
         for (const elem of result) {
           if (!this.assignedOrders.includes(elem)) {
             this.assignedOrders.push(elem);
           }
         }
+        this.waitDiv = false;
       })
       .catch(error => {
         console.error(error);

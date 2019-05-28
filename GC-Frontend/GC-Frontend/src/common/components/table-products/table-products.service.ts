@@ -9,7 +9,7 @@ export class TableProductsService {
   protected url2 = environment.contextBase + '/GCRest/rest/product/price/';
 
   static getProductColumns(): string[] {
-    return ['Fornitore', 'Descrizione', 'Prezzo unit. medio (con IVA)'];
+    return ['Fornitore', 'Descrizione', 'Ultimo prezzo unit. (con IVA)'];
   }
 
   constructor(private http: HttpClient) {

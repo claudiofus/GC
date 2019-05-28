@@ -109,6 +109,12 @@
                [(ngModel)]="newVehicle.insurance.amount"
                (blur)="this.newVehicle.insurance.amount = utils.fixAmount(this.newVehicle.insurance.amount)"
                placeholder="330,10 €" required>
+
+        <label for="sixmonths">Semestrale</label>
+        <select id="sixmonths" class="form-control" [(ngModel)]="newVehicle.insurance.sixmonths">
+          <option value="false">NO</option>
+          <option value="true">SI</option>
+        </select>
       </div>
 
       <div class="col22 goldBox">

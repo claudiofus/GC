@@ -14,6 +14,7 @@ export class DeadlineFormComponent implements OnChanges {
   deadlineDate: any;
   amount: string;
   paid: boolean;
+  sixmonths: boolean;
   locale = Italian;
   utils = Utils;
 
@@ -23,6 +24,7 @@ export class DeadlineFormComponent implements OnChanges {
         this.deadlineDate = this.selVehicle.insurance.deadlineDate;
         this.amount = this.selVehicle.insurance.amount;
         this.paid = this.selVehicle.insurance.paid;
+        this.sixmonths = this.selVehicle.insurance.sixmonths;
       } else if (this.type === 'revision' && this.selVehicle.revision) {
         this.deadlineDate = this.selVehicle.revision.deadlineDate;
         this.amount = this.selVehicle.revision.amount;
@@ -41,6 +43,7 @@ export class DeadlineFormComponent implements OnChanges {
         this.selVehicle.insurance.deadlineDate = this.deadlineDate;
         this.selVehicle.insurance.amount = this.amount;
         this.selVehicle.insurance.paid = this.paid;
+        this.selVehicle.insurance.sixmonths = this.sixmonths;
         break;
       case 'revision':
         this.selVehicle.revision.deadlineDate = this.deadlineDate;

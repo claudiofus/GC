@@ -23,7 +23,7 @@
         <!--TODO controllare se itemName finisce per %2022% rimuoverlo o gestirlo dal BE-->
         <td>
           <button type="button" (click)="addRow(item)">
-            {{item.medPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}
+            {{item.latestPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}
           </button>
         </td>
       </tr>

@@ -7,6 +7,7 @@ import {ConfirmDialogService} from '../../common/components/confirm-dialog/confi
 import {WorkersService} from '../workers/workers.service';
 import {Italian} from 'flatpickr/dist/l10n/it';
 import {Utils} from '../../classes/utils';
+import {Building} from '../../classes/building';
 
 @Component({
   selector: 'app-buildings',
@@ -17,6 +18,7 @@ export class BuildingsComponent implements OnInit {
   buildings: any[];
   buildingOrders: any[];
   buildingSel: string;
+  buildingToUpd: any;
   orderColumns: string[];
   orderSum: number;
   orderIvaSum: number;
@@ -31,6 +33,7 @@ export class BuildingsComponent implements OnInit {
   workedHoursCost: number;
   header = ['Descrizione', 'Importo'];
   locale = Italian;
+  section: any = [];
 
   constructor(public workersService: WorkersService,
               public buildingsService: BuildingsService,
@@ -44,6 +47,8 @@ export class BuildingsComponent implements OnInit {
     this.showBuildingOrd = false;
     this.showBuildingWorkers = false;
     this.buildingSel = undefined;
+    this.buildingToUpd = new Building();
+    this.buildingToUpd.address = new Address();
   }
 
   // Read all REST Items
@@ -64,6 +69,33 @@ export class BuildingsComponent implements OnInit {
 
   addBuilding(building) {
     console.log(building);
+
+    if (this.buildings && this.buildings.length > 0) {
+      const updateCheck = this.buildings.filter(function (b) {
+        if (b.name.toLowerCase() === building.name.toLowerCase()) {
+          return b;
+        }
+      });
+
+      if (updateCheck.length > 0) {
+        const self = this;
+        this.confirmDialogService.confirmThis('Vuoi aggiornare il cantiere già esistente?',
+          function () {
+            self.updateBuilding(building);
+          },
+          function () {
+          });
+      }
+    } else {
+      this.updateBuilding(building);
+    }
+  }
+
+  updateBuilding(building) {
+    if (building.details) {
+      delete building.details;
+    }
+
     this.buildingsService.addBuilding(building)
       .then(result => {
         console.log(result);
@@ -73,6 +105,32 @@ export class BuildingsComponent implements OnInit {
       .catch(err => {
         console.error(err);
       });
+  }
+
+  getBuildings(section) {
+    if (!section.open && !section.close || section.open && section.close) {
+      return this.buildings;
+    } else if (section.open === true) {
+      return this.buildings.filter(el => el.open === true);
+    } else if (section.close === true) {
+      return this.buildings.filter(el => el.open === false);
+    }
+  }
+
+  edit(building) {
+    this.addPanel = true;
+    this.buildings = [];
+    this.buildingToUpd = building;
+  }
+
+  closePanel() {
+    if (this.addPanel) {
+      this.getRestItems();
+    } else {
+      this.buildingToUpd = new Building();
+      this.buildingToUpd.address = new Address();
+    }
+    this.addPanel = !this.addPanel;
   }
 
   getBuildingDet(building) {
@@ -242,27 +300,32 @@ export class BuildingsComponent implements OnInit {
     for (const el of self.buildings) {
       el.details = false;
       if (building.name === el.name) {
-        self.orderSum = 0;
-        self.orderIvaSum = 0;
-        self.buildingsService.getBuildingDet(self.buildingSel).subscribe(
-          items => {
-            items.map(order => {
-              self.orderSum += order.noIvaPrice;
-              self.orderIvaSum += order.ivaPrice;
-            });
-            const req_amount_round = Utils.round10(building.req_amount, -2);
-            const orderIvaSum_rounded = Utils.round10(self.orderIvaSum, -2);
-            const workedHoursCost_rounded = Utils.round10(self.workedHoursCost, -2);
-            const diff = req_amount_round - orderIvaSum_rounded - workedHoursCost_rounded;
-            self.buildingOrders = items;
-            self.projects = [{name: 'Importo complessivo lavori', value: building.req_amount},
-              {name: 'Importo materiali', value: -self.orderIvaSum},
-              {name: 'Costo operai', value: -self.workedHoursCost},
-              {name: 'Utili', value: diff}];
-          }
-        );
+        this.getOrders(building);
         building.details = !building.details;
       }
     }
+  }
+
+  getOrders(building) {
+    this.orderSum = 0;
+    this.orderIvaSum = 0;
+    this.buildingSel = building.name;
+    this.buildingsService.getBuildingDet(this.buildingSel).subscribe(
+      items => {
+        items.map(order => {
+          this.orderSum += order.noIvaPrice;
+          this.orderIvaSum += order.ivaPrice;
+        });
+        const req_amount_round = Utils.round10(building.req_amount, -2);
+        const orderIvaSum_rounded = Utils.round10(this.orderIvaSum, -2);
+        const workedHoursCost_rounded = Utils.round10(this.workedHoursCost, -2);
+        const diff = req_amount_round - orderIvaSum_rounded - workedHoursCost_rounded;
+        this.buildingOrders = items;
+        this.projects = [{name: 'Importo complessivo lavori', value: building.req_amount},
+          {name: 'Importo materiali', value: -this.orderIvaSum},
+          {name: 'Costo operai', value: -this.workedHoursCost},
+          {name: 'Utili', value: diff}];
+      }
+    );
   }
 }

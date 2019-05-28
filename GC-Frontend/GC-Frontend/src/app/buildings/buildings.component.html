@@ -5,28 +5,43 @@
 
   <div class="row" style="margin: 0">
     <div class="col-6">
-      <button type="button" class="button" (click)="addPanel = !addPanel;">
+      <button type="button" class="button" (click)="closePanel()">
         {{addPanel ? 'Chiudi pannello' : 'Aggiungi cantiere'}}
       </button>
+    </div>
+
+    <div class="col-6 align-items-center">
+      <div class="float-right">
+        <span>Filtra per </span>
+        <button type="button" class="button"
+                [ngStyle]="{'background-color': section['open'] === true ? 'lightyellow' : 'white'}"
+                (click)="section['open'] = !section['open']">Cantieri aperti
+        </button>
+        <button type="button" class="button"
+                [ngStyle]="{'background-color': section['close'] === true ? 'lightyellow' : 'white'}"
+                (click)="section['close'] = !section['close']">Cantieri chiusi
+        </button>
+      </div>
     </div>
   </div>
 
   <div class="card" *ngIf="addPanel">
-    <app-building-form (submit)="addBuilding($event)"></app-building-form>
-  </div>
-
-  <div class="mt10" *ngIf="buildings.length === 0">
-    <p>Non sono stati inseriti cantieri</p>
+    <app-building-form [model]="buildingToUpd" (submit)="addBuilding($event)"></app-building-form>
   </div>
 </div>
 
 <div *ngIf="buildings.length > 0">
   <ul class="cards">
-    <li class="cards_item" *ngFor="let building of buildings">
+    <li class="cards_item" *ngFor="let building of getBuildings(section)">
       <div class="card">
         <!--<div class="card_image" [style.background]="'url(/assets/images/cantieri/' + getImage(building.id) + ')'"></div>-->
         <div class="card_content">
-          <div class="card_title">{{building.name}}</div>
+          <div class="row">
+            <div class="card_title col-sm-10">{{building.name}}</div>
+            <div class="col-sm-2">
+              <a><img src="/GC/assets/images/edit.png" title="Modifica cantiere" (click)="edit(building)"></a>
+            </div> 
+          </div>
           <div class="parentDiv">
             <div class="card_text">
               <strong>Data inizio : </strong> {{building.start_date | date:'dd/MM/yyyy'}} <br/>
@@ -47,15 +62,13 @@
                 <strong>{{workedHours}}</strong> ore di lavoro = <strong>{{workedHours/8}}</strong> giorni di lavoro
               </p>
             </div>
-            <button class="button float-right mt10" *ngIf="this.buildingOrders.length > 0"
-                    (click)="getDetailsOfSel()">
-              Mostra ordini
-            </button>
           </div>
           <div class="parentDiv">
             <div class="float-right">
-              <button class="button" [hidden]="building.details" (click)="getBuildingDet(building)">Dettagli</button>
-              <button class="button mt10 ml10" (click)="assignWorker(building)">Assegna operai</button>
+              <a><img src="/GC/assets/images/search.png" class="mt10" [hidden]="building.details"
+                      title="Dettagli" (click)="getBuildingDet(building)"></a>
+              <a><img src="/GC/assets/images/man32.png" class="mt10 ml10" title="Assegna operai" (click)="assignWorker(building)"></a>
+              <a><img src="/GC/assets/images/paint-bucket.png" class="mt10 ml10" title="Mostra ordini" (click)="getOrders(building); getDetailsOfSel()"></a>
             </div>
           </div>
         </div>
@@ -66,7 +79,7 @@
 
 <div class="container" *ngIf="showBuildingOrd">
   <div class="row" style="margin: 0;">
-    <h2 class="col-sm-10 offset-sm-1 center">{{buildingSel}}</h2>
+    <h2 class="col-sm-10 offset-sm-1 center">{{buildingSel | titlecase}}</h2>
     <button class="col-sm-1 button float-right mb10" (click)="resetView()">Indietro</button>
   </div>
   <table class="redTable">

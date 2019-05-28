@@ -50,18 +50,17 @@
         <div class="input_field">
           <select id="addressType" name="addressType" [(ngModel)]="model.address.addressType">
             <option disabled selected value></option>
-            <option value="contr">Contrada</option>
-            <option value="cso">Corso</option>
-            <option value="lgo">Largo</option>
-            <option value="pzza">Piazza</option>
-            <option value="ple">Piazzale</option>
-            <option value="ptta">Piazzetta</option>
-            <option value="via">Via</option>
-            <option value="vle">Viale</option>
-            <option value="vico">Vico</option>
-            <option value="vicl">Vicolo</option>
-            <option value="zona">Zona</option>
-            <option value="zi">Zona industriale</option>
+            <option value="Contrada">Contrada</option>
+            <option value="Corso">Corso</option>
+            <option value="Largo">Largo</option>
+            <option value="Piazza">Piazza</option>
+            <option value="Piazzale">Piazzale</option>
+            <option value="Piazzetta">Piazzetta</option>
+            <option value="Via">Via</option>
+            <option value="Viale">Viale</option>
+            <option value="Vico">Vico</option>
+            <option value="Vicolo">Vicolo</option>
+            <option value="Zona">Zona</option>
           </select>
         </div>
       </div>
@@ -102,7 +101,7 @@
     <div class="row">
       <div class="col_full">
         <input class="button" type="reset" value="Pulisci">
-        <input class="button" type="button" [disabled]="!addForm.valid" (click)="sendBuilding()" value="Aggiungi">
+        <input class="button" type="button" [disabled]="!addForm.valid" (click)="sendBuilding()" value="Conferma">
       </div>
     </div>
   </form>
