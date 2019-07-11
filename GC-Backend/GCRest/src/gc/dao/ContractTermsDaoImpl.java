@@ -10,6 +10,7 @@ import gc.conn.JDBCConnection;
 import gc.db.DBContractTerms;
 import gc.model.Worker;
 import gc.model.types.job.ContractTerms;
+import gc.utils.Constants;
 
 public class ContractTermsDaoImpl {
 	private static final Logger logger = LogManager.getLogger(ContractTermsDaoImpl.class.getName());
@@ -22,20 +23,14 @@ public class ContractTermsDaoImpl {
 			DBContractTerms.insertContractTerms(conn, worker);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method insertWorker: ", e);
+			logger.error("Error in method insertWorker: {}", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			}
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 
 		return worker.getContractTerms();

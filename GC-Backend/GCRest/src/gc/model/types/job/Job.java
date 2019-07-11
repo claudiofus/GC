@@ -4,7 +4,7 @@ import java.sql.Date;
 
 public class Job {
 	private int id;
-	private int worker_id;
+	private int workerId;
 	private int hoursOfWork;
 	private Date dateOfWork;
 
@@ -16,12 +16,12 @@ public class Job {
 		this.id = id;
 	}
 
-	public int getWorker_id() {
-		return worker_id;
+	public int getWorkerId() {
+		return workerId;
 	}
 
-	public void setWorker_id(int worker_id) {
-		this.worker_id = worker_id;
+	public void setWorkerId(int workerId) {
+		this.workerId = workerId;
 	}
 
 	public int getHoursOfWork() {

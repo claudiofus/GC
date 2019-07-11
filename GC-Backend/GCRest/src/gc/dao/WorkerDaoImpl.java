@@ -2,7 +2,6 @@ package gc.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,31 +16,10 @@ import gc.db.DBWorker;
 import gc.model.Worker;
 import gc.model.types.Contacts;
 import gc.model.types.job.Job;
+import gc.utils.Constants;
 
 public class WorkerDaoImpl implements Dao<Worker> {
 	private static final Logger logger = LogManager.getLogger(WorkerDaoImpl.class.getName());
-
-	public List<Worker> getWorkers() {
-		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection conn = jdbcConnection.getConnnection();
-		List<Worker> workerData = new ArrayList<>();
-
-		try {
-			workerData = DBWorker.queryWorker(conn);
-		} catch (SQLException e) {
-			logger.error("Error in method getProducts: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
-
-		return workerData;
-	}
 
 	public Worker insertWorker(Worker worker) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
@@ -54,20 +32,14 @@ public class WorkerDaoImpl implements Dao<Worker> {
 			DBSalary.insertSalary(conn, worker);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method insertWorker: ", e);
+			logger.error("Error in method insertWorker: {}", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			}
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 
 		return worker;
@@ -107,16 +79,10 @@ public class WorkerDaoImpl implements Dao<Worker> {
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			}
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 
 		return updWorker;
@@ -125,64 +91,32 @@ public class WorkerDaoImpl implements Dao<Worker> {
 	public Worker getWorkersById(int id) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		Worker worker = new Worker();
-
-		try {
-			worker = DBWorker.selectWorker(conn, id);
-		} catch (SQLException e) {
-			logger.error("Error in method getProducts: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		Worker worker = DBWorker.selectWorker(conn, id);
+		jdbcConnection.closeConnection(conn);
 
 		return worker;
 	}
-	
-	public Map<?,?> getWorkerHours(int id) {
+
+	public Map<String, Integer> getWorkerHours(int id) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		Map<?,?> workerHours = null;
-
-		try {
-			workerHours = DBWorker.getWorkerHours(conn, id);
-		} catch (SQLException e) {
-			logger.error("Error in method getProducts: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		Map<String, Integer> workerHours = DBWorker.getWorkerHours(conn, id);
+		jdbcConnection.closeConnection(conn);
 
 		return workerHours;
 	}
 
-	public void assignWorker(Job job, int building_id) {
+	public void assignWorker(Job job, int buildingId) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
 
 		try {
-			DBWorker.assignToBuilding(conn, job, building_id);
+			DBWorker.assignToBuilding(conn, job, buildingId);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method getProducts: ", e);
+			logger.error("Error in method getProducts: {}", e);
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 	}
 
@@ -194,15 +128,9 @@ public class WorkerDaoImpl implements Dao<Worker> {
 			DBWorker.updateWorker(conn, job);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method getProducts: ", e);
+			logger.error("Error in method getProducts: {}", e);
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 	}
 
@@ -210,21 +138,8 @@ public class WorkerDaoImpl implements Dao<Worker> {
 	public Optional<Worker> get(int id) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		Worker worker = new Worker();
-
-		try {
-			worker = DBWorker.selectWorker(conn, id);
-		} catch (SQLException e) {
-			logger.error("Error in method getProducts: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		Worker worker = DBWorker.selectWorker(conn, id);
+		jdbcConnection.closeConnection(conn);
 
 		return Optional.ofNullable(worker);
 	}
@@ -233,37 +148,24 @@ public class WorkerDaoImpl implements Dao<Worker> {
 	public List<Worker> getAll() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		List<Worker> workerData = new ArrayList<>();
-
-		try {
-			workerData = DBWorker.queryWorker(conn);
-		} catch (SQLException e) {
-			logger.error("Error in method getProducts: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		List<Worker> workerData = DBWorker.queryWorker(conn);
+		jdbcConnection.closeConnection(conn);
 
 		return workerData;
 	}
 
 	@Override
 	public void save(Worker t) {
-		// TODO Auto-generated method stub
+		// Use this for each DAO
 	}
 
 	@Override
 	public void update(Worker t, String[] params) {
-		// TODO Auto-generated method stub
+		// Use this for each DAO
 	}
 
 	@Override
 	public void delete(Worker t) {
-		// TODO Auto-generated method stub
+		// Use this for each DAO
 	}
 }

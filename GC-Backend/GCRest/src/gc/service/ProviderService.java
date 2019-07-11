@@ -37,9 +37,25 @@ public class ProviderService {
 	 * @return the provider found
 	 */
 	@GET
-	@Path("/providers/{name}")
+	@Path("/providers/{name : .+}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getProvider(@PathParam("code") String name) {
+		ProviderDaoImpl providerDaoImpl = new ProviderDaoImpl();
+		Provider provider = providerDaoImpl.getProviderDetails(name);
+
+		return Response.ok(provider).build();
+	}
+	
+	/**
+	 * Get the details of a provider
+	 * 
+	 * @param id of the provider
+	 * @return the provider found
+	 */
+	@GET
+	@Path("/providers/id/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getProviderById(@PathParam("id") int name) {
 		ProviderDaoImpl providerDaoImpl = new ProviderDaoImpl();
 		Provider provider = providerDaoImpl.getProviderDetails(name);
 

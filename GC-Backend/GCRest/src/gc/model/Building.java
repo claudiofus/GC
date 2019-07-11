@@ -7,11 +7,11 @@ public class Building {
 	private int id;
 	private String name;
 	private boolean open;
-	private java.sql.Date start_date;
-	private java.sql.Date end_date;
+	private java.sql.Date startDate;
+	private java.sql.Date endDate;
 	private Address address;
-	private Float req_amount;
-	private ProjectCost prj_cost;
+	private Float reqAmount;
+	private ProjectCost prjCost;
 
 	public Building() {
 		super();
@@ -46,20 +46,20 @@ public class Building {
 		this.open = open;
 	}
 
-	public java.sql.Date getStart_date() {
-		return start_date;
+	public java.sql.Date getStartDate() {
+		return startDate;
 	}
 
-	public void setStart_date(java.sql.Date start_date) {
-		this.start_date = start_date;
+	public void setStartDate(java.sql.Date startDate) {
+		this.startDate = startDate;
 	}
 
-	public java.sql.Date getEnd_date() {
-		return end_date;
+	public java.sql.Date getEndDate() {
+		return endDate;
 	}
 
-	public void setEnd_date(java.sql.Date end_date) {
-		this.end_date = end_date;
+	public void setEndDate(java.sql.Date endDate) {
+		this.endDate = endDate;
 	}
 
 	public Address getAddress() {
@@ -70,19 +70,19 @@ public class Building {
 		this.address = address;
 	}
 
-	public Float getReq_amount() {
-		return req_amount;
+	public Float getReqAmount() {
+		return reqAmount;
 	}
 
-	public void setReq_amount(Float req_amount) {
-		this.req_amount = req_amount;
+	public void setReqAmount(Float reqAmount) {
+		this.reqAmount = reqAmount;
 	}
 
-	public ProjectCost getPrj_cost() {
-		return prj_cost;
+	public ProjectCost getPrjCost() {
+		return prjCost;
 	}
 
-	public void setPrj_cost(ProjectCost prj_cost) {
-		this.prj_cost = prj_cost;
+	public void setPrjCost(ProjectCost prjCost) {
+		this.prjCost = prjCost;
 	}
 }

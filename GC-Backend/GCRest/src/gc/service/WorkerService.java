@@ -33,7 +33,7 @@ public class WorkerService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getWorkers() {
 		WorkerDaoImpl workerDaoImpl = new WorkerDaoImpl();
-		List<Worker> workers = workerDaoImpl.getWorkers();
+		List<Worker> workers = workerDaoImpl.getAll();
 		return Response.ok(workers).build();
 	}
 
@@ -56,7 +56,7 @@ public class WorkerService {
 		}
 
 		WorkerDaoImpl workerDaoImpl = new WorkerDaoImpl();
-		List<Worker> workerList = workerDaoImpl.getWorkers();
+		List<Worker> workerList = workerDaoImpl.getAll();
 
 		for (Worker el : workerList) {
 			if (el.getFiscalCode().equalsIgnoreCase(worker.getFiscalCode())) {
@@ -80,7 +80,7 @@ public class WorkerService {
 	@GET
 	@Path("/details/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getBuildingDetails(@PathParam("id") int id) throws IOException {
+	public Response getBuildingDetails(@PathParam("id") int id) {
 		WorkerDaoImpl workerDaoImpl = new WorkerDaoImpl();
 		Worker worker = workerDaoImpl.getWorkersById(id);
 		return Response.ok(worker).build();
@@ -97,9 +97,9 @@ public class WorkerService {
 	@GET
 	@Path("/hours/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getWorkerHours(@PathParam("id") int id) throws IOException {
+	public Response getWorkerHours(@PathParam("id") int id) {
 		WorkerDaoImpl workerDaoImpl = new WorkerDaoImpl();
-		Map<?, ?> workerHours = workerDaoImpl.getWorkerHours(id);
+		Map<String, Integer> workerHours = workerDaoImpl.getWorkerHours(id);
 		return Response.ok(workerHours).build();
 	}
 
@@ -107,12 +107,12 @@ public class WorkerService {
 	@Path("/assignBuilding/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response assignBuilding(@PathParam("name") String name, final Job job) throws IOException {
+	public Response assignBuilding(@PathParam("name") String name, final Job job) {
 		WorkerDaoImpl workerDaoImpl = new WorkerDaoImpl();
 		BuildingDaoImpl buildingDaoImpl = new BuildingDaoImpl();
 		Building building = buildingDaoImpl.getBuildingDetails(name);
 		List<Job> jobs = buildingDaoImpl.getJobs(building.getId());
-		if (jobs.stream().filter(o -> o.getId() == job.getId()).findFirst().isPresent()) {
+		if (jobs.stream().anyMatch(o -> o.getId() == job.getId())) {
 			workerDaoImpl.updateWorker(job);
 		} else {
 			workerDaoImpl.assignWorker(job, building.getId());
@@ -125,9 +125,9 @@ public class WorkerService {
 	@Path("/cost")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response calcCost(final Job job) throws IOException {
+	public Response calcCost(final Job job) {
 		WorkerDaoImpl workerDaoImpl = new WorkerDaoImpl();
-		Worker worker = workerDaoImpl.getWorkersById(job.getWorker_id());
+		Worker worker = workerDaoImpl.getWorkersById(job.getWorkerId());
 		if (worker.getSalary() != null) {
 			return Response.ok(Utils.multiply(worker.getSalary().getSalaryForHour(), job.getHoursOfWork())).build();
 		}

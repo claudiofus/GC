@@ -39,8 +39,8 @@
           <div class="row">
             <div class="card_title col-sm-10">{{building.name}}</div>
             <div class="col-sm-2">
-              <a><img src="/GC/assets/images/edit.png" title="Modifica cantiere" (click)="edit(building)"></a>
-            </div> 
+              <a><img src="assets/images/edit.png" title="Modifica cantiere" (click)="edit(building)"></a>
+            </div>
           </div>
           <div class="parentDiv">
             <div class="card_text">
@@ -65,10 +65,12 @@
           </div>
           <div class="parentDiv">
             <div class="float-right">
-              <a><img src="/GC/assets/images/search.png" class="mt10" [hidden]="building.details"
+              <a><img src="assets/images/search.png" class="mt10" [hidden]="building.details"
                       title="Dettagli" (click)="getBuildingDet(building)"></a>
-              <a><img src="/GC/assets/images/man32.png" class="mt10 ml10" title="Assegna operai" (click)="assignWorker(building)"></a>
-              <a><img src="/GC/assets/images/paint-bucket.png" class="mt10 ml10" title="Mostra ordini" (click)="getOrders(building); getDetailsOfSel()"></a>
+              <a><img src="assets/images/man32.png" class="mt10 ml10" title="Assegna operai"
+                      (click)="assignWorker(building)"></a>
+              <a><img src="assets/images/paint-bucket.png" class="mt10 ml10" title="Mostra ordini"
+                      (click)="getOrders(building); getDetailsOfSel()"></a>
             </div>
           </div>
         </div>
@@ -78,37 +80,53 @@
 </div>
 
 <div class="container" *ngIf="showBuildingOrd">
-  <div class="row" style="margin: 0;">
-    <h2 class="col-sm-10 offset-sm-1 center">{{buildingSel | titlecase}}</h2>
+  <div class="row m-0">
+    <app-search-bar class="col-sm-4 form-inline mb-2 pl-0" (searchEvent)="fetchResults($event)"></app-search-bar>
+    <h2 class="col-sm-6 offset-sm-1">{{buildingSel | titlecase}}</h2>
     <button class="col-sm-1 button float-right mb10" (click)="resetView()">Indietro</button>
   </div>
-  <table class="redTable">
+  <div class="mt-3" *ngFor="let ddt of ddts | keyvalue">
+    <h6 class="center font-weight-bold">{{ddt.key}}</h6>
+    <table class="redTable" [hidden]="!checkSearch(ddt.value)">
+      <thead>
+      <tr>
+        <th *ngFor="let c of orderColumns">{{c}}</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <ng-template ngFor let-order [ngForOf]="ddt.value | filtername: searchString : false">
+        <tr>
+          <td>{{order.name}}</td>
+          <td>{{order.um | uppercase}}</td>
+          <td>{{order.quantity}}</td>
+          <td>{{order.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
+          <td>{{order.discount}} %</td>
+          <td>{{order.noIvaPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
+          <td>{{order.iva}} %</td>
+          <td>{{order.ivaPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+          <td>
+            <button (click)="updateOrder(order, ddt)">Rimuovi</button>
+          </td>
+        </tr>
+      </ng-template>
+      </tbody>
+    </table>
+  </div>
+
+  <table class="redTable mt-5">
     <thead>
     <tr>
-      <th *ngFor="let c of orderColumns">{{c}}</th>
-      <th></th>
+      <th>Totale dei materiali (NO IVA)</th>
+      <th>IVA</th>
+      <th>Totale materiali (CON IVA)</th>
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor='let order of buildingOrders'>
-      <td>{{order.name}}</td>
-      <td>{{order.um | uppercase}}</td>
-      <td>{{order.quantity}}</td>
-      <td>{{order.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
-      <td>{{order.discount}} %</td>
-      <td>{{order.noIvaPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
-      <td>{{order.iva}} %</td>
-      <td>{{order.ivaPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
-      <td>
-        <button (click)="updateOrder(order)">Rimuovi</button>
-      </td>
-    </tr>
     <tr class="recap">
-      <td colspan="5"><strong>Totale dei materiali</strong></td>
       <td><strong>{{orderSum | currency: 'EUR':'symbol':'1.2-3':'it'}}</strong></td>
       <td><strong>{{orderIvaSum - orderSum | currency: 'EUR':'symbol':'1.2-2':'it'}}</strong></td>
       <td><strong>{{orderIvaSum | currency: 'EUR':'symbol':'1.2-2':'it'}}</strong></td>
-      <td></td>
     </tr>
     </tbody>
   </table>

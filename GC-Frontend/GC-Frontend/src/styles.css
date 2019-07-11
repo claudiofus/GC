@@ -208,7 +208,7 @@ app-footer {
   right      : 0;
   bottom     : 0;
   /* White background with opacity */
-  background : rgba(255, 255, 255, 0.5) url('/assets/images/wait.gif') no-repeat center;
+  background : rgba(255, 255, 255, 0.5) url('assets/images/wait.gif') no-repeat center;
   z-index    : 2; /* Specify a stack order in case you're using a different order for other elements */
   cursor     : wait;
 }

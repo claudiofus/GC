@@ -2,7 +2,6 @@ package gc.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,27 +14,13 @@ import gc.db.DBProduct;
 import gc.model.Product;
 
 public class ProductDaoImpl {
-	private static final Logger logger = LogManager
-			.getLogger(ProductDaoImpl.class.getName());
+	private static final Logger logger = LogManager.getLogger(ProductDaoImpl.class.getName());
 
 	public List<Product> getProducts() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		List<Product> productData = new ArrayList<>();
-
-		try {
-			productData = DBProduct.queryProduct(conn);
-		} catch (SQLException e) {
-			logger.error("Error in method getProducts: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		List<Product> productData = DBProduct.queryProduct(conn);
+		jdbcConnection.closeConnection(conn);
 
 		return productData;
 	}
@@ -43,21 +28,8 @@ public class ProductDaoImpl {
 	public List<Product> getProductsPrices() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		List<Product> productData = new ArrayList<>();
-
-		try {
-			productData = DBOrder.queryProductPrice(conn);
-		} catch (SQLException e) {
-			logger.error("Error in method getProductsPrices: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		List<Product> productData = DBOrder.queryProductPrice(conn);
+		jdbcConnection.closeConnection(conn);
 
 		return productData;
 	}
@@ -65,21 +37,8 @@ public class ProductDaoImpl {
 	public List<HashMap<String, Object>> getProductDetails(String prdName) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		List<HashMap<String, Object>> productData = null;
-
-		try {
-			productData = DBOrder.queryPricesHistory(conn, prdName);
-		} catch (SQLException e) {
-			logger.error("Error in method getProductDetails: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		List<HashMap<String, Object>> productData = DBOrder.queryPricesHistory(conn, prdName);
+		jdbcConnection.closeConnection(conn);
 
 		return productData;
 	}
@@ -95,15 +54,9 @@ public class ProductDaoImpl {
 			DBProduct.insertProduct(conn, productData);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method insertProduct: ", e);
+			logger.error("Error in method insertProduct: {}", e);
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 
 		return productData;

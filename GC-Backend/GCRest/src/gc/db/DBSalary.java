@@ -2,7 +2,6 @@ package gc.db;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -11,50 +10,58 @@ import org.apache.logging.log4j.Logger;
 
 import gc.model.Worker;
 import gc.model.types.job.Salary;
+import gc.utils.Utils;
 
 public class DBSalary {
 	private static final Logger logger = LogManager.getLogger(DBSalary.class.getName());
 
-	public static int insertSalary(Connection conn, Worker workerData) throws SQLException {
+	private DBSalary() {
+		throw new IllegalStateException("DBSalary class");
+	}
+	
+	public static int insertSalary(Connection conn, Worker workerData) {
 		String sql = "INSERT INTO gestione_cantieri.salary (worker_id, salaryForHour, salaryForDay) "
 				+ "VALUES (?, ?, ?)";
 
-		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		Salary salary = workerData.getSalary();
-		pstm.setInt(1, workerData.getId());
-		pstm.setBigDecimal(2, salary.getSalaryForHour());
-		pstm.setBigDecimal(3, salary.getSalaryForDay());
+		try (PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstm.setInt(1, workerData.getId());
+			pstm.setBigDecimal(2, salary.getSalaryForHour());
+			pstm.setBigDecimal(3, salary.getSalaryForDay());
 
-		logger.info("insertSalary: " + pstm.toString());
+			String query = pstm.toString();
+			logger.info("insertSalary: {}", query);
 
-		int affectedRows = pstm.executeUpdate();
-		if (affectedRows == 0) {
-			throw new SQLException("Inserting salary failed, no rows affected.");
-		}
-
-		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
-			if (generatedKeys.next()) {
-				salary.setId(generatedKeys.getInt(1));
-			} else {
-				throw new SQLException("Inserting salary failed, no ID obtained.");
+			int affectedRows = pstm.executeUpdate();
+			if (affectedRows == 0) {
+				throw new SQLException("Inserting salary failed, no rows affected.");
 			}
+
+			int id = Utils.getIdFromQuery(pstm);
+			if (id != 0) {
+				salary.setId(id);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method insertSalary: {}", e);
 		}
-		pstm.close();
+
 		return salary.getId();
 	}
 
-	public static void updateSalary(Connection conn, Worker worker) throws SQLException {
+	public static void updateSalary(Connection conn, Worker worker) {
 		String sql = "UPDATE gestione_cantieri.salary SET salaryForHour = ?, salaryForDay = ? WHERE worker_id = ?";
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		Salary salary = worker.getSalary();
-		pstm.setBigDecimal(1, salary.getSalaryForHour());
-		pstm.setBigDecimal(2, salary.getSalaryForDay());
-		pstm.setInt(3, worker.getId());
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			Salary salary = worker.getSalary();
+			pstm.setBigDecimal(1, salary.getSalaryForHour());
+			pstm.setBigDecimal(2, salary.getSalaryForDay());
+			pstm.setInt(3, worker.getId());
 
-		logger.info("updateSalary: " + pstm.toString());
+			String query = pstm.toString();
+			logger.info("updateSalary: {}", query);
 
-		pstm.executeUpdate();
-		pstm.close();
-
+			pstm.executeUpdate();
+		} catch (SQLException e) {
+			logger.error("Error in method updateSalary: {}", e);
+		}
 	}
 }

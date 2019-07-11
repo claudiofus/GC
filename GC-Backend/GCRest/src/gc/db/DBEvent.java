@@ -12,133 +12,143 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import gc.model.Event;
+import gc.utils.Utils;
 
 public class DBEvent {
 	private static final Logger logger = LogManager.getLogger(DBEvent.class.getName());
 
-	public static List<Event> queryEvent(Connection conn) throws SQLException {
-		String sql = "SELECT id, title, start_date, paid FROM gestione_cantieri.event ORDER BY start_date ASC";
+	private DBEvent() {
+		throw new IllegalStateException("DBEvent class");
+	}
+	
+	public static List<Event> queryEvent(Connection conn) {
+		String sql = "SELECT id, title, start_date, paid, payment_date FROM gestione_cantieri.event ORDER BY start_date ASC";
 
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		logger.info("queryEvent: " + pstm.toString());
+		List<Event> list = new ArrayList<>();
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			
+			String query = pstm.toString();
+			logger.info("queryEvent: {}", query);
 
-		ResultSet rs = pstm.executeQuery();
-		List<Event> list = new ArrayList<Event>();
-		while (rs.next()) {
-			Integer id = rs.getInt("id");
-			String title = rs.getString("title");
-			java.sql.Date start_date = rs.getDate("start_date");
-			boolean paid = rs.getBoolean("paid");
-
-			Event ev = new Event(title);
-			ev.setId(id);
-			ev.setStart_date(start_date);
-			ev.setPaid(paid);
-			list.add(ev);
+			list = getEventList(pstm);
+		} catch (SQLException e) {
+			logger.error("Error in method queryEvent: {}", e);
 		}
 
-		pstm.close();
 		return list;
 	}
 
-	public static Event getEvent(Connection conn, int evID) throws SQLException {
-		String sql = "SELECT id, title, start_date, paid FROM gestione_cantieri.event WHERE id = ?";
-
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setInt(1, evID);
-		logger.info("getEvent: " + pstm.toString());
+	public static Event getEvent(Connection conn, int evID) {
+		String sql = "SELECT id, title, start_date, paid, payment_date FROM gestione_cantieri.event WHERE id = ?";
 
 		Event ev = null;
-		ResultSet rs = pstm.executeQuery();
-		while (rs.next()) {
-			Integer id = rs.getInt("id");
-			String title = rs.getString("title");
-			java.sql.Date start_date = rs.getDate("start_date");
-			boolean paid = rs.getBoolean("paid");
-			ev = new Event(title);
-			ev.setId(id);
-			ev.setStart_date(start_date);
-			ev.setPaid(paid);
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setInt(1, evID);
+			
+			String query = pstm.toString();
+			logger.info("getEvent: {}", query);
+
+			List<Event> eventList = getEventList(pstm);
+			if (!eventList.isEmpty()) {
+				ev = eventList.get(0);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method getEvent: {}", e);
 		}
 
-		pstm.close();
 		return ev;
 	}
 
-	public static int insertEvent(Connection conn, Event eventData) throws SQLException {
-		String sql = "INSERT INTO gestione_cantieri.event (title, start_date, paid) VALUES (?, ?, ?)";
-		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-		pstm.setString(1, eventData.getTitle());
-		pstm.setDate(2, eventData.getStart_date());
-		pstm.setBoolean(3, eventData.isPaid());
+	public static int insertEvent(Connection conn, Event eventData) {
+		String sql = "INSERT INTO gestione_cantieri.event (title, start_date, paid, payment_date) VALUES (?, ?, ?, ?)";
 
-		logger.info("insertEvent: " + pstm.toString());
+		try (PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstm.setString(1, eventData.getTitle());
+			pstm.setDate(2, eventData.getStartDate());
+			pstm.setBoolean(3, eventData.isPaid());
+			pstm.setDate(4, eventData.getPaymentDate());
 
-		int affectedRows = pstm.executeUpdate();
-		if (affectedRows == 0) {
-			throw new SQLException("Inserting event failed, no rows affected.");
-		}
+			String query = pstm.toString();
+			logger.info("insertEvent: {}", query);
 
-		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
-			if (generatedKeys.next()) {
-				eventData.setId(generatedKeys.getInt(1));
-			} else {
-				throw new SQLException("Inserting event failed, no ID obtained.");
+			int affectedRows = pstm.executeUpdate();
+			if (affectedRows == 0) {
+				throw new SQLException("Inserting event failed, no rows affected.");
 			}
+
+			int id = Utils.getIdFromQuery(pstm);
+			if (id != 0) {
+				eventData.setId(id);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method insertEvent: {}", e);
 		}
-		pstm.close();
 		return eventData.getId();
 	}
 
-	public static void updateEvent(Connection conn, Event ev) throws SQLException {
-		String sql = "UPDATE gestione_cantieri.event SET title = ?, start_date = ?, paid = ? WHERE id = ?";
+	public static void updateEvent(Connection conn, Event ev) {
+		String sql = "UPDATE gestione_cantieri.event SET title = ?, start_date = ?, paid = ?, payment_date = ? WHERE id = ?";
 
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setString(1, ev.getTitle());
-		pstm.setDate(2, ev.getStart_date());
-		pstm.setBoolean(3, ev.isPaid());
-		pstm.setInt(4, ev.getId());
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setString(1, ev.getTitle());
+			pstm.setDate(2, ev.getStartDate());
+			pstm.setBoolean(3, ev.isPaid());
+			pstm.setDate(4, ev.getPaymentDate());
+			pstm.setInt(5, ev.getId());
 
-		logger.info("updateEvent: " + pstm.toString());
+			String query = pstm.toString();
+			logger.info("updateEvent: {}", query);
 
-		pstm.executeUpdate();
-		pstm.close();
+			pstm.executeUpdate();
+		} catch (SQLException e) {
+			logger.error("Error in method updateEvent: {}", e);
+		}
 	}
 
-	public static boolean deleteEvent(Connection conn, int id) throws SQLException {
+	public static boolean deleteEvent(Connection conn, int id) {
 		String sql = "DELETE FROM gestione_cantieri.event WHERE id = ?";
 
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setInt(1, id);
-		logger.info("deleteEvent: " + pstm.toString());
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setInt(1, id);
+			
+			String query = pstm.toString();
+			logger.info("deleteEvent: {}", query);
 
-		int result = pstm.executeUpdate();
-		pstm.close();
-		if (result != 0) {
-			logger.info("Event with id = " + id + " deleted");
-			return true;
-		} else {
-			logger.info("No event was deleted with id = " + id);
+			int result = pstm.executeUpdate();
+			if (result != 0) {
+				logger.info("Event with id = {} deleted", id);
+				return true;
+			} else {
+				logger.info("No event was deleted with id = {}", id);
+				return false;
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method deleteEvent: {}", e);
 			return false;
 		}
 	}
-
-	public static Event selectEvent(Connection conn, int id) throws Exception {
-		String sql = "SELECT id, title, start_date, paid FROM gestione_cantieri.event WHERE id = ?";
-
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setInt(1, id);
-		logger.info("selectEvent: " + pstm.toString());
-
-		ResultSet rs = pstm.executeQuery();
-		Event event = null;
-		while (rs.next()) {
-			event = new Event(rs.getString("title"));
-			event.setId(rs.getInt("id"));
-			event.setStart_date(rs.getDate("start_date"));
-			event.setPaid(rs.getBoolean("paid"));
+	
+	private static List<Event> getEventList(PreparedStatement pstm) {
+		List<Event> eventList = new ArrayList<>();
+		try (ResultSet rs = pstm.executeQuery()) {
+			Event ev = null;
+			while (rs.next()) {
+				Integer id = rs.getInt("id");
+				String title = rs.getString("title");
+				java.sql.Date startDate = rs.getDate("start_date");
+				boolean paid = rs.getBoolean("paid");
+				java.sql.Date paymentDate = rs.getDate("payment_date");
+				ev = new Event(title);
+				ev.setId(id);
+				ev.setStartDate(startDate);
+				ev.setPaid(paid);
+				ev.setPaymentDate(paymentDate);
+				eventList.add(ev);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method getEventList: {}", e);
 		}
-		pstm.close();
-		return event;
+
+		return eventList;
 	}
 }

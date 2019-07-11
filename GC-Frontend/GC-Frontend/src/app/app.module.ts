@@ -46,7 +46,8 @@ import {ConfirmDialogComponent} from '../common/components/confirm-dialog/confir
 import {ConfirmDialogService} from '../common/components/confirm-dialog/confirm-dialog.service';
 import {WorkersService} from './workers/workers.service';
 import {WorkerFormComponent} from '../common/components/worker-form/worker-form.component';
-import {UppercaseInputDirective} from "../common/components/worker-form/worker-form.directive";
+import {UppercaseInputDirective} from '../common/components/worker-form/worker-form.directive';
+import {SearchBarComponent} from '../common/components/search-bar/search-bar.component';
 
 registerLocaleData(localeIt, 'it');
 
@@ -93,7 +94,8 @@ registerLocaleData(localeIt, 'it');
     DeadlineFormComponent,
     WorkerFormComponent,
     ConfirmDialogComponent,
-    UppercaseInputDirective
+    UppercaseInputDirective,
+    SearchBarComponent
   ],
   providers: [{
     provide: LOCALE_ID,
@@ -107,7 +109,8 @@ registerLocaleData(localeIt, 'it');
     DeadlinesService,
     VehiclesService,
     WorkersService,
-    ConfirmDialogService
+    ConfirmDialogService,
+    FilterPipe
   ],
   bootstrap: [AppComponent],
   exports: [

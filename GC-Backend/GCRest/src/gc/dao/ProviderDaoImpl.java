@@ -2,7 +2,6 @@ package gc.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,32 +10,27 @@ import org.apache.logging.log4j.Logger;
 import gc.conn.JDBCConnection;
 import gc.db.DBProvider;
 import gc.model.Provider;
+import gc.utils.Constants;
 
 public class ProviderDaoImpl {
-	private static final Logger logger = LogManager
-			.getLogger(ProviderDaoImpl.class.getName());
+	private static final Logger logger = LogManager.getLogger(ProviderDaoImpl.class.getName());
 
 	public Provider insertProvider(Provider provider) {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
 
 		try {
-			DBProvider.insertProvider(conn, provider);
+			int id = DBProvider.insertProvider(conn, provider);
+			provider.setId(id);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method insertProvider: ", e);
+			logger.error("Error in method insertProvider: {}", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			} finally {
-				if (conn != null) {
-					try {
-						conn.close();
-					} catch (SQLException e1) {
-						logger.error("Error in closing connection: ", e1);
-					}
-				}
+				jdbcConnection.closeConnection(conn);
 			}
 		}
 
@@ -44,45 +38,28 @@ public class ProviderDaoImpl {
 	}
 
 	public List<Provider> getProviders() {
-		List<Provider> productData = new ArrayList<>();
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-
-		try {
-			productData = DBProvider.queryProvider(conn);
-		} catch (SQLException e) {
-			logger.error("Error in method getProviders: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		List<Provider> productData = DBProvider.queryProvider(conn);
+		jdbcConnection.closeConnection(conn);
 
 		return productData;
 	}
 
 	public Provider getProviderDetails(String name) {
-		Provider productData = new Provider();
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
+		Provider productData = DBProvider.findProvider(conn, name);
+		jdbcConnection.closeConnection(conn);
 
-		try {
-			productData = DBProvider.findProvider(conn, name);
-		} catch (SQLException e) {
-			logger.error("Error in method getProviderDetails: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
+		return productData;
+	}
+
+	public Provider getProviderDetails(int id) {
+		JDBCConnection jdbcConnection = new JDBCConnection();
+		Connection conn = jdbcConnection.getConnnection();
+		Provider productData = DBProvider.findProviderById(conn, id);
+		jdbcConnection.closeConnection(conn);
 
 		return productData;
 	}

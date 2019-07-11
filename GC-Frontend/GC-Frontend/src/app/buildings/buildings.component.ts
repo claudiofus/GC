@@ -8,6 +8,7 @@ import {WorkersService} from '../workers/workers.service';
 import {Italian} from 'flatpickr/dist/l10n/it';
 import {Utils} from '../../classes/utils';
 import {Building} from '../../classes/building';
+import {FilterPipe} from '../../common/components/table-products/table-products.filter.component';
 
 @Component({
   selector: 'app-buildings',
@@ -16,7 +17,7 @@ import {Building} from '../../classes/building';
 })
 export class BuildingsComponent implements OnInit {
   buildings: any[];
-  buildingOrders: any[];
+  ddts: Map<String, any[]>;
   buildingSel: string;
   buildingToUpd: any;
   orderColumns: string[];
@@ -34,9 +35,11 @@ export class BuildingsComponent implements OnInit {
   header = ['Descrizione', 'Importo'];
   locale = Italian;
   section: any = [];
+  searchString: string;
 
   constructor(public workersService: WorkersService,
               public buildingsService: BuildingsService,
+              public filterPipe: FilterPipe,
               private confirmDialogService: ConfirmDialogService) {
   }
 
@@ -49,6 +52,7 @@ export class BuildingsComponent implements OnInit {
     this.buildingSel = undefined;
     this.buildingToUpd = new Building();
     this.buildingToUpd.address = new Address();
+    this.ddts = new Map<String, any[]>();
   }
 
   // Read all REST Items
@@ -135,7 +139,7 @@ export class BuildingsComponent implements OnInit {
 
   getBuildingDet(building) {
     const self = this;
-    self.buildingOrders = [];
+    self.ddts = new Map<String, any[]>();
     self.buildingSel = building.name;
     self.buildingsService.getJobs(this.buildingSel).subscribe(
       jobs => {
@@ -254,31 +258,33 @@ export class BuildingsComponent implements OnInit {
   }
 
   resetView() {
-    if (this.buildingOrders) {
-      this.buildingOrders.splice(0, this.buildingOrders.length);
-    }
+    this.ddts = new Map<String, any[]>();
     this.ngOnInit();
   }
 
-  updateOrder(order) {
+  updateOrder(order, ddt) {
     const self = this;
     this.confirmDialogService.confirmThis('Vuoi proseguire con la cancellazione?',
       function () {
         order.building_id = undefined;
         self.buildingsService.updateOrder(order)
           .then(_ => {
-            self.buildingOrders = self.buildingOrders.filter(function (obj) {
+            self.ddts = ddt.value.filter(function (obj) {
               return obj.id !== order.id;
             });
             self.orderSum = 0;
             self.orderIvaSum = 0;
             self.buildingsService.getBuildingDet(self.buildingSel).subscribe(
               items => {
-                items.map(el => {
-                  self.orderSum += el.noIvaPrice;
-                  self.orderIvaSum += el.ivaPrice;
-                });
-                self.buildingOrders = items;
+                for (const item in items) {
+                  if (item) {
+                    items[item].map(el => {
+                      self.orderSum += el.noIvaPrice;
+                      self.orderIvaSum += el.ivaPrice;
+                    });
+                    self.ddts.set(item, items[item]);
+                  }
+                }
               }
             );
             alert(`L'ordine con descrizione ${order.name} e' stato rimosso dal cantiere ${self.buildingSel}.`);
@@ -307,25 +313,43 @@ export class BuildingsComponent implements OnInit {
   }
 
   getOrders(building) {
+    this.searchString = undefined;
     this.orderSum = 0;
     this.orderIvaSum = 0;
     this.buildingSel = building.name;
     this.buildingsService.getBuildingDet(this.buildingSel).subscribe(
       items => {
-        items.map(order => {
-          this.orderSum += order.noIvaPrice;
-          this.orderIvaSum += order.ivaPrice;
-        });
+        for (const item in items) {
+          if (item) {
+            items[item].map(order => {
+              this.orderSum += order.noIvaPrice;
+              this.orderIvaSum += order.ivaPrice;
+            });
+            this.ddts.set(item, items[item]);
+          }
+        }
         const req_amount_round = Utils.round10(building.req_amount, -2);
         const orderIvaSum_rounded = Utils.round10(this.orderIvaSum, -2);
         const workedHoursCost_rounded = Utils.round10(this.workedHoursCost, -2);
         const diff = req_amount_round - orderIvaSum_rounded - workedHoursCost_rounded;
-        this.buildingOrders = items;
         this.projects = [{name: 'Importo complessivo lavori', value: building.req_amount},
           {name: 'Importo materiali', value: -this.orderIvaSum},
           {name: 'Costo operai', value: -this.workedHoursCost},
           {name: 'Utili', value: diff}];
       }
     );
+  }
+
+  fetchResults(string) {
+    this.searchString = string;
+  }
+
+  checkSearch(ddt) {
+    const aaa = this.filterPipe.transform(ddt, this.searchString, false);
+    if (aaa.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

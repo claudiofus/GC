@@ -1,9 +1,9 @@
-<div class="form_wrapper card mb10">
+<div class="form_wrapper card m-0 mb-2">
   <form #uploadForm='ngForm' (submit)="submitForm()" enctype="multipart/form-data">
     <div class="container" [hidden]="providerObj">
       <div class="row">
         <div class="col-sm">
-          <div class="mt10 fakefile" style="position: relative">
+          <div class="mt-2 fakefile" style="position: relative">
             <input id="fileToUpload" type="file" name="file" ngModel (change)="getFiles($event)" size="50"
                    accept=".xml.p7m, .xml"/>
             <button class="button" [disabled]="!files || !files[0]" type="submit">Carica file</button>
@@ -34,7 +34,7 @@
         </div>
         <div class="col-sm-2" *ngIf="invoices[0].attachments">
           <a (click)="openBase64('Fattura ' + invoices[0].id, invoices[0].attachments[0]);">
-            <img src="/GC/assets/images/invoice.png" alt="Premi qui per scaricare la fattura"
+            <img src="assets/images/invoice.png" alt="Premi qui per scaricare la fattura"
                  title="Premi qui per scaricare la fattura">
           </a>
         </div>
@@ -49,7 +49,7 @@
 </div>
 
 <div [hidden]="!invoices || invoices.length === 0">
-  <div *ngFor="let invoice of invoices; let i = index" class="card card_content mb10">
+  <div *ngFor="let invoice of invoices; let i = index" class="card card_content mb-2">
     <h4 class="center">Fattura n.{{invoice.num_doc}} del {{invoice.data_doc | date:'dd/MM/yyyy'}}</h4>
     <div *ngFor="let dn of deliveryNotes[i]">
       <h6 class="center">{{dn}}</h6>
@@ -64,7 +64,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor='let order of itemsOrder[dn]' [ngStyle]="assignedOrders.includes(order.id) ? {'opacity':'0.5'} : null">
+        <tr *ngFor='let order of itemsOrder[dn]'
+            [ngStyle]="assignedOrders.includes(order.id) ? {'opacity':'0.5'} : null">
           <td><input type="checkbox" (change)="order.state = !order.state" [checked]="order.state"/></td>
           <td>{{order.name}}</td>
           <td>{{order.um | uppercase}}</td>
@@ -77,31 +78,47 @@
         </tr>
         </tbody>
       </table>
-      <div class="mt10" *ngIf="itemsOrder[dn]">
+
+      <div class="row col-sm-12 mt-2" *ngIf="itemsOrder[dn]">
         <div *ngIf="itemsOrder[dn].showBuilding === true">
-          <label>Seleziona il cantiere :
+          <label class="mr-2">Seleziona il cantiere
             <select [(ngModel)]="itemsOrder[dn].building.name" (change)="hideConfirm = true;">
               <option *ngFor="let el of buildings" [ngValue]="el.name">{{el.name}}
               </option>
             </select>
           </label>
-          <button type="button" class="button ml10" [disabled]="!itemsOrder[dn].building.name"
-                  (click)="assignBuilding(itemsOrder[dn], dn); hideConfirm = false;">Conferma
+
+          <ng-container *ngIf="ddts && ddts.length > 1">
+            <label>Seleziona il DDT
+              <select [(ngModel)]="itemsOrder[dn].selDDT" (change)="hideConfirm = true;">
+                <option *ngFor="let ddt of ddts" [ngValue]="ddt.id">{{ddt.NumeroDDT}} del {{ddt.DataDDT |
+                  date:'dd/MM/yyyy'}}
+                </option>
+              </select>
+            </label>
+          </ng-container>
+
+          <button type="button" class="button ml-2" *ngIf="itemsOrder[dn].building"
+                  [disabled]="!itemsOrder[dn].building.name"
+                  (click)="assignBuilding(itemsOrder[dn], dn); hideConfirm = false;">
+            Conferma
           </button>
         </div>
+      </div>
 
-        <div [hidden]="hideConfirm">
-          <p class="mt10 green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
-            Prodotti assegnati correttamente al cantiere: <strong>{{itemsOrder[dn].building.name}}</strong>
-          </p>
-          <p class="mt10 red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
-            <strong>Errore nell'assegnare i prodotti al cantiere: {{itemsOrder[dn].building.name}}</strong>
-          </p>
-        </div>
+      <div class="col-12" [hidden]="hideConfirm">
+        <p class="mt-2 green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
+          Prodotti assegnati correttamente al cantiere: <strong>{{itemsOrder[dn].building.name}}</strong>
+        </p>
+        <p class="mt-2 red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
+          <strong>Errore nell'assegnazione dei prodotti al cantiere: {{itemsOrder[dn].building.name}}</strong>
+        </p>
+      </div>
 
-        <button type="button" class="button mt10"
+      <div class="col-sm-12">
+        <button type="button" class="button mt-2"
                 (click)="itemsOrder[dn].showBuilding = true; itemsOrder[dn].building = {'name': ''};">
-          Assegna al cantiere
+          Assegna cantiere
         </button>
       </div>
     </div>

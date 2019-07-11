@@ -15,53 +15,76 @@ import gc.model.Product;
 public class DBProduct {
 	private static final Logger logger = LogManager.getLogger(DBProduct.class.getName());
 
-	public static void insertProduct(Connection conn, Product product) throws SQLException {
-		String sql = "INSERT INTO product(name, provider_name) VALUES (?,?)";
-
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setString(1, product.getName());
-		pstm.setString(2, product.getProviderName());
-		logger.info("insertProduct: " + pstm.toString());
-
-		pstm.executeUpdate();
-		pstm.close();
+	private DBProduct() {
+		throw new IllegalStateException("DBProduct class");
 	}
 
-	public static List<Product> queryProduct(Connection conn) throws SQLException {
+	public static void insertProduct(Connection conn, Product product) {
+		String sql = "INSERT INTO product(name, provider_name) VALUES (?,?)";
+
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setString(1, product.getName());
+			pstm.setString(2, product.getProviderName());
+
+			String query = pstm.toString();
+			logger.info("insertProduct: {}", query);
+
+			pstm.executeUpdate();
+		} catch (SQLException e) {
+			logger.error("Error in method insertProduct: {}", e);
+		}
+	}
+
+	public static List<Product> queryProduct(Connection conn) {
 		String sql = "SELECT name, provider_name FROM gestione_cantieri.product";
 
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		logger.info("queryProduct: " + pstm.toString());
+		List<Product> list = new ArrayList<>();
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
 
-		ResultSet rs = pstm.executeQuery();
-		List<Product> list = new ArrayList<Product>();
-		while (rs.next()) {
-			String name = rs.getString("name");
-			String providerName = rs.getString("provider_name");
-			Product product = new Product(name, providerName);
-			list.add(product);
+			String query = pstm.toString();
+			logger.info("queryProduct: {}", query);
+
+			list = getProductList(pstm);
+		} catch (SQLException e) {
+			logger.error("Error in method queryProduct: {}", e);
 		}
-
-		pstm.close();
 		return list;
 	}
 
-	public static Product findProduct(Connection conn, Product prd) throws SQLException {
+	public static Product findProduct(Connection conn, Product prd) {
 		String sql = "SELECT name, provider_name FROM gestione_cantieri.product WHERE name = ?";
 
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		pstm.setString(1, prd.getName());
-		logger.info("findProduct: " + pstm.toString());
-
-		ResultSet rs = pstm.executeQuery();
 		Product product = null;
-		while (rs.next()) {
-			String name = rs.getString("Name");
-			String providerName = rs.getString("provider_name");
-			product = new Product(name, providerName);
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setString(1, prd.getName());
+
+			String query = pstm.toString();
+			logger.info("findProduct: {}", query);
+
+			List<Product> prdList = getProductList(pstm);
+			if (!prdList.isEmpty()) {
+				product = prdList.get(0);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method findProduct: {}", e);
+		}
+		return product;
+	}
+
+	private static List<Product> getProductList(PreparedStatement pstm) {
+		List<Product> productList = new ArrayList<>();
+		try (ResultSet rs = pstm.executeQuery()) {
+			Product prd = null;
+			while (rs.next()) {
+				String name = rs.getString("name");
+				String providerName = rs.getString("provider_name");
+				prd = new Product(name, providerName);
+				productList.add(prd);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method getProductList: {}", e);
 		}
 
-		pstm.close();
-		return product;
+		return productList;
 	}
 }

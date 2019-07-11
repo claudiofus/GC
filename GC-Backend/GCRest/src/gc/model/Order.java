@@ -9,7 +9,9 @@ import gc.model.types.BaseOrder;
 @JsonDeserialize(as = BaseOrder.class)
 public abstract class Order {
 	private int id;
-	private Integer building_id;
+	private Integer invoiceId;
+	private Integer ddtId;
+	private Integer buildingId;
 	private String name;
 	private String um;
 	private BigDecimal quantity;
@@ -18,7 +20,7 @@ public abstract class Order {
 	private BigDecimal noIvaPrice;
 	private BigDecimal iva;
 	private BigDecimal ivaPrice;
-	private java.sql.Date date_order;
+	private java.sql.Date dateOrder;
 	private boolean state;
 
 	public int getId() {
@@ -29,12 +31,28 @@ public abstract class Order {
 		this.id = id;
 	}
 
-	public Integer getBuilding_id() {
-		return building_id;
+	public Integer getInvoiceId() {
+		return invoiceId;
 	}
 
-	public void setBuilding_id(Integer building_id) {
-		this.building_id = building_id;
+	public void setInvoiceId(Integer invoiceId) {
+		this.invoiceId = invoiceId;
+	}
+
+	public Integer getDdtId() {
+		return ddtId;
+	}
+
+	public void setDdtId(Integer ddtId) {
+		this.ddtId = ddtId;
+	}
+
+	public Integer getBuildingId() {
+		return buildingId;
+	}
+
+	public void setBuildingId(Integer buildingId) {
+		this.buildingId = buildingId;
 	}
 
 	public String getName() {
@@ -48,35 +66,35 @@ public abstract class Order {
 	public String getUm() {
 		return um;
 	}
-	
+
 	public void setUm(String um) {
 		this.um = um;
 	}
-	
+
 	public BigDecimal getQuantity() {
 		return quantity;
 	}
-	
+
 	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
 	}
-	
+
 	public BigDecimal getPrice() {
 		return price;
 	}
-	
+
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
-	
+
 	public BigDecimal getDiscount() {
 		return discount;
 	}
-	
+
 	public void setDiscount(BigDecimal discount) {
 		this.discount = discount;
 	}
-	
+
 	public BigDecimal getNoIvaPrice() {
 		return noIvaPrice;
 	}
@@ -88,31 +106,31 @@ public abstract class Order {
 	public BigDecimal getIva() {
 		return iva;
 	}
-	
+
 	public void setIva(BigDecimal iva) {
 		this.iva = iva;
 	}
-	
+
 	public BigDecimal getIvaPrice() {
 		return ivaPrice;
 	}
-	
+
 	public void setIvaPrice(BigDecimal ivaPrice) {
 		this.ivaPrice = ivaPrice;
 	}
-	
-	public java.sql.Date getDate_order() {
-		return date_order;
+
+	public java.sql.Date getDateOrder() {
+		return dateOrder;
 	}
-	
-	public void setDate_order(java.sql.Date date_order) {
-		this.date_order = date_order;
+
+	public void setDateOrder(java.sql.Date dateOrder) {
+		this.dateOrder = dateOrder;
 	}
-	
+
 	public boolean isState() {
 		return state;
 	}
-	
+
 	public void setState(boolean state) {
 		this.state = state;
 	}

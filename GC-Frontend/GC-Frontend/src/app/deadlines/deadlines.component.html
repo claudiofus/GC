@@ -94,8 +94,9 @@
         <thead>
         <tr>
           <th>Titolo</th>
-          <th>Giorno</th>
+          <th>Data scadenza</th>
           <th>Pagato</th>
+          <th>Data pagamento</th>
           <th>Posticipa di</th>
           <th colspan="2">Azioni</th>
         </tr>
@@ -129,6 +130,22 @@
               <option value="false">NO</option>
               <option value="true">SI</option>
             </select>
+          </td>
+          <td>
+            <input
+              class="form-control"
+              type="text"
+              mwlFlatpickr
+              [(ngModel)]="selEvent.payment_date"
+              [altInput]="true"
+              [locale]="locale"
+              dateFormat="Y-m-d"
+              altFormat="d/m/Y"
+              [allowInput]="true"
+              placeholder="Non impostata">
+            <button class="form-control button center mt-2" [hidden]="!selEvent.payment_date"
+                    (click)="selEvent.payment_date = undefined">Reset
+            </button>
           </td>
           <td>
             <select class="form-control" (change)="postponeEv($event.target.value, selEvent)">

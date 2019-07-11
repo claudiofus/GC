@@ -12,67 +12,111 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import gc.model.Provider;
+import gc.utils.Utils;
 
 public class DBProvider {
 	private static final Logger logger = LogManager.getLogger(DBProvider.class.getName());
 
-	public static List<Provider> queryProvider(Connection conn) throws SQLException {
+	private DBProvider() {
+		throw new IllegalStateException("DBProvider class");
+	}
+
+	public static List<Provider> queryProvider(Connection conn) {
 		String sql = "SELECT id, name FROM gestione_cantieri.provider ORDER BY name";
 
-		PreparedStatement pstm = conn.prepareStatement(sql);
-		logger.info("queryProvider: " + pstm.toString());
+		List<Provider> list = new ArrayList<>();
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
 
-		ResultSet rs = pstm.executeQuery();
-		List<Provider> list = new ArrayList<Provider>();
-		while (rs.next()) {
-			int id = rs.getInt("id");
-			String name = rs.getString("name");
-			Provider provider = new Provider(id, name);
-			list.add(provider);
+			String query = pstm.toString();
+			logger.info("queryProvider: {}", query);
+
+			list = getProviderList(pstm);
+		} catch (SQLException e) {
+			logger.error("Error in method queryProvider: {}", e);
 		}
-		pstm.close();
+
 		return list;
 	}
 
-	public static Provider findProvider(Connection connection, String nameToFind) throws SQLException {
+	public static Provider findProvider(Connection conn, String nameToFind) {
 		String sql = "SELECT id, name FROM gestione_cantieri.provider WHERE name = ?";
 
-		PreparedStatement pstm = connection.prepareStatement(sql);
-		pstm.setString(1, nameToFind);
-		logger.info("findProvider: " + pstm.toString());
-
-		ResultSet rs = pstm.executeQuery();
 		Provider provider = null;
-		while (rs.next()) {
-			int id = rs.getInt("id");
-			String name = rs.getString("name");
-			provider = new Provider(id, name);
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setString(1, nameToFind);
+
+			String query = pstm.toString();
+			logger.info("findProvider: {}", query);
+
+			List<Provider> providerList = getProviderList(pstm);
+			if (!providerList.isEmpty()) {
+				provider = providerList.get(0);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method findProvider: {}", e);
 		}
-		pstm.close();
+		return provider;
+	}
+
+	public static Provider findProviderById(Connection conn, int idToFind) {
+		String sql = "SELECT id, name FROM gestione_cantieri.provider WHERE id = ?";
+
+		Provider provider = null;
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setInt(1, idToFind);
+
+			String query = pstm.toString();
+			logger.info("findProviderById: {}", query);
+
+			List<Provider> providerList = getProviderList(pstm);
+			if (!providerList.isEmpty()) {
+				provider = providerList.get(0);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method findProviderById: {}", e);
+		}
 		return provider;
 	}
 
 	public static int insertProvider(Connection conn, Provider provider) throws SQLException {
 		String sql = "INSERT INTO gestione_cantieri.provider (name) VALUES (?)";
 
-		PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-		pstm.setString(1, provider.getName());
+		try (PreparedStatement pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstm.setString(1, provider.getName());
 
-		logger.info("insertProvider: " + pstm.toString());
+			String query = pstm.toString();
+			logger.info("insertProvider: {}", query);
 
-		int affectedRows = pstm.executeUpdate();
-		if (affectedRows == 0) {
-			throw new SQLException("Inserting provider failed, no rows affected.");
-		}
-
-		try (ResultSet generatedKeys = pstm.getGeneratedKeys()) {
-			if (generatedKeys.next()) {
-				provider.setId(generatedKeys.getInt(1));
-			} else {
-				throw new SQLException("Inserting provider failed, no ID obtained.");
+			int affectedRows = pstm.executeUpdate();
+			if (affectedRows == 0) {
+				throw new SQLException("Inserting provider failed, no rows affected.");
 			}
+
+			int id = Utils.getIdFromQuery(pstm);
+			if (id != 0) {
+				provider.setId(id);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method insertProvider: {}", e);
 		}
-		pstm.close();
+
 		return provider.getId();
+	}
+
+	private static List<Provider> getProviderList(PreparedStatement pstm) {
+		List<Provider> providerList = new ArrayList<>();
+		try (ResultSet rs = pstm.executeQuery()) {
+			while (rs.next()) {
+
+				int id = rs.getInt("id");
+				String name = rs.getString("name");
+				Provider provider = new Provider(id, name);
+				providerList.add(provider);
+			}
+		} catch (SQLException e) {
+			logger.error("Error in method getProviderList: {}", e);
+		}
+
+		return providerList;
 	}
 }

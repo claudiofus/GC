@@ -21,7 +21,7 @@ export class AddInvoiceComponent implements OnInit {
   invoices: any[];
   itemsOrder: any;
   deliveryNotes: any;
-  ddts: object;
+  ddts: any;
   orderColumns: string[];
   building: Building;
   buildings: Building[];
@@ -75,29 +75,33 @@ export class AddInvoiceComponent implements OnInit {
 
   submitForm() {
     this.waitDiv = true;
+    this.ddts = undefined;
     this.orderColumns = AddInvoiceService.getOrderColumns();
     this.addInvoiceService.addOrder(this.files[0], this.addInvoiceFG.value.provider)
       .then(result => {
         this.waitDiv = false;
         this.deliveryNotes = new Map<string, any>();
         this.itemsOrder = new Map<string, any>();
-        this.ddts = {};
         this.invoices = result;
 
         for (let i = 0; i < this.invoices.length; i++) {
           this.providerObj = this.invoices[i].provider;
+          this.ddts = this.invoices[i].ddts;
           const ddtMap = this.obj_to_map(this.invoices[i].ddtorders);
           this.deliveryNotes[i] = Array.from(ddtMap.keys());
           for (const el of this.deliveryNotes[i]) {
             if (ddtMap.get(el)) {
               this.itemsOrder[el] = ddtMap.get(el);
+              if (this.ddts && this.ddts.length === 1) {
+                this.itemsOrder[el].selDDT = this.ddts['0'].id;
+              }
             }
           }
         }
       })
       .catch(error => {
         this.waitDiv = false;
-        console.error(error);
+        alert(error.error);
       });
   }
 
@@ -128,7 +132,7 @@ export class AddInvoiceComponent implements OnInit {
   assignBuilding(deliveryNote, dnIndex) {
     this.waitDiv = true;
     const building = this.itemsOrder[dnIndex].building;
-    this.addInvoiceService.assignBuilding(building.name, deliveryNote)
+    this.addInvoiceService.assignBuilding(building.name, deliveryNote, this.itemsOrder[dnIndex].selDDT)
       .then(result => {
         console.log(result);
         deliveryNote.assignResult = 'OK';

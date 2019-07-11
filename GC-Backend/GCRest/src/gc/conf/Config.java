@@ -11,17 +11,19 @@ public class Config {
 	private static final Logger logger = LogManager.getLogger(Config.class.getName());
 	private static Properties defaultProps = new Properties();
 
+	private Config() {
+		throw new IllegalStateException("Config class");
+	}
+
 	static {
 		String configFile = isWindows() ? "config.properties" : "raspi-config.properties";
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		InputStream input = classLoader.getResourceAsStream(configFile);
 
-		try {
+		try (InputStream input = classLoader.getResourceAsStream(configFile)) {
 			defaultProps.load(input);
-			input.close();
-			logger.info("Properties loaded from: " + configFile);
+			logger.info("Properties loaded from: {}", configFile);
 		} catch (IOException e) {
-			logger.error("Exception retrieving config properties - " + e);
+			logger.error("Exception retrieving config properties: {}", e);
 		}
 	}
 
@@ -30,11 +32,7 @@ public class Config {
 	}
 
 	public static String getOsName() {
-		String OS = null;
-		if (OS == null) {
-			OS = System.getProperty("os.name");
-		}
-		return OS;
+		return System.getProperty("os.name");
 	}
 
 	public static boolean isWindows() {

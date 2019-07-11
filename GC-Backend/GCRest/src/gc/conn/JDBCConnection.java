@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import gc.conf.Config;
+import gc.utils.Constants;
 
 public class JDBCConnection {
 	private static final Logger logger = LogManager.getLogger(JDBCConnection.class.getName());
@@ -28,10 +29,19 @@ public class JDBCConnection {
 			connection.setAutoCommit(false);
 			logger.debug("Connection with driver successful");
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
-			logger.error("Error during connection to DB, check connection.", e);
+			logger.error("Error during connection to DB, check connection: {}", e);
 		}
 
 		return connection;
 	}
 
+	public void closeConnection(Connection conn) {
+		if (conn != null) {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				logger.error(Constants.CLOSING_CONN_ERROR, e);
+			}
+		}
+	}
 }

@@ -1,13 +1,8 @@
 <div *ngIf="products.length > 0">
-  <form>
-    <div class="form-inline" style="margin-bottom: 5px;">
-      <label for="searchString">Filtra per nome o codice del prodotto o per fornitore</label>
-      <input id="searchString" type="search" [(ngModel)]="searchString" class="form-control mb-2 mr-sm-2 mb-sm-0"
-             name="searchString"
-             placeholder="Scrivi per cercare...">
-      <button class="button" style="margin-left: 0" type="reset">Pulisci</button>
-    </div>
-  </form>
+  <div class="form-inline mb-1">
+    <label class="mr-1">Filtra per nome o codice del prodotto o per fornitore</label>
+    <app-search-bar (searchEvent)="fetchResults($event)"></app-search-bar>
+  </div>
 
   <table class="redTable">
     <thead>
@@ -16,7 +11,7 @@
     </tr>
     </thead>
     <tbody>
-    <ng-template ngFor let-item [ngForOf]="getProducts() | filtername: searchString">
+    <ng-template ngFor let-item [ngForOf]="getProducts() | filtername: searchString : true">
       <tr>
         <td>{{item.providerName | titlecase}}</td>
         <td>{{item.name}}</td>
@@ -29,7 +24,7 @@
       </tr>
       <ng-container *ngIf="item.showDetails">
         <tr *ngFor="let elem of prices">
-          <td colspan="1"></td>
+          <td>{{elem.building}}</td>
           <td>{{elem.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
           <td>{{elem.date_ins | date:'dd/MM/yyyy'}}</td>
         </tr>

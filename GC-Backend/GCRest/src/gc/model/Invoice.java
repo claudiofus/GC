@@ -11,14 +11,12 @@ import gc.model.types.Scadenza;
 @JsonDeserialize(as = Invoice.class)
 public class Invoice {
 	String id;
-	String doc_num;
+	String docNum;
 	String provider;
-	java.sql.Date data_doc;
+	java.sql.Date dataDoc;
 
-	/**
-	 * String = Descrizione - DDT ArrayList<Order> = Ordini del DDT
-	 */
 	Map<String, ArrayList<Order>> DDTOrders;
+	List<DDT> ddts;
 	List<Scadenza> deadlines;
 	List<String> attachments;
 
@@ -34,12 +32,12 @@ public class Invoice {
 		this.id = string;
 	}
 
-	public String getDoc_num() {
-		return doc_num;
+	public String getDocNum() {
+		return docNum;
 	}
 
-	public void setDoc_num(String doc_num) {
-		this.doc_num = doc_num;
+	public void setDocNum(String docNum) {
+		this.docNum = docNum;
 	}
 
 	public String getProvider() {
@@ -50,20 +48,28 @@ public class Invoice {
 		this.provider = provider;
 	}
 
-	public java.sql.Date getData_doc() {
-		return data_doc;
+	public java.sql.Date getDataDoc() {
+		return dataDoc;
 	}
 
-	public void setData_doc(java.sql.Date data_doc) {
-		this.data_doc = data_doc;
+	public void setDataDoc(java.sql.Date dataDoc) {
+		this.dataDoc = dataDoc;
 	}
 
 	public Map<String, ArrayList<Order>> getDDTOrders() {
 		return DDTOrders;
 	}
 
-	public void setDDTOrders(Map<String, ArrayList<Order>> dDTOrders) {
-		DDTOrders = dDTOrders;
+	public void setDDTOrders(Map<String, ArrayList<Order>> map) {
+		DDTOrders = map;
+	}
+
+	public List<DDT> getDdts() {
+		return ddts;
+	}
+
+	public void setDdts(List<DDT> ddts) {
+		this.ddts = ddts;
 	}
 
 	public List<Scadenza> getDeadlines() {

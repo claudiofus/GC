@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,21 +31,58 @@ import gc.utils.Base64Coder;
 import gc.utils.Utils;
 
 public class EInvoice extends FatturaElettronicaType {
-	private static final Logger logger = LogManager
-			.getLogger(EInvoice.class.getName());
+	private static final Logger logger = LogManager.getLogger(EInvoice.class.getName());
 	private static final String ATTACHMENTS_LOCATION = "D:\\a.pdf";
-	
+	private int id;
+	private String number;
+	private Date date;
+	private Provider provider;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getNumber() {
+		return number;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public Provider getProvider() {
+		return provider;
+	}
+
+	public void setProvider(Provider provider) {
+		this.provider = provider;
+	}
+
 	public String getEinvNumb() {
 		if (this.getFatturaElettronicaBody().size() == 1) {
 			return this.getFatturaElettronicaBody().get(0).getDatiGenerali().getDatiGeneraliDocumento().getNumero();
 		} else {
-			//TODO stabilire il comportamento
+			// TODO stabilire il comportamento
 			logger.error("Stabilire il comportamento in questo caso");
 		}
 		return null;
 	}
-	
-	public String getProvider() {
+
+	public String getProviderName() {
+		if (this.getFatturaElettronicaHeader() == null)
+			return null;
 		CedentePrestatoreType fornitore = this.getFatturaElettronicaHeader().getCedentePrestatore();
 		AnagraficaType anagProvider = fornitore.getDatiAnagrafici().getAnagrafica();
 		if (anagProvider.getDenominazione() == null || anagProvider.getDenominazione().isEmpty()) {
@@ -53,7 +91,7 @@ public class EInvoice extends FatturaElettronicaType {
 			return anagProvider.getDenominazione();
 		}
 	}
-	
+
 	public List<DatiDDTType> getDDTs() {
 		List<FatturaElettronicaBodyType> fatture = this.getFatturaElettronicaBody();
 		List<DatiDDTType> ddts = new ArrayList<>();
@@ -61,31 +99,28 @@ public class EInvoice extends FatturaElettronicaType {
 		for (FatturaElettronicaBodyType fatt : fatture) {
 			dg = fatt.getDatiGenerali();
 			if (dg.getDatiDDT().isEmpty()) {
-				logger.info("Data fattura unica: "
-						+ dg.getDatiGeneraliDocumento().getData());
+				logger.info("Data fattura unica: {}", dg.getDatiGeneraliDocumento().getData());
 			} else {
 				ddts = dg.getDatiDDT();
-				logger.info("Data ddts: " + ddts);
+				Collections.sort(ddts, (o1, o2) -> o1.getDataDDT().compare(o2.getDataDDT()));
 			}
 		}
+
 		return ddts;
 	}
-	
+
 	public List<DettaglioLineeType> getOrders() {
 		List<FatturaElettronicaBodyType> fatture = this.getFatturaElettronicaBody();
 		List<DettaglioLineeType> linee = new ArrayList<>();
-		fatture.forEach(el -> {
-			linee.addAll(el.getDatiBeniServizi().getDettaglioLinee());
-		});
-
+		fatture.forEach(el -> linee.addAll(el.getDatiBeniServizi().getDettaglioLinee()));
 		return linee;
 	}
-	
+
 	public Date getInvoiceDate() {
 		List<FatturaElettronicaBodyType> fatture = this.getFatturaElettronicaBody();
 		if (fatture.size() > 1) {
 			logger.error("Capire come fare in questo caso, più fatture.");
-		} else {
+		} else if (!fatture.isEmpty()) {
 			DatiGeneraliType dg = fatture.get(0).getDatiGenerali();
 			XMLGregorianCalendar invDate = dg.getDatiGeneraliDocumento().getData();
 			return Utils.fromXMLGrToDate(invDate);
@@ -103,7 +138,8 @@ public class EInvoice extends FatturaElettronicaType {
 
 		List<String> attachs64List = new ArrayList<>();
 		String base64;
-		byte[] att, pdfBytes;
+		byte[] att;
+		byte[] pdfBytes;
 
 		for (AllegatiType attachm : attachments) {
 			att = attachm.getAttachment();
@@ -121,7 +157,7 @@ public class EInvoice extends FatturaElettronicaType {
 			Files.write(Paths.get(ATTACHMENTS_LOCATION), bytes);
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception during writePDF from EInvoice: {}", e);
 		}
 		return false;
 	}
@@ -132,19 +168,16 @@ public class EInvoice extends FatturaElettronicaType {
 		List<Scadenza> deadlines = new ArrayList<>();
 		for (FatturaElettronicaBodyType fattura : fatture) {
 			for (DatiPagamentoType dpt : fattura.getDatiPagamento()) {
-				map.put(fattura.getDatiGenerali().getDatiGeneraliDocumento()
-						.getNumero(), dpt.getDettaglioPagamento());
+				map.put(fattura.getDatiGenerali().getDatiGeneraliDocumento().getNumero(), dpt.getDettaglioPagamento());
 			}
 		}
 
-		map.forEach((invoiceNum, paymentDets) -> {
-			paymentDets.forEach(dpt -> {
-				Scadenza deadln = new Scadenza();
-				deadln.setInvoiceNum(invoiceNum);
-				deadln.setPaymentDets(dpt);
-				deadlines.add(deadln);
-			});
-		});
+		map.forEach((invoiceNum, paymentDets) -> paymentDets.forEach(dpt -> {
+			Scadenza deadln = new Scadenza();
+			deadln.setInvoiceNum(invoiceNum);
+			deadln.setPaymentDets(dpt);
+			deadlines.add(deadln);
+		}));
 
 		return deadlines;
 	}

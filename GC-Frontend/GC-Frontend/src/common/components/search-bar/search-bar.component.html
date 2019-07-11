@@ -1,0 +1,6 @@
+<form>
+  <input id="searchString" type="text" class="form-control mb-2 mr-sm-2 mb-sm-0" name="searchString"
+         [(ngModel)]="searchString" placeholder="Scrivi per cercare..." (keyup)="sendSearch(searchString)"
+         (keydown)="sendSearch(searchString)">
+  <button class="button" type="reset" (click)="clearSearch()">Pulisci</button>
+</form>

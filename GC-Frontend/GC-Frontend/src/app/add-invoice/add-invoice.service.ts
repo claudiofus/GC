@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {environment} from "../../environments/environment.prod";
+import {environment} from '../../environments/environment';
 
 @Injectable()
 export class AddInvoiceService {
@@ -36,9 +36,9 @@ export class AddInvoiceService {
       .then(data => data);
   }
 
-  assignBuilding(name: String, order: JSON) {
+  assignBuilding(name: String, order: JSON, ddt_id: number) {
     return this.http
-      .post<any[]>(this.url3 + name, order)
+      .post<any[]>(this.url3 + name, {order, ddt_id})
       .toPromise()
       .then(data => data);
   }

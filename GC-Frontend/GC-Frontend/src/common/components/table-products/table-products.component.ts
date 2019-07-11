@@ -64,4 +64,8 @@ export class TableComponent implements OnInit {
   getProducts() {
     return this.searchString ? this.products : this.pagedItems;
   }
+
+  fetchResults(string) {
+    this.searchString = string;
+  }
 }

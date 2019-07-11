@@ -3,8 +3,8 @@ package gc.model.types;
 import gc.einvoice.DettaglioPagamentoType;
 
 public class Scadenza {
-	public String invoiceNum;
-	public DettaglioPagamentoType paymentDets;
+	private String invoiceNum;
+	private DettaglioPagamentoType paymentDets;
 
 	public String getInvoiceNum() {
 		return invoiceNum;

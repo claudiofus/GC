@@ -20,7 +20,6 @@ import gc.dao.ProductDaoImpl;
 import gc.model.Order;
 import gc.model.Product;
 import gc.model.UM;
-import gc.model.types.BaseOrder;
 import gc.utils.Utils;
 
 @Path("/order")
@@ -30,16 +29,19 @@ public class OrderService {
 	/**
 	 * Add a order from the invoice
 	 * 
-	 * @param providerCode of the provider
-	 * @param ord          to add
+	 * @param providerCode
+	 *            of the provider
+	 * @param ord
+	 *            to add
 	 * @return added order
-	 * @throws IOException if ord is invalid
+	 * @throws IOException
+	 *             if ord is invalid
 	 */
 	@POST
 	@Path("/addOrder/{provider : .+}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response addOrder(@PathParam("provider") String providerCode, BaseOrder ord) throws IOException {
+	public Response addOrder(@PathParam("provider") String providerCode, Order ord) throws IOException {
 		if (ord.getName() == null || ord.getName().isEmpty() || providerCode == null || providerCode.isEmpty()) {
 			return Response.status(Response.Status.PRECONDITION_FAILED).build();
 		}
@@ -56,14 +58,30 @@ public class OrderService {
 		}
 
 		OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
-		orderDaoImpl.insertOrder(ord);
+		ord = orderDaoImpl.insertOrder(ord);
 		return Response.ok(ord).build();
+	}
+
+	/**
+	 * Get all unit of measurement
+	 * 
+	 * @return list of unit of measurement
+	 */
+	@GET
+	@Path("/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getOrder(@PathParam("id") int id) {
+		OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
+		Order ord = orderDaoImpl.getOrder(id);
+
+		return Response.status(200).entity(ord).build();
 	}
 
 	/**
 	 * Update an order
 	 * 
-	 * @param ord to update
+	 * @param ord
+	 *            to update
 	 * @return updated order
 	 */
 	@POST
@@ -85,11 +103,11 @@ public class OrderService {
 	@Path("/um/all")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllUM() {
-		List<UM> UMsList = null;
+		List<UM> umList = null;
 
 		OrderDaoImpl orderDaoImpl = new OrderDaoImpl();
-		UMsList = orderDaoImpl.getUMs();
+		umList = orderDaoImpl.getUMs();
 
-		return Response.status(200).entity(UMsList).build();
+		return Response.status(200).entity(umList).build();
 	}
 }

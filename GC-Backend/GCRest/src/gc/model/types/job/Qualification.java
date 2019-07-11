@@ -8,23 +8,19 @@ public enum Qualification {
 	QUADRO("Quadro"),
 	DIRIGENTE("Dirigente");
 
-	private String qualification;
+	private String profQualification;
 
 	private Qualification(String qualification) {
-		this.qualification = qualification;
+		this.profQualification = qualification;
 	}
 
 	public String getQualification() {
-		return qualification;
+		return profQualification;
 	}
 
-	public void setQualification(String qualification) {
-		this.qualification = qualification;
-	}
-	
 	public static String getEnumByString(String code){
         for(Qualification e : Qualification.values()){
-            if(code == e.qualification) return e.name();
+            if(code.equals(e.profQualification)) return e.name();
         }
         return null;
     }

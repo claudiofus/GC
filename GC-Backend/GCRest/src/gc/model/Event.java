@@ -9,7 +9,8 @@ public class Event {
 	private String title;
 	private boolean paid;
 	private boolean allDay;
-	private java.sql.Date start_date;
+	private java.sql.Date startDate;
+	private java.sql.Date paymentDate;
 
 	public Event() {
 		super();
@@ -37,12 +38,12 @@ public class Event {
 	}
 
 	@JsonProperty("start")
-	public java.sql.Date getStart_date() {
-		return start_date;
+	public java.sql.Date getStartDate() {
+		return startDate;
 	}
 
-	public void setStart_date(java.sql.Date start_date) {
-		this.start_date = start_date;
+	public void setStartDate(java.sql.Date startDate) {
+		this.startDate = startDate;
 	}
 
 	public boolean isPaid() {
@@ -60,4 +61,12 @@ public class Event {
 	public void setAllDay(boolean allDay) {
 		this.allDay = allDay;
 	}
+
+	public java.sql.Date getPaymentDate() {
+		return paymentDate;
+	}
+
+	public void setPaymentDate(java.sql.Date paymentDate) {
+		this.paymentDate = paymentDate;
+	}	
 }

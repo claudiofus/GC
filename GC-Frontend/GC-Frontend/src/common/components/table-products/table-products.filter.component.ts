@@ -2,8 +2,12 @@ import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({name: 'filtername'})
 export class FilterPipe implements PipeTransform {
-  transform(items: any[], args: string): any {
-    return !args ? items : items.filter(item => item.name.toLowerCase().indexOf(args.toLowerCase()) !== -1 ||
-      item.providerName.toLowerCase().indexOf(args.toLowerCase()) !== -1);
+  transform(items: any[], stringToSearch: string, checkProvider: boolean): any {
+    if (checkProvider === true) {
+      return !stringToSearch ? items : items.filter(item => item.name.toLowerCase().indexOf(stringToSearch.toLowerCase()) !== -1 ||
+        item.providerName.toLowerCase().indexOf(stringToSearch.toLowerCase()) !== -1);
+    } else {
+      return !stringToSearch ? items : items.filter(item => item.name.toLowerCase().indexOf(stringToSearch.toLowerCase()) !== -1);
+    }
   }
 }

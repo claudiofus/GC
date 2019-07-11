@@ -54,7 +54,7 @@ public class VehicleService {
 
 			if (vehicle.getInsurance() != null) {
 				ev.setTitle("Scadenza assicurazione - " + vehicle.getInsurance().getAmount() + vehicleStr);
-				ev.setStart_date(vehicle.getInsurance().getDeadlineDate());
+				ev.setStartDate(vehicle.getInsurance().getDeadlineDate());
 				ev.setPaid(false);
 				evService.addEvent(ev);
 				vehicle.getInsurance().setEventID(ev.getId());
@@ -62,7 +62,7 @@ public class VehicleService {
 			if (vehicle.getCarTax() != null) {
 				ev = new Event();
 				ev.setTitle("Scadenza bollo - " + vehicle.getCarTax().getAmount() + vehicleStr);
-				ev.setStart_date(vehicle.getCarTax().getDeadlineDate());
+				ev.setStartDate(vehicle.getCarTax().getDeadlineDate());
 				ev.setPaid(false);
 				evService.addEvent(ev);
 				vehicle.getCarTax().setEventID(ev.getId());
@@ -70,7 +70,7 @@ public class VehicleService {
 			if (vehicle.getRevision() != null) {
 				ev = new Event();
 				ev.setTitle("Scadenza revisione - " + vehicle.getRevision().getAmount() + vehicleStr);
-				ev.setStart_date(vehicle.getRevision().getDeadlineDate());
+				ev.setStartDate(vehicle.getRevision().getDeadlineDate());
 				ev.setPaid(false);
 				evService.addEvent(ev);
 				vehicle.getRevision().setEventID(ev.getId());
@@ -198,7 +198,7 @@ public class VehicleService {
 			Event ev = new Event();
 			ev.setTitle("Multa del " + Utils.sqlDateToDate(penDate, "dd/MM/yyyy") + " - "
 					+ vehicle.getPenalty().get(0).getAmount() + vehicleStr);
-			ev.setStart_date(penDate);
+			ev.setStartDate(penDate);
 			ev.setPaid(vehicle.getPenalty().get(0).isPaid());
 			evService.addEvent(ev);
 			exVehicle.setPenalty(vehicle.getPenalty());
@@ -221,7 +221,7 @@ public class VehicleService {
 	@Path("/updateVehicle")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateVehicle(final Vehicle vehicle) throws IOException {
+	public Response updateVehicle(final Vehicle vehicle) {
 		if (vehicle.getPlate() == null) {
 			return Response.status(Response.Status.PRECONDITION_FAILED).build();
 		}
@@ -242,9 +242,9 @@ public class VehicleService {
 		if (baseDeadline != null) {
 			Response res = evService.getEventByID(baseDeadline.getEventID());
 			Event ev = (Event) res.getEntity();
-			ev.setStart_date(baseDeadline.getDeadlineDate());
+			ev.setStartDate(baseDeadline.getDeadlineDate());
 			String[] splitted = ev.getTitle().split("-");
-			splitted[1] = " " + String.valueOf(baseDeadline.getAmount()) + "€ ";
+			splitted[1] = " " + baseDeadline.getAmount() + "€ ";
 			ev.setTitle(String.join("-", splitted));
 			evService.updateEvent(ev);
 		}

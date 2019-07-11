@@ -12,6 +12,7 @@ import gc.conn.JDBCConnection;
 import gc.db.DBBuilding;
 import gc.model.Building;
 import gc.model.types.job.Job;
+import gc.utils.Constants;
 
 public class BuildingDaoImpl {
 	private static final Logger logger = LogManager.getLogger(BuildingDaoImpl.class.getName());
@@ -19,23 +20,8 @@ public class BuildingDaoImpl {
 	public List<Building> getBuildings() {
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
-		List<Building> buildingData = new ArrayList<>();
 
-		try {
-			buildingData = DBBuilding.queryBuilding(conn);
-		} catch (SQLException e) {
-			logger.error("Error in method getBuildings: ", e);
-		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
-		}
-
-		return buildingData;
+		return DBBuilding.queryBuilding(conn);
 	}
 
 	public Building getBuildingDetails(String name) {
@@ -47,20 +33,14 @@ public class BuildingDaoImpl {
 			building = DBBuilding.findBuilding(conn, name);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method getBuildingDetails: ", e);
+			logger.error("Error in method getBuildingDetails: {}", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			}
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 
 		return building;
@@ -74,20 +54,14 @@ public class BuildingDaoImpl {
 			DBBuilding.insertBuilding(conn, building);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method insertBuilding: ", e);
+			logger.error("Error in method insertBuilding: {}", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			}
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 
 		return building;
@@ -101,27 +75,21 @@ public class BuildingDaoImpl {
 			DBBuilding.updateBuilding(conn, building);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method updateBuilding: ", e);
+			logger.error("Error in method updateBuilding: {}", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			}
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 
 		return building;
 	}
 
 	public List<Job> getJobs(int id) {
-		List<Job> jobs = new ArrayList<Job>();
+		List<Job> jobs = new ArrayList<>();
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		Connection conn = jdbcConnection.getConnnection();
 
@@ -129,20 +97,14 @@ public class BuildingDaoImpl {
 			jobs = DBBuilding.getJobs(conn, id);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method getBuildingDetails: ", e);
+			logger.error("Error in method getJobs: {}", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			}
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 		return jobs;
 	}
@@ -155,20 +117,14 @@ public class BuildingDaoImpl {
 			DBBuilding.deleteJob(conn, id);
 			conn.commit();
 		} catch (SQLException e) {
-			logger.error("Error in method getBuildingDetails: ", e);
+			logger.error("Error in method deleteJob: {}", e);
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				logger.error("Error in connection rollback: ", e1);
+				logger.error(Constants.ROLLBACK_ERROR, e1);
 			}
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error("Error in closing connection: ", e);
-				}
-			}
+			jdbcConnection.closeConnection(conn);
 		}
 		return true;
 	}
