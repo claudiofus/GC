@@ -16,12 +16,11 @@ export class AddInvoiceService {
   }
 
   // Rest Items Service: Read all REST Items
-  addOrder(file: File, provider: string): Promise<any> {
+  addOrder(file: File): Promise<any> {
     console.log('Invoking service insertOrder');
 
     const formData = new FormData();
     formData.set('file', file, file.name);
-    formData.set('provider', provider);
 
     return this.http
       .post<any[]>(this.url, formData)
@@ -36,9 +35,9 @@ export class AddInvoiceService {
       .then(data => data);
   }
 
-  assignBuilding(name: String, order: JSON, ddt_id: number) {
+  assignBuilding(name: string, order: JSON, ddtId: number) {
     return this.http
-      .post<any[]>(this.url3 + name, {order, ddt_id})
+      .post<any[]>(this.url3 + name, {order, ddtId})
       .toPromise()
       .then(data => data);
   }

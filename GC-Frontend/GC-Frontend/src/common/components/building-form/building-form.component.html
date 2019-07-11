@@ -6,14 +6,14 @@
         <input type="text" id="name" name="name" [(ngModel)]="model.name" placeholder="Nome" required>
       </div>
       <div class="col22">
-        <label for="start_date">Data inizio</label>
+        <label for="startDate">Data inizio</label>
         <input
-          name="start_date"
-          id="start_date"
+          name="startDate"
+          id="startDate"
           class="form-control"
           type="text"
           mwlFlatpickr
-          [(ngModel)]="model.start_date"
+          [(ngModel)]="model.startDate"
           [altInput]="true"
           [locale]="locale"
           dateFormat="Y-m-d"
@@ -22,14 +22,14 @@
           placeholder="Non impostata">
       </div>
       <div class="col22">
-        <label for="end_date">Data fine</label>
+        <label for="endDate">Data fine</label>
         <input
-          name="end_date"
-          id="end_date"
+          name="endDate"
+          id="endDate"
           class="form-control"
           type="text"
           mwlFlatpickr
-          [(ngModel)]="model.end_date"
+          [(ngModel)]="model.endDate"
           [altInput]="true"
           [locale]="locale"
           dateFormat="Y-m-d"
@@ -92,8 +92,8 @@
       </div>
       <div class="col22">
         <label for="state">Importo offerta</label>
-        <input type="number" step="0.01" min="0" id="req_amount" name="req_amount" [(ngModel)]="model.req_amount"
-               (blur)="this.model.req_amount = utils.fixAmount(this.model.req_amount)"
+        <input type="number" step="0.01" min="0" id="reqAmount" name="reqAmount" [(ngModel)]="model.reqAmount"
+               (blur)="this.model.reqAmount = utils.fixAmount(this.model.reqAmount)"
                placeholder="10.000 €" required>
       </div>
     </div>

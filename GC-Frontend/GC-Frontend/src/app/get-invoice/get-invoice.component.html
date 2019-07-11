@@ -1,0 +1,98 @@
+<div class="container card form_wrapper m-0 mb-2">
+  <div class="row mt-0 p-3">
+    <div class="col-sm-6">
+      <label for="provider">Fornitore della fattura da recuperare</label>
+      <select id="provider" class="col-sm-8" [(ngModel)]="provider" (change)="clearInvoices()">
+        <option disabled selected value></option>
+        <option *ngFor="let c of providers;" [ngValue]="c.id">{{c.name}}</option>
+      </select>
+    </div>
+
+    <div class="col-sm-6" *ngIf="showInvoices">
+      <label for="invoice">Lista di fatture per fornitore</label>
+      <select id="invoice" class="col-sm-6" [(ngModel)]="invoice">
+        <option disabled selected value></option>
+        <option *ngFor="let c of invoices; trackBy: c" [ngValue]="c.id">{{c.number}} del {{c.date | date:'dd/MM/yyyy'}}</option>
+      </select>
+      <button class="button ml-2" [disabled]="!invoice" (click)="getInvoice()">Recupera</button>
+    </div>
+  </div>
+</div>
+
+<div [hidden]="!showOrders">
+  <div *ngFor="let dn of deliveryNotes; let i = index" class="card card_content mb-2">
+    <h6 class="center">{{dn}}</h6>
+    <table class="redTable">
+      <thead>
+      <tr>
+        <th>
+          <input type="checkbox" name="all" [checked]="isAllChecked(itemsOrder[dn])"
+                 (change)="checkAll($event, itemsOrder[dn])"/>
+        </th>
+        <th *ngFor="let c of orderColumns; trackBy: c">{{c}}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor='let order of itemsOrder[dn]'
+          [ngStyle]="assignedOrders.includes(order.id) ? {'opacity':'0.5'} : null">
+        <td><input type="checkbox" (change)="order.state = !order.state" [checked]="order.state"/></td>
+        <td>{{order.name}}</td>
+        <td>{{order.um | uppercase}}</td>
+        <td>{{order.quantity}}</td>
+        <td>{{order.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
+        <td>{{order.discount}} %</td>
+        <td>{{order.noIvaPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
+        <td>{{order.iva}} %</td>
+        <td>{{order.ivaPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="row col-sm-12 mt-2" *ngIf="itemsOrder[dn]">
+      <div *ngIf="itemsOrder[dn].showBuilding === true">
+        <label class="mr-2">Seleziona il cantiere
+          <select [(ngModel)]="itemsOrder[dn].building.name" (change)="hideConfirm = true;">
+            <option *ngFor="let el of buildings; trackBy: el" [ngValue]="el.name">{{el.name}}
+            </option>
+          </select>
+        </label>
+
+        <ng-container *ngIf="ddts && ddts.length > 1">
+          <label>Seleziona il DDT
+            <select [(ngModel)]="itemsOrder[dn].selDDT" (change)="hideConfirm = true;">
+              <option *ngFor="let ddt of ddts; trackBy: ddt" [ngValue]="ddt.id">{{ddt.NumeroDDT}} del {{ddt.DataDDT |
+                date:'dd/MM/yyyy'}}
+              </option>
+            </select>
+          </label>
+        </ng-container>
+
+        <button type="button" class="button ml-2" *ngIf="itemsOrder[dn].building"
+                [disabled]="!itemsOrder[dn].building.name"
+                (click)="assignBuilding(itemsOrder[dn], dn); hideConfirm = false;">
+          Conferma
+        </button>
+      </div>
+    </div>
+
+    <div class="col-12" [hidden]="hideConfirm">
+      <p class="mt-2 green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
+        Prodotti assegnati correttamente al cantiere: <strong>{{itemsOrder[dn].building.name}}</strong>
+      </p>
+      <p class="mt-2 red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
+        <strong>Errore nell'assegnazione dei prodotti al cantiere: {{itemsOrder[dn].building.name}}</strong>
+      </p>
+    </div>
+
+    <div class="col-sm-12">
+      <button type="button" class="button mt-2"
+              (click)="itemsOrder[dn].showBuilding = true; itemsOrder[dn].building = {'name': ''};">
+        Assegna cantiere
+      </button>
+    </div>
+  </div>
+</div>
+
+<div [hidden]="!waitDiv">
+  <div class="waitImg"></div>
+</div>

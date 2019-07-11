@@ -16,7 +16,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AddInvoiceComponent} from './add-invoice/add-invoice.component';
 import {DeadlinesComponent} from './deadlines/deadlines.component';
 import {WorkersComponent} from './workers/workers.component';
-import {SquadComponent} from './squad/squad.component';
 import {VehiclesComponent} from './vehicles/vehicles.component';
 import {ProfitsComponent} from './profits/profits.component';
 import {SelectProviderComponent} from '../common/components/select-provider/select-provider.component';
@@ -48,6 +47,8 @@ import {WorkersService} from './workers/workers.service';
 import {WorkerFormComponent} from '../common/components/worker-form/worker-form.component';
 import {UppercaseInputDirective} from '../common/components/worker-form/worker-form.directive';
 import {SearchBarComponent} from '../common/components/search-bar/search-bar.component';
+import {GetInvoiceComponent} from './get-invoice/get-invoice.component';
+import {GetInvoiceService} from './get-invoice/get-invoice.service';
 
 registerLocaleData(localeIt, 'it');
 
@@ -81,7 +82,7 @@ registerLocaleData(localeIt, 'it');
     AddInvoiceComponent,
     DeadlinesComponent,
     WorkersComponent,
-    SquadComponent,
+    GetInvoiceComponent,
     VehiclesComponent,
     ProfitsComponent,
     SelectProviderComponent,
@@ -103,6 +104,7 @@ registerLocaleData(localeIt, 'it');
   },
     ProductListService,
     AddInvoiceService,
+    GetInvoiceService,
     PagerService,
     TableProductsService,
     BuildingsService,

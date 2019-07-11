@@ -39,7 +39,7 @@ export class WorkersComponent implements OnInit {
     this.workers = [];
     this.workersService.getAll().subscribe(
       restItems => {
-        restItems.map(building => {
+        restItems.forEach(building => {
           this.workers.push(building);
         });
       }

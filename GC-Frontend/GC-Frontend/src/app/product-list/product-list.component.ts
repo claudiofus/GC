@@ -23,9 +23,9 @@ export class ProductListComponent implements OnInit {
     iva: new FormControl(null, [Validators.required]),
     discount: new FormControl({value: null, disabled: true}),
     ivaPrice: new FormControl(null, [Validators.required]),
-    date_order: new FormControl(null, [Validators.required, Validators.maxLength(10)]),
+    dateOrder: new FormControl(null, [Validators.required, Validators.maxLength(10)]),
     provider: new FormControl(null, [Validators.required]),
-    building_id: new FormControl(null, [Validators.required])
+    buildingId: new FormControl(null, [Validators.required])
   });
 
   get quantity() {
@@ -61,7 +61,7 @@ export class ProductListComponent implements OnInit {
     this.products = [];
     this.productListService.getAll().subscribe(
       restItems => {
-        restItems.map(product => this.products.push(product));
+        restItems.forEach(product => this.products.push(product));
       }
     );
   }

@@ -3,7 +3,6 @@ import {SelectProviderComponent} from '../../common/components/select-provider/s
 import {AddInvoiceService} from './add-invoice.service';
 import {Building} from '../../classes/building';
 import {BuildingsService} from '../buildings/buildings.service';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {PaymentMod} from '../../classes/paymentMod';
 
 @Component({
@@ -12,7 +11,7 @@ import {PaymentMod} from '../../classes/paymentMod';
   styleUrls: ['./add-invoice.component.css']
 })
 export class AddInvoiceComponent implements OnInit {
-  @ViewChild(SelectProviderComponent)
+  @ViewChild(SelectProviderComponent, { static: false })
   private selectProvider: SelectProviderComponent;
   files: FileList;
   filestring: string;
@@ -29,13 +28,6 @@ export class AddInvoiceComponent implements OnInit {
   mode = PaymentMod;
   hideConfirm = true;
   assignedOrders = [];
-  addInvoiceFG = new FormGroup({
-    provider: new FormControl(null, [Validators.required])
-  });
-
-  get provider() {
-    return this.addInvoiceFG.get('provider');
-  }
 
   constructor(public addInvoiceService: AddInvoiceService, public buildingsService: BuildingsService) {
   }
@@ -46,13 +38,9 @@ export class AddInvoiceComponent implements OnInit {
     this.buildings = [];
     this.buildingsService.getAll().subscribe(
       restItems => {
-        restItems.map(building => this.buildings.push(building));
+        restItems.forEach(building => this.buildings.push(building));
       }
     );
-  }
-
-  showFileUploader() {
-    return !(this.addInvoiceFG.value.provider && this.addInvoiceFG.value.provider !== '');
   }
 
   getFiles(event) {
@@ -77,7 +65,7 @@ export class AddInvoiceComponent implements OnInit {
     this.waitDiv = true;
     this.ddts = undefined;
     this.orderColumns = AddInvoiceService.getOrderColumns();
-    this.addInvoiceService.addOrder(this.files[0], this.addInvoiceFG.value.provider)
+    this.addInvoiceService.addOrder(this.files[0])
       .then(result => {
         this.waitDiv = false;
         this.deliveryNotes = new Map<string, any>();

@@ -1,7 +1,7 @@
 export class Order {
   code: string;
   name: string;
-  building_id: number;
+  buildingId: number;
   um: string;
   quantity: number;
   price: number;
@@ -10,5 +10,5 @@ export class Order {
   iva: number;
   ivaPrice: number;
   provider: string;
-  date_order: string;
+  dateOrder: string;
 }

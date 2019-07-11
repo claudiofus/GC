@@ -7,7 +7,7 @@
   <table class="redTable">
     <thead>
     <tr>
-      <th *ngFor="let c of columns">{{c}}</th>
+      <th *ngFor="let c of columns; trackBy: c">{{c}}</th>
     </tr>
     </thead>
     <tbody>
@@ -23,10 +23,16 @@
         </td>
       </tr>
       <ng-container *ngIf="item.showDetails">
-        <tr *ngFor="let elem of prices">
-          <td>{{elem.building}}</td>
+        <tr *ngFor="let elem of prices; trackBy: elem">
+          <ng-template *ngIf="elem.ddt_numb && elem.ddt_date; then showDDT else notShowDDT"></ng-template>
+          <ng-template #showDDT>
+            <td>DDT n. {{elem.ddt_numb}} del {{elem.ddt_date | date:'dd/MM/yyyy'}}</td>
+          </ng-template>
+          <ng-template #notShowDDT>
+            <td>Nessun DDT associato</td>
+          </ng-template>
+          <td>{{elem.building ? elem.building : 'Nessun cantiere associato'}}</td>
           <td>{{elem.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
-          <td>{{elem.date_ins | date:'dd/MM/yyyy'}}</td>
         </tr>
       </ng-container>
     </ng-template>

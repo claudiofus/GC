@@ -17,6 +17,6 @@ export class SearchBarComponent {
 
   clearSearch() {
     this.searchString = undefined;
-    this.searchEvent.emit(undefined);
+    this.searchEvent.emit();
   }
 }

@@ -17,7 +17,8 @@ import {FilterPipe} from '../../common/components/table-products/table-products.
 })
 export class BuildingsComponent implements OnInit {
   buildings: any[];
-  ddts: Map<String, any[]>;
+  ddts: Map<string, any[]>;
+  ddtSel: any = undefined;
   buildingSel: string;
   buildingToUpd: any;
   orderColumns: string[];
@@ -52,7 +53,8 @@ export class BuildingsComponent implements OnInit {
     this.buildingSel = undefined;
     this.buildingToUpd = new Building();
     this.buildingToUpd.address = new Address();
-    this.ddts = new Map<String, any[]>();
+    this.ddts = new Map<string, any[]>();
+    this.ddtSel = undefined;
   }
 
   // Read all REST Items
@@ -60,9 +62,9 @@ export class BuildingsComponent implements OnInit {
     this.buildings = [];
     this.buildingsService.getAll().subscribe(
       restItems => {
-        restItems.map(building => {
-          this.buildings.push(building);
-        });
+          restItems.forEach(building => {
+              this.buildings.push(building);
+          });
       }
     );
   }
@@ -89,6 +91,8 @@ export class BuildingsComponent implements OnInit {
           },
           function () {
           });
+      } else {
+          this.updateBuilding(building);
       }
     } else {
       this.updateBuilding(building);
@@ -139,7 +143,7 @@ export class BuildingsComponent implements OnInit {
 
   getBuildingDet(building) {
     const self = this;
-    self.ddts = new Map<String, any[]>();
+    self.ddts = new Map<string, any[]>();
     self.buildingSel = building.name;
     self.buildingsService.getJobs(this.buildingSel).subscribe(
       jobs => {
@@ -149,7 +153,7 @@ export class BuildingsComponent implements OnInit {
           self.goOn(self, building);
         } else {
           const rowLen = jobs.length;
-          jobs.map((job, i) => {
+          jobs.forEach((job, i) => {
             self.workedHours += job.hoursOfWork;
             self.buildingsService.calcCost(job)
               .then(result => {
@@ -175,7 +179,7 @@ export class BuildingsComponent implements OnInit {
     this.showBuildingWorkers = true;
     this.buildingsService.getJobs(this.buildingSel).subscribe(
       restItems => {
-        restItems.map(job => {
+        restItems.forEach(job => {
           this.jobs.push(job);
         });
         this.jobs.push({});
@@ -183,7 +187,7 @@ export class BuildingsComponent implements OnInit {
     );
     this.workersService.getAll().subscribe(
       restItems => {
-        restItems.map(worker => {
+        restItems.forEach(worker => {
           this.workers.push(worker);
         });
       }
@@ -203,7 +207,7 @@ export class BuildingsComponent implements OnInit {
             self.buildingsService.getJobs(self.buildingSel).subscribe(
               restItems => {
                 self.jobs = [];
-                restItems.map(el => {
+                restItems.forEach(el => {
                   self.jobs.push(el);
                 });
                 self.jobs.push({hoursOfWork: 8});
@@ -231,7 +235,7 @@ export class BuildingsComponent implements OnInit {
             self.buildingsService.getJobs(self.buildingSel).subscribe(
               restItems => {
                 self.jobs = [];
-                restItems.map(el => {
+                restItems.forEach(el => {
                   self.jobs.push(el);
                 });
                 self.jobs.push({hoursOfWork: 8});
@@ -258,7 +262,7 @@ export class BuildingsComponent implements OnInit {
   }
 
   resetView() {
-    this.ddts = new Map<String, any[]>();
+    this.ddts = new Map<string, any[]>();
     this.ngOnInit();
   }
 
@@ -266,23 +270,28 @@ export class BuildingsComponent implements OnInit {
     const self = this;
     this.confirmDialogService.confirmThis('Vuoi proseguire con la cancellazione?',
       function () {
-        order.building_id = undefined;
+        order.buildingId = undefined;
         self.buildingsService.updateOrder(order)
           .then(_ => {
-            self.ddts = ddt.value.filter(function (obj) {
+            const filtered = ddt.value.filter(function (obj) {
               return obj.id !== order.id;
             });
+            self.ddts.set(ddt.key, filtered);
             self.orderSum = 0;
             self.orderIvaSum = 0;
             self.buildingsService.getBuildingDet(self.buildingSel).subscribe(
               items => {
+                self.ddts = new Map<string, any[]>();
                 for (const item in items) {
                   if (item) {
-                    items[item].map(el => {
+                    items[item].forEach(el => {
                       self.orderSum += el.noIvaPrice;
                       self.orderIvaSum += el.ivaPrice;
                     });
                     self.ddts.set(item, items[item]);
+                    if (!self.ddtSel) {
+                      self.ddtSel = undefined;
+                    }
                   }
                 }
               }
@@ -321,18 +330,18 @@ export class BuildingsComponent implements OnInit {
       items => {
         for (const item in items) {
           if (item) {
-            items[item].map(order => {
+            items[item].forEach(order => {
               this.orderSum += order.noIvaPrice;
               this.orderIvaSum += order.ivaPrice;
             });
             this.ddts.set(item, items[item]);
           }
         }
-        const req_amount_round = Utils.round10(building.req_amount, -2);
+        const reqAmount_round = Utils.round10(building.reqAmount, -2);
         const orderIvaSum_rounded = Utils.round10(this.orderIvaSum, -2);
         const workedHoursCost_rounded = Utils.round10(this.workedHoursCost, -2);
-        const diff = req_amount_round - orderIvaSum_rounded - workedHoursCost_rounded;
-        this.projects = [{name: 'Importo complessivo lavori', value: building.req_amount},
+        const diff = reqAmount_round - orderIvaSum_rounded - workedHoursCost_rounded;
+        this.projects = [{name: 'Importo complessivo lavori', value: building.reqAmount},
           {name: 'Importo materiali', value: -this.orderIvaSum},
           {name: 'Costo operai', value: -this.workedHoursCost},
           {name: 'Utili', value: diff}];
@@ -345,11 +354,7 @@ export class BuildingsComponent implements OnInit {
   }
 
   checkSearch(ddt) {
-    const aaa = this.filterPipe.transform(ddt, this.searchString, false);
-    if (aaa.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
+    const filtered = this.filterPipe.transform(ddt, this.searchString, false);
+    return filtered.length > 0;
   }
 }

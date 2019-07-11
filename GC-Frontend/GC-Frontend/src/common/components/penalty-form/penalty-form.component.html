@@ -5,7 +5,7 @@
         <label for="plate">Veicoli disponibili</label>
         <select id="plate" name="plate" [(ngModel)]="vehicle.plate">
           <option disabled selected value>Veicoli</option>
-          <option *ngFor="let v of vehicles" [value]="v.plate">{{v.plate}} - {{v.brand}} {{v.model}}</option>
+          <option *ngFor="let v of vehicles;" [value]="v.plate">{{v.plate}} - {{v.brand}} {{v.model}}</option>
         </select>
       </div>
 

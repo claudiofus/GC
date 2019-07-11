@@ -83,8 +83,8 @@
     </div>
 
     <div class="col-md-5 offset-3 align-self-center text-right">
-      <span class="dot red"></span><b>DA PAGARE</b>
-      <span class="dot blue"></span><b>PAGATO</b>
+      <span class="dot red"></span><strong>DA PAGARE</strong>
+      <span class="dot blue"></span><strong>PAGATO</strong>
     </div>
   </div>
 
@@ -136,15 +136,15 @@
               class="form-control"
               type="text"
               mwlFlatpickr
-              [(ngModel)]="selEvent.payment_date"
+              [(ngModel)]="selEvent.paymentDate"
               [altInput]="true"
               [locale]="locale"
               dateFormat="Y-m-d"
               altFormat="d/m/Y"
               [allowInput]="true"
               placeholder="Non impostata">
-            <button class="form-control button center mt-2" [hidden]="!selEvent.payment_date"
-                    (click)="selEvent.payment_date = undefined">Reset
+            <button class="form-control button center mt-2" [hidden]="!selEvent.paymentDate"
+                    (click)="selEvent.paymentDate = undefined">Reset
             </button>
           </td>
           <td>

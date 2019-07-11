@@ -19,7 +19,7 @@ export class SelectBuildingComponent implements OnInit {
     this.buildings = [];
     this.buildingService.getAll().subscribe(
       restItems => {
-        restItems.map(building => this.buildings.push(building));
+        restItems.forEach(building => this.buildings.push(building));
       }
     );
   }

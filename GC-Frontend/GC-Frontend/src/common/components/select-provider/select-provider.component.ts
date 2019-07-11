@@ -19,7 +19,7 @@ export class SelectProviderComponent implements OnInit {
     this.providers = [];
     this.providerService.getAll().subscribe(
       restItems => {
-        restItems.map(provider => this.providers.push(provider));
+        restItems.forEach(provider => this.providers.push(provider));
       }
     );
   }

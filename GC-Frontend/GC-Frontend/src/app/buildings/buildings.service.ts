@@ -51,7 +51,7 @@ export class BuildingsService {
       .then(data => data);
   }
 
-  assignWorker(name: String, worker: JSON) {
+  assignWorker(name: string, worker: JSON) {
     console.log('Invoking service assignWorker');
 
     return this.http
@@ -60,7 +60,7 @@ export class BuildingsService {
       .then(data => data);
   }
 
-  getJobs(name: String) {
+  getJobs(name: string) {
     return this.http
       .get<any[]>(this.url6 + name)
       .pipe(map(data => data));

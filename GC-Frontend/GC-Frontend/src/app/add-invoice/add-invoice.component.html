@@ -18,16 +18,29 @@
             <h5><strong>{{providerObj | uppercase}}</strong></h5>
           </div>
           <div class="col-sm-12" [hidden]="!(invoices[0].deadlines && invoices[0].deadlines.length > 0)">
-            <div *ngFor="let invoice of invoices">
-              <div *ngFor="let deadline of invoice.deadlines">
-                <strong>{{deadline.paymentDets.importoPagamento | currency:'EUR':'symbol':'1.2-3':'it'}}</strong>
-                tramite <strong>{{mode[deadline.paymentDets.modalitaPagamento]}}</strong>
-                <ng-container *ngIf="deadline.paymentDets.dataScadenzaPagamento">
-                  in data <strong>{{deadline.paymentDets.dataScadenzaPagamento | date:'dd/MM/yyyy'}}</strong>
-                </ng-container>
-                <ng-container *ngIf="deadline.paymentDets.iban">
-                  sul conto IBAN: <strong>{{deadline.paymentDets.iban}}</strong>
-                </ng-container>
+            <div *ngFor="let invoice of invoices;">
+              <div *ngFor="let deadline of invoice.deadlines; trackBy: deadline">
+                <ng-template *ngIf="deadline.paymentDets.importoPagamento; then lower else upper"></ng-template>
+                <ng-template #lower>
+                  <strong>{{deadline.paymentDets.importoPagamento | currency:'EUR':'symbol':'1.2-3':'it'}}</strong>
+                  tramite <strong>{{mode[deadline.paymentDets.modalitaPagamento]}}</strong>
+                  <ng-container *ngIf="deadline.paymentDets.dataScadenzaPagamento">
+                    in data <strong>{{deadline.paymentDets.dataScadenzaPagamento | date:'dd/MM/yyyy'}}</strong>
+                  </ng-container>
+                  <ng-container *ngIf="deadline.paymentDets.iban">
+                    sul conto IBAN: <strong>{{deadline.paymentDets.iban}}</strong>
+                  </ng-container>
+                </ng-template>
+                <ng-template #upper>
+                  <strong>{{deadline.paymentDets.ImportoPagamento | currency:'EUR':'symbol':'1.2-3':'it'}}</strong>
+                  tramite <strong>{{mode[deadline.paymentDets.ModalitaPagamento]}}</strong>
+                  <ng-container *ngIf="deadline.paymentDets.DataScadenzaPagamento">
+                    in data <strong>{{deadline.paymentDets.DataScadenzaPagamento | date:'dd/MM/yyyy'}}</strong>
+                  </ng-container>
+                  <ng-container *ngIf="deadline.paymentDets.IBAN">
+                    sul conto IBAN: <strong>{{deadline.paymentDets.IBAN}}</strong>
+                  </ng-container>
+                </ng-template>
               </div>
             </div>
           </div>
@@ -50,8 +63,8 @@
 
 <div [hidden]="!invoices || invoices.length === 0">
   <div *ngFor="let invoice of invoices; let i = index" class="card card_content mb-2">
-    <h4 class="center">Fattura n.{{invoice.num_doc}} del {{invoice.data_doc | date:'dd/MM/yyyy'}}</h4>
-    <div *ngFor="let dn of deliveryNotes[i]">
+    <h4 class="center">Fattura n. {{invoice.docNum}} del {{invoice.dataDoc | date:'dd/MM/yyyy'}}</h4>
+    <div *ngFor="let dn of deliveryNotes[i]; trackBy: dn">
       <h6 class="center">{{dn}}</h6>
       <table class="redTable">
         <thead>
@@ -60,7 +73,7 @@
             <input type="checkbox" name="all" [checked]="isAllChecked(itemsOrder[dn])"
                    (change)="checkAll($event, itemsOrder[dn])"/>
           </th>
-          <th *ngFor="let c of orderColumns">{{c}}</th>
+          <th *ngFor="let c of orderColumns; trackBy: c">{{c}}</th>
         </tr>
         </thead>
         <tbody>
@@ -83,7 +96,7 @@
         <div *ngIf="itemsOrder[dn].showBuilding === true">
           <label class="mr-2">Seleziona il cantiere
             <select [(ngModel)]="itemsOrder[dn].building.name" (change)="hideConfirm = true;">
-              <option *ngFor="let el of buildings" [ngValue]="el.name">{{el.name}}
+              <option *ngFor="let el of buildings; trackBy: el" [ngValue]="el.name">{{el.name}}
               </option>
             </select>
           </label>
@@ -91,9 +104,17 @@
           <ng-container *ngIf="ddts && ddts.length > 1">
             <label>Seleziona il DDT
               <select [(ngModel)]="itemsOrder[dn].selDDT" (change)="hideConfirm = true;">
-                <option *ngFor="let ddt of ddts" [ngValue]="ddt.id">{{ddt.NumeroDDT}} del {{ddt.DataDDT |
-                  date:'dd/MM/yyyy'}}
-                </option>
+                <ng-template *ngIf="ddts['0'].numeroDDT; then lower else upper"></ng-template>
+                <ng-template #lower>
+                  <option *ngFor="let ddt of ddts; trackBy: ddt" [ngValue]="ddt.id">{{ddt.numeroDDT}} del {{ddt.dataDDT |
+                    date:'dd/MM/yyyy'}}
+                  </option>
+                </ng-template>
+                <ng-template #upper>
+                  <option *ngFor="let ddt of ddts; trackBy: ddt" [ngValue]="ddt.id">{{ddt.NumeroDDT}} del {{ddt.DataDDT |
+                    date:'dd/MM/yyyy'}}
+                  </option>
+                </ng-template>
               </select>
             </label>
           </ng-container>

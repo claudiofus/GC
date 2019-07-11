@@ -119,7 +119,7 @@ export class VehiclesComponent implements OnInit {
         this.projects = [];
         const __this = this;
         for (const v of restItems) {
-          v.penalty.map(function (p) {
+          v.penalty.forEach(function (p) {
             __this.projects.push({
               plate: v.plate,
               date: p.deadlineDate,

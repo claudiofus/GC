@@ -97,14 +97,14 @@
         </div>
 
         <div class="col22">
-          <label for="date_order">Data acquisto </label>
-          <!--<input type="date" id="date_order" [formControlName]="'date_order'" min="2018-01-01"/>-->
+          <label for="dateOrder">Data acquisto </label>
+          <!--<input type="date" id="dateOrder" [formControlName]="'dateOrder'" min="2018-01-01"/>-->
           <input
-            id="date_order"
+            id="dateOrder"
             class="form-control"
             type="text"
             mwlFlatpickr
-            [formControlName]="'date_order'"
+            [formControlName]="'dateOrder'"
             [altInput]="true"
             [locale]="locale"
             dateFormat="Y-m-d"
@@ -112,11 +112,11 @@
             [allowInput]="true"
             placeholder="Non impostata">
 
-          <div *ngIf="date_order && date_order.invalid && (date_order.dirty || date_order.touched)" class="error">
-            <div *ngIf="date_order.errors.required">
+          <div *ngIf="dateOrder && dateOrder.invalid && (dateOrder.dirty || dateOrder.touched)" class="error">
+            <div *ngIf="dateOrder.errors.required">
               Inserire la data di acquisto del prodotto.
             </div>
-            <div *ngIf="date_order.errors.maxlength">
+            <div *ngIf="dateOrder.errors.maxlength">
               Inserire una data valida.
             </div>
           </div>
@@ -134,8 +134,8 @@
 
         <div class="col22">
           <app-select-building [group]="addOrderFG"></app-select-building>
-          <div *ngIf="building_id && building_id.invalid && (building_id.dirty || building_id.touched)" class="error">
-            <div *ngIf="building_id.errors.required">
+          <div *ngIf="buildingId && buildingId.invalid && (buildingId.dirty || buildingId.touched)" class="error">
+            <div *ngIf="buildingId.errors.required">
               Inserire il cantiere a cui è assegnato il prodotto.
             </div>
           </div>

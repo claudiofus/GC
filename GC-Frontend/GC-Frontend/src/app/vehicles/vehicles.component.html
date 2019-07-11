@@ -7,7 +7,7 @@
           <div class="card_text">
             <ul>
               <!-- Riusare generic-table -->
-              <li *ngFor="let vehicle of vehicles">
+              <li *ngFor="let vehicle of vehicles; trackBy: vehicle">
                 {{vehicle.plate}} - {{vehicle.brand}} {{vehicle.model}} - {{vehicle.color}}
               </li>
             </ul>
@@ -50,7 +50,7 @@
           <div class="card_text col-sm-12">
             <table class="table table-hover">
               <tbody>
-              <ng-container *ngFor="let vehicle of insurances">
+              <ng-container *ngFor="let vehicle of insurances; trackBy: vehicle">
                 <tr *ngIf="vehicle.insurance">
                   <td>{{vehicle.plate}}</td>
                   <td>{{vehicle.insurance.deadlineDate | date:'dd/MM/yyyy'}}</td>
@@ -84,7 +84,7 @@
           <div class="card_text col-sm-12">
             <table class="table table-hover">
               <tbody>
-              <ng-container *ngFor="let vehicle of cartaxes">
+              <ng-container *ngFor="let vehicle of cartaxes; trackBy: vehicle">
                 <tr *ngIf="vehicle.car_tax">
                   <td>{{vehicle.plate}}</td>
                   <td>{{vehicle.car_tax.deadlineDate | date:'dd/MM/yyyy'}}</td>
@@ -117,7 +117,7 @@
           <div class="card_text col-sm-12">
             <table class="table table-hover">
               <tbody>
-              <ng-container *ngFor="let vehicle of revisions">
+              <ng-container *ngFor="let vehicle of revisions; trackBy: vehicle">
                 <tr *ngIf="vehicle.revision">
                   <td>{{vehicle.plate}}</td>
                   <td>{{vehicle.revision.deadlineDate | date:'dd/MM/yyyy'}}</td>

@@ -30,7 +30,7 @@ export class TableComponent implements OnInit {
     this.columns = TableProductsService.getProductColumns();
     this.tableProductsService.getAll().subscribe(
       restItems => {
-        restItems.map(product => this.products.push(product));
+        restItems.forEach(product => this.products.push(product));
         this.setPage(1);
       }
     );
@@ -56,7 +56,7 @@ export class TableComponent implements OnInit {
     this.prices = [];
     this.tableProductsService.getPricesHistory(item.name).subscribe(
       restItems => {
-        restItems.map(prHist => this.prices.push(prHist));
+        restItems.forEach(prHist => this.prices.push(prHist));
       }
     );
   }

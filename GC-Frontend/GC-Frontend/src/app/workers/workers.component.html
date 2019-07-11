@@ -17,7 +17,7 @@
 
   <div *ngIf="workers.length > 0">
     <ul class="cards">
-      <li class="cards_item" *ngFor="let worker of workers">
+      <li class="cards_item" *ngFor="let worker of workers; trackBy: worker">
         <div class="card">
           <div class="card_content">
             <div class="card_title">{{worker.name}} {{worker.surname}}</div>
@@ -35,7 +35,7 @@
               </div>
               <div class="col-sm-4">
                 <img [src]="worker.gender == 'M' ? 'assets/images/man.png' : 'assets/images/woman.png'"
-                     width="64px">
+                     alt="Operaio" width="64px">
               </div>
               <div class="col-sm-12">
                 <div *ngIf="worker.details">

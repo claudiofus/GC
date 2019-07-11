@@ -19,7 +19,7 @@ export class SelectUmComponent implements OnInit {
     this.UMs = [];
     this.umService.getAll().subscribe(
       restItems => {
-        restItems.map(UM => this.UMs.push(UM));
+        restItems.forEach(UM => this.UMs.push(UM));
       }
     );
   }
