@@ -120,7 +120,7 @@ export class AddInvoiceComponent implements OnInit {
   assignBuilding(deliveryNote, dnIndex) {
     this.waitDiv = true;
     const building = this.itemsOrder[dnIndex].building;
-    this.addInvoiceService.assignBuilding(building.name, deliveryNote, this.itemsOrder[dnIndex].selDDT)
+    this.addInvoiceService.assignBuilding(building.id, deliveryNote, this.itemsOrder[dnIndex].selDDT)
       .then(result => {
         console.log(result);
         deliveryNote.assignResult = 'OK';
@@ -129,6 +129,11 @@ export class AddInvoiceComponent implements OnInit {
             this.assignedOrders.push(elem);
           }
         }
+
+        for (const elem of deliveryNote) {
+          elem.state = false;
+        }
+
         this.waitDiv = false;
       })
       .catch(error => {
@@ -159,5 +164,12 @@ export class AddInvoiceComponent implements OnInit {
       window.open('data:application/pdf;base64,' + data);
     }
     return false;
+  }
+
+  getBuildingNameByID(id) {
+      const building =  this.buildings.find(b => {
+          return b.id === id;
+      });
+      return building.name;
   }
 }

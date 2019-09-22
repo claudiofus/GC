@@ -35,9 +35,9 @@ export class AddInvoiceService {
       .then(data => data);
   }
 
-  assignBuilding(name: string, order: JSON, ddtId: number) {
+  assignBuilding(id: number, order: JSON, ddtId: number) {
     return this.http
-      .post<any[]>(this.url3 + name, {order, ddtId})
+      .post<any[]>(this.url3 + id, {order, ddtId})
       .toPromise()
       .then(data => data);
   }

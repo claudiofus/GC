@@ -93,7 +93,7 @@ export class GetInvoiceComponent implements OnInit {
     assignBuilding(deliveryNote, dnIndex) {
         this.waitDiv = true;
         const building = this.itemsOrder[dnIndex].building;
-        this.addInvoiceService.assignBuilding(building.name, deliveryNote, this.itemsOrder[dnIndex].selDDT)
+        this.addInvoiceService.assignBuilding(building.id, deliveryNote, this.itemsOrder[dnIndex].selDDT)
             .then(result => {
                 console.log(result);
                 deliveryNote.assignResult = 'OK';
@@ -133,5 +133,12 @@ export class GetInvoiceComponent implements OnInit {
             });
         }
         return breakCond;
+    }
+
+    findBuildingById(id: number) {
+        const buildingSel = this.buildings.find(function (building) {
+            return building.id === id;
+        });
+        return buildingSel.name;
     }
 }

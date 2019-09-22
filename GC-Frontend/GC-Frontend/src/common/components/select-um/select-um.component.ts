@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UMListService} from './select-um.service';
-import {FormGroup} from '@angular/forms';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-select-um',
@@ -10,7 +10,9 @@ import {FormGroup} from '@angular/forms';
 
 export class SelectUmComponent implements OnInit {
   UMs: string[];
-  @Input() group: FormGroup;
+  @Input() group = new FormGroup({
+      um: new FormControl(null, [Validators.required])
+  });
 
   constructor(private umService: UMListService) {
   }

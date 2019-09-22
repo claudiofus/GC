@@ -4,7 +4,7 @@
       <label for="provider">Fornitore della fattura da recuperare</label>
       <select id="provider" class="col-sm-8" [(ngModel)]="provider" (change)="clearInvoices()">
         <option disabled selected value></option>
-        <option *ngFor="let c of providers;" [ngValue]="c.id">{{c.name}}</option>
+        <option *ngFor="let c of providers" [ngValue]="c.id">{{c.name}}</option>
       </select>
     </div>
 
@@ -51,8 +51,8 @@
     <div class="row col-sm-12 mt-2" *ngIf="itemsOrder[dn]">
       <div *ngIf="itemsOrder[dn].showBuilding === true">
         <label class="mr-2">Seleziona il cantiere
-          <select [(ngModel)]="itemsOrder[dn].building.name" (change)="hideConfirm = true;">
-            <option *ngFor="let el of buildings; trackBy: el" [ngValue]="el.name">{{el.name}}
+          <select [(ngModel)]="itemsOrder[dn].building.id" (change)="hideConfirm = true;">
+            <option *ngFor="let el of buildings; trackBy: el" [ngValue]="el.id">{{el.name}}
             </option>
           </select>
         </label>
@@ -68,7 +68,7 @@
         </ng-container>
 
         <button type="button" class="button ml-2" *ngIf="itemsOrder[dn].building"
-                [disabled]="!itemsOrder[dn].building.name"
+                [disabled]="!itemsOrder[dn].building.id"
                 (click)="assignBuilding(itemsOrder[dn], dn); hideConfirm = false;">
           Conferma
         </button>
@@ -77,10 +77,12 @@
 
     <div class="col-12" [hidden]="hideConfirm">
       <p class="mt-2 green" *ngIf="itemsOrder[dn].assignResult === 'OK'">
-        Prodotti assegnati correttamente al cantiere: <strong>{{itemsOrder[dn].building.name}}</strong>
+        Prodotti assegnati correttamente al cantiere: <strong>
+        {{findBuildingById(itemsOrder[dn].building.id)}}</strong>
       </p>
       <p class="mt-2 red" *ngIf="itemsOrder[dn].assignResult === 'KO'">
-        <strong>Errore nell'assegnazione dei prodotti al cantiere: {{itemsOrder[dn].building.name}}</strong>
+        <strong>Errore nell'assegnazione dei prodotti al cantiere:
+          {{findBuildingById(itemsOrder[dn].building.id)}}</strong>
       </p>
     </div>
 

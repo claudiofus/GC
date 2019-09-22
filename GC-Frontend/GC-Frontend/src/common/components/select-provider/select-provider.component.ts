@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ProviderListService} from './select-provider.service';
-import {FormGroup} from '@angular/forms';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-select-provider',
@@ -10,7 +10,9 @@ import {FormGroup} from '@angular/forms';
 
 export class SelectProviderComponent implements OnInit {
   providers: string[];
-  @Input() group: FormGroup;
+  @Input() group = new FormGroup({
+      provider: new FormControl(null, [Validators.required])
+  });
 
   constructor(private providerService: ProviderListService) {
   }

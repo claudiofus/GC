@@ -1,7 +1,7 @@
-<div [formGroup]="group">
+<form [formGroup]="group">
   <label for="um">Unità di misura </label>
   <select id="um" [formControlName]="'um'" required>
     <option disabled selected value></option>
-    <option *ngFor="let c of UMs;" [ngValue]="c">{{c}}</option>
+    <option *ngFor="let c of UMs" [ngValue]="c">{{c}}</option>
   </select>
-</div>
+</form>

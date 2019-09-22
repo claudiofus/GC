@@ -8,10 +8,6 @@ export class ProductListService {
   protected url = environment.contextBase + '/GCRest/rest/product/products';
   protected url2 = environment.contextBase + '/GCRest/rest/order/addOrder/';
 
-  static getProductColumns(): string[] {
-    return ['Fornitore', 'Descrizione'];
-  }
-
   constructor(private http: HttpClient) {
   }
 

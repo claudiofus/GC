@@ -1,12 +1,12 @@
 <table class="redTable">
   <thead>
   <tr>
-    <td *ngFor="let h of header;">{{h}}</td>
+    <td *ngFor="let h of header">{{h}}</td>
   </tr>
   </thead>
   <tbody>
-  <tr *ngFor="let record of records;">
-    <td *ngFor="let map of columnMaps;" [appStyleCell]="record[map.access(record)]">
+  <tr *ngFor="let record of records">
+    <td *ngFor="let map of columnMaps; trackBy: map" [appStyleCell]="record[map.access(record)]">
       {{ record[map.access(record)] | formatCell:map.format }}
     </td>
   </tr>

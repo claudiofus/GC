@@ -1,7 +1,7 @@
 import 'flatpickr/dist/flatpickr.css';
 import {BrowserModule} from '@angular/platform-browser';
-import {LOCALE_ID, NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
+import {LOCALE_ID, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
 import {AppHeaderComponent} from '../common/components/header/app-header';
@@ -25,7 +25,7 @@ import {TableProductsService} from '../common/components/table-products/table-pr
 import {CommonModule, registerLocaleData} from '@angular/common';
 import localeIt from '@angular/common/locales/it';
 import {BuildingsService} from './buildings/buildings.service';
-import {BuildingFormComponent} from '../common/components/building-form/building-form.component';
+import {BuildingFormComponent} from '../common/components/forms/building-form/building-form.component';
 import {SharedModule} from '../common/components/generic-table/shared.module';
 import {SelectBuildingComponent} from '../common/components/select-building/select-building.component';
 import {SelectUmComponent} from '../common/components/select-um/select-um.component';
@@ -36,88 +36,96 @@ import {NgbModalModule, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {FlatpickrModule} from 'angularx-flatpickr';
 import {DeadlinesService} from './deadlines/deadlines.service';
 import {VehiclesService} from './vehicles/vehicles.service';
-import {VehicleFormComponent} from '../common/components/vehicle-form/vehicle-form.component';
-import {PenaltyFormComponent} from '../common/components/penalty-form/penalty-form.component';
-import {DeadlineFormComponent} from '../common/components/deadline-form/deadline-form.component';
+import {VehicleFormComponent} from '../common/components/forms/vehicle-form/vehicle-form.component';
+import {PenaltyFormComponent} from '../common/components/forms/penalty-form/penalty-form.component';
+import {DeadlineFormComponent} from '../common/components/forms/deadline-form/deadline-form.component';
 import {adapterFactory} from 'angular-calendar/date-adapters/date-fns';
 import {PagerService} from '../common/components/table-products/pager.service';
 import {ConfirmDialogComponent} from '../common/components/confirm-dialog/confirm-dialog.component';
 import {ConfirmDialogService} from '../common/components/confirm-dialog/confirm-dialog.service';
 import {WorkersService} from './workers/workers.service';
-import {WorkerFormComponent} from '../common/components/worker-form/worker-form.component';
-import {UppercaseInputDirective} from '../common/components/worker-form/worker-form.directive';
 import {SearchBarComponent} from '../common/components/search-bar/search-bar.component';
 import {GetInvoiceComponent} from './get-invoice/get-invoice.component';
 import {GetInvoiceService} from './get-invoice/get-invoice.service';
+import {DashboardComponent} from './dashboard/dashboard.component';
+import {ChartsModule} from 'ng2-charts';
+import {DoughnutChartComponent} from '../common/components/charts/doughnut-chart/doughnut-chart.component';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {DashboardService} from './dashboard/dashboard.service';
+import {WorkerFormComponent} from '../common/components/forms/worker-form/worker-form.component';
 
 registerLocaleData(localeIt, 'it');
 
 @NgModule({
-  imports: [
-    HttpClientModule,
-    BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
-    AppRoutingModule,
-    SharedModule,
-    NguiAutoCompleteModule,
-    NgbModule,
-    BrowserAnimationsModule,
-    CommonModule,
-    NgbModalModule,
-    FlatpickrModule.forRoot(),
-    CalendarModule.forRoot({
-      provide: DateAdapter,
-      useFactory: adapterFactory
-    }),
-  ],
-  declarations: [
-    AppComponent,
-    AppHeaderComponent,
-    AppFooterComponent,
-    TableComponent,
-    FilterPipe,
-    ProductListComponent,
-    PageNotFoundComponent,
-    AddInvoiceComponent,
-    DeadlinesComponent,
-    WorkersComponent,
-    GetInvoiceComponent,
-    VehiclesComponent,
-    ProfitsComponent,
-    SelectProviderComponent,
-    SelectBuildingComponent,
-    SelectUmComponent,
-    BuildingsComponent,
-    BuildingFormComponent,
-    VehicleFormComponent,
-    PenaltyFormComponent,
-    DeadlineFormComponent,
-    WorkerFormComponent,
-    ConfirmDialogComponent,
-    UppercaseInputDirective,
-    SearchBarComponent
-  ],
-  providers: [{
-    provide: LOCALE_ID,
-    useValue: 'it'
-  },
-    ProductListService,
-    AddInvoiceService,
-    GetInvoiceService,
-    PagerService,
-    TableProductsService,
-    BuildingsService,
-    DeadlinesService,
-    VehiclesService,
-    WorkersService,
-    ConfirmDialogService,
-    FilterPipe
-  ],
-  bootstrap: [AppComponent],
-  exports: [
-    FilterPipe
-  ]
+    imports     : [
+        HttpClientModule,
+        BrowserModule,
+        FormsModule,
+        ReactiveFormsModule,
+        AppRoutingModule,
+        SharedModule,
+        NguiAutoCompleteModule,
+        NgbModule,
+        BrowserAnimationsModule,
+        CommonModule,
+        NgbModalModule,
+        FlatpickrModule.forRoot(),
+        CalendarModule.forRoot({
+            provide   : DateAdapter,
+            useFactory: adapterFactory
+        }),
+        ChartsModule,
+        FontAwesomeModule
+    ],
+    declarations: [
+        AppComponent,
+        AppHeaderComponent,
+        AppFooterComponent,
+        TableComponent,
+        FilterPipe,
+        ProductListComponent,
+        PageNotFoundComponent,
+        AddInvoiceComponent,
+        DeadlinesComponent,
+        WorkersComponent,
+        GetInvoiceComponent,
+        VehiclesComponent,
+        ProfitsComponent,
+        SelectProviderComponent,
+        SelectBuildingComponent,
+        SelectUmComponent,
+        BuildingsComponent,
+        BuildingFormComponent,
+        VehicleFormComponent,
+        PenaltyFormComponent,
+        DeadlineFormComponent,
+        WorkerFormComponent,
+        ConfirmDialogComponent,
+        SearchBarComponent,
+        DashboardComponent,
+        DoughnutChartComponent
+    ],
+    providers   : [{
+        provide : LOCALE_ID,
+        useValue: 'it'
+    },
+        ProductListService,
+        AddInvoiceService,
+        GetInvoiceService,
+        PagerService,
+        TableProductsService,
+        BuildingsService,
+        DashboardService,
+        DeadlinesService,
+        VehiclesService,
+        WorkersService,
+        ConfirmDialogService,
+        FilterPipe
+    ],
+    bootstrap   : [AppComponent],
+    exports     : [
+        FilterPipe
+    ]
 })
 
 export class AppModule {

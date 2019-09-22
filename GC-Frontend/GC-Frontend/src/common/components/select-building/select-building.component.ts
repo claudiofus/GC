@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {BuildingListService} from './select-building.service';
-import {FormGroup} from '@angular/forms';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-select-building',
@@ -10,7 +10,9 @@ import {FormGroup} from '@angular/forms';
 
 export class SelectBuildingComponent implements OnInit {
   buildings: string[];
-  @Input() group: FormGroup;
+  @Input() group = new FormGroup({
+      buildingId: new FormControl(null, [Validators.required])
+  });
 
   constructor(private buildingService: BuildingListService) {
   }

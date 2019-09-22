@@ -1,0 +1,40 @@
+.mt--7 {
+    margin-top : -6rem !important;
+}
+
+.pb-8 {
+    padding-bottom : 8rem !important;
+}
+
+.text-muted {
+    font-size : .8125rem;
+    color     : #8898aa !important;
+}
+
+.bg-yellow {
+    background-color : #ffd600 !important;
+}
+
+.bg-gradient-danger {
+    background : linear-gradient(87deg, #f5365c 0, #f56036 100%) !important;
+}
+
+.chart {
+    position : relative;
+    height   : 350px;
+}
+
+.icon {
+    width  : 3rem;
+    height : 3rem;
+}
+
+fa-icon {
+    height      : 3rem;
+    line-height : 3rem;
+    font-size   : 1.3rem;
+}
+
+span {
+    font-size: 1.6rem;
+}

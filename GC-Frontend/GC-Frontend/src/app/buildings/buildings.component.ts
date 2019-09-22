@@ -6,7 +6,6 @@ import {AddInvoiceService} from '../add-invoice/add-invoice.service';
 import {ConfirmDialogService} from '../../common/components/confirm-dialog/confirm-dialog.service';
 import {WorkersService} from '../workers/workers.service';
 import {Italian} from 'flatpickr/dist/l10n/it';
-import {Utils} from '../../classes/utils';
 import {Building} from '../../classes/building';
 import {FilterPipe} from '../../common/components/table-products/table-products.filter.component';
 
@@ -19,7 +18,7 @@ export class BuildingsComponent implements OnInit {
   buildings: any[];
   ddts: Map<string, any[]>;
   ddtSel: any = undefined;
-  buildingSel: string;
+  buildingSel: Building;
   buildingToUpd: any;
   orderColumns: string[];
   orderSum: number;
@@ -32,7 +31,6 @@ export class BuildingsComponent implements OnInit {
   showBuildingOrd = false;
   showBuildingWorkers = false;
   workedHours: number;
-  workedHoursCost: number;
   header = ['Descrizione', 'Importo'];
   locale = Italian;
   section: any = [];
@@ -144,40 +142,35 @@ export class BuildingsComponent implements OnInit {
   getBuildingDet(building) {
     const self = this;
     self.ddts = new Map<string, any[]>();
-    self.buildingSel = building.name;
-    self.buildingsService.getJobs(this.buildingSel).subscribe(
-      jobs => {
-        self.workedHours = 0;
-        self.workedHoursCost = 0;
-        if (jobs.length === 0) {
-          self.goOn(self, building);
-        } else {
-          const rowLen = jobs.length;
-          jobs.forEach((job, i) => {
-            self.workedHours += job.hoursOfWork;
-            self.buildingsService.calcCost(job)
-              .then(result => {
-                self.workedHoursCost += result;
-                if (rowLen === i + 1) {
-                  self.goOn(self, building);
+    self.buildingSel = building;
+    self.buildingsService.getStats().subscribe(
+        buildings => {
+            buildings.forEach(dto => {
+                if (self.buildingSel.id === dto.building.id) {
+                    const budgetBuilding = dto.building.reqAmount - dto.ordersTotal - dto.workersTotal;
+                    self.projects = [{name: 'Importo complessivo lavori', value: dto.building.reqAmount},
+                        {name: 'Importo materiali', value: -dto.ordersTotal},
+                        {name: 'Costo operai', value: -dto.workersTotal},
+                        {name: 'Utili', value: budgetBuilding}];
+                    self.showBuildingDetails(self, dto.building);
                 }
-              })
-              .catch(error => {
-                console.error(error);
-              });
-          });
+            });
         }
-      }
+    );
+    self.buildingsService.getWorkingHoursSum(building.id).subscribe(
+        res => {
+            self.workedHours = res;
+        }
     );
   }
 
   assignWorker(building) {
     this.jobs = [];
     this.workers = [];
-    this.buildingSel = building.name;
+    this.buildingSel = building;
     this.buildings.splice(0, this.buildings.length);
     this.showBuildingWorkers = true;
-    this.buildingsService.getJobs(this.buildingSel).subscribe(
+    this.buildingsService.getJobs(this.buildingSel.id).subscribe(
       restItems => {
         restItems.forEach(job => {
           this.jobs.push(job);
@@ -194,25 +187,17 @@ export class BuildingsComponent implements OnInit {
     );
   }
 
-  updateWorker(buildingName, job) {
+  updateWorker(building, job) {
     if (this.isEmpty(job)) {
       return;
     }
     const self = this;
     this.confirmDialogService.confirmThis('Vuoi confermare l\'operazione?',
       function () {
-        self.buildingsService.assignWorker(buildingName, job)
+        self.buildingsService.assignWorker(building.id, job)
           .then(result => {
-            console.log(result);
-            self.buildingsService.getJobs(self.buildingSel).subscribe(
-              restItems => {
-                self.jobs = [];
-                restItems.forEach(el => {
-                  self.jobs.push(el);
-                });
-                self.jobs.push({hoursOfWork: 8});
-              }
-            );
+              console.log(result);
+              self.getJobs();
           })
           .catch(error => {
             console.error(error);
@@ -232,15 +217,7 @@ export class BuildingsComponent implements OnInit {
         self.buildingsService.deleteJob(job.id)
           .then(result => {
             console.log(result);
-            self.buildingsService.getJobs(self.buildingSel).subscribe(
-              restItems => {
-                self.jobs = [];
-                restItems.forEach(el => {
-                  self.jobs.push(el);
-                });
-                self.jobs.push({hoursOfWork: 8});
-              }
-            );
+            self.getJobs();
           })
           .catch(error => {
             console.error(error);
@@ -249,6 +226,18 @@ export class BuildingsComponent implements OnInit {
       function () {
       }
     );
+  }
+
+  getJobs() {
+      this.buildingsService.getJobs(this.buildingSel.id).subscribe(
+          restItems => {
+              this.jobs = [];
+              restItems.forEach(el => {
+                  this.jobs.push(el);
+              });
+              this.jobs.push({hoursOfWork: 8});
+          }
+      );
   }
 
   isValidAddress(addr: Address): boolean {
@@ -296,7 +285,7 @@ export class BuildingsComponent implements OnInit {
                 }
               }
             );
-            alert(`L'ordine con descrizione ${order.name} e' stato rimosso dal cantiere ${self.buildingSel}.`);
+            alert(`L'ordine con descrizione ${order.name} e' stato rimosso dal cantiere ${self.buildingSel.name}.`);
           })
           .catch(err => {
             console.error(err);
@@ -311,40 +300,25 @@ export class BuildingsComponent implements OnInit {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   }
 
-  goOn(self, building) {
+  showBuildingDetails(self, building) {
     for (const el of self.buildings) {
       el.details = false;
       if (building.name === el.name) {
-        this.getOrders(building);
-        building.details = !building.details;
+        el.details = !building.details;
       }
     }
   }
 
   getOrders(building) {
     this.searchString = undefined;
-    this.orderSum = 0;
-    this.orderIvaSum = 0;
-    this.buildingSel = building.name;
-    this.buildingsService.getBuildingDet(this.buildingSel).subscribe(
+    this.buildingSel = building;
+    this.buildingsService.getBuildingDet(this.buildingSel.id).subscribe(
       items => {
         for (const item in items) {
           if (item) {
-            items[item].forEach(order => {
-              this.orderSum += order.noIvaPrice;
-              this.orderIvaSum += order.ivaPrice;
-            });
             this.ddts.set(item, items[item]);
           }
         }
-        const reqAmount_round = Utils.round10(building.reqAmount, -2);
-        const orderIvaSum_rounded = Utils.round10(this.orderIvaSum, -2);
-        const workedHoursCost_rounded = Utils.round10(this.workedHoursCost, -2);
-        const diff = reqAmount_round - orderIvaSum_rounded - workedHoursCost_rounded;
-        this.projects = [{name: 'Importo complessivo lavori', value: building.reqAmount},
-          {name: 'Importo materiali', value: -this.orderIvaSum},
-          {name: 'Costo operai', value: -this.workedHoursCost},
-          {name: 'Utili', value: diff}];
       }
     );
   }

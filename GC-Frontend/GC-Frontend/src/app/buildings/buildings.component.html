@@ -81,7 +81,7 @@
 
 <div class="container" *ngIf="showBuildingOrd">
   <div class="row m-0">
-    <h2 class="col-sm-11 text-center">{{buildingSel | titlecase}}</h2>
+    <h2 class="col-sm-11 text-center">{{buildingSel.name | titlecase}}</h2>
     <button class="col-sm-1 button float-right mb10" (click)="resetView()">Indietro</button>
   </div>
   <div class="row p-0">
@@ -97,32 +97,34 @@
   </div>
   <div class="mt-3" *ngFor="let ddt of ddts | keyvalue">
     <ng-container *ngIf="!ddtSel || ddtSel === ddt.key">
-      <h6 class="center font-weight-bold">{{ddt.key}}</h6>
-      <table class="redTable" [hidden]="!checkSearch(ddt.value)">
-        <thead>
-        <tr>
-          <th *ngFor="let c of orderColumns; trackBy: c">{{c}}</th>
-          <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <ng-template ngFor let-order [ngForOf]="ddt.value | filtername: searchString : false">
-          <tr>
-            <td>{{order.name}}</td>
-            <td>{{order.um | uppercase}}</td>
-            <td>{{order.quantity}}</td>
-            <td>{{order.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
-            <td>{{order.discount}} %</td>
-            <td>{{order.noIvaPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
-            <td>{{order.iva}} %</td>
-            <td>{{order.ivaPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
-            <td>
-              <button (click)="updateOrder(order, ddt)">Rimuovi</button>
-            </td>
-          </tr>
-        </ng-template>
-        </tbody>
-      </table>
+      <div [hidden]="!checkSearch(ddt.value)">
+          <h6 class="center font-weight-bold">{{ddt.key}}</h6>
+          <table class="redTable">
+            <thead>
+            <tr>
+              <th *ngFor="let c of orderColumns; trackBy: c">{{c}}</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <ng-template ngFor let-order [ngForOf]="ddt.value | filtername: searchString : false">
+              <tr>
+                <td>{{order.name}}</td>
+                <td>{{order.um | uppercase}}</td>
+                <td>{{order.quantity}}</td>
+                <td>{{order.price | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
+                <td>{{order.discount}} %</td>
+                <td>{{order.noIvaPrice | currency: 'EUR':'symbol':'1.2-3':'it'}}</td>
+                <td>{{order.iva}} %</td>
+                <td>{{order.ivaPrice | currency: 'EUR':'symbol':'1.2-2':'it'}}</td>
+                <td>
+                  <button (click)="updateOrder(order, ddt)">Rimuovi</button>
+                </td>
+              </tr>
+            </ng-template>
+            </tbody>
+          </table>
+      </div>
     </ng-container>
   </div>
 
@@ -148,7 +150,7 @@
 
 <div class="container" *ngIf="showBuildingWorkers">
   <div class="row m-0">
-    <h2 class="col-sm-10 offset-sm-1 center">{{buildingSel}}</h2>
+    <h2 class="col-sm-10 offset-sm-1 center">{{buildingSel.name | titlecase}}</h2>
     <button class="col-sm-1 button float-right mb10" (click)="resetView()">Indietro</button>
   </div>
   <table class="redTable">

@@ -1,0 +1,179 @@
+<div class="form_wrapper">
+  <form #addForm="ngForm">
+    <div class="row">
+      <div class="col22">
+        <label for="brand">Marca</label>
+        <select id="brand" name="brand" [(ngModel)]="newVehicle.brand">
+          <option disabled selected value>Marche principali</option>
+          <option value="ABARTH">ABARTH</option>
+          <option value="ALFA ROMEO">ALFA ROMEO</option>
+          <option value="AUDI">AUDI</option>
+          <option value="BMW">BMW</option>
+          <option value="CITROEN">CITROEN</option>
+          <option value="DACIA">DACIA</option>
+          <option value="FERRARI">FERRARI</option>
+          <option value="FIAT">FIAT</option>
+          <option value="FORD">FORD</option>
+          <option value="HONDA">HONDA</option>
+          <option value="HYUNDAI">HYUNDAI</option>
+          <option value="IVECO">IVECO</option>
+          <option value="JAGUAR">JAGUAR</option>
+          <option value="JEEP">JEEP</option>
+          <option value="KIA">KIA</option>
+          <option value="LANCIA">LANCIA</option>
+          <option value="LAND ROVER">LAND ROVER</option>
+          <option value="MASERATI">MASERATI</option>
+          <option value="MAZDA">MAZDA</option>
+          <option value="MERCEDES">MERCEDES</option>
+          <option value="MINI">MINI</option>
+          <option value="MITSUBISHI">MITSUBISHI</option>
+          <option value="NISSAN">NISSAN</option>
+          <option value="OPEL">OPEL</option>
+          <option value="PEUGEOT">PEUGEOT</option>
+          <option value="PORSCHE">PORSCHE</option>
+          <option value="RENAULT">RENAULT</option>
+          <option value="SEAT">SEAT</option>
+          <option value="SKODA">SKODA</option>
+          <option value="SMART">SMART</option>
+          <option value="TOYOTA">TOYOTA</option>
+          <option value="VOLKSWAGEN">VOLKSWAGEN</option>
+          <option value="VOLVO">VOLVO</option>
+        </select>
+      </div>
+
+      <div class="col22">
+        <label for="model">Modello</label>
+        <input type="text" id="model" name="name" [(ngModel)]="newVehicle.model" placeholder="Doblo" required>
+      </div>
+
+      <div class="col22">
+        <label for="registration_date">Data immatricolazione</label>
+        <input
+          name="registration_date"
+          id="registration_date"
+          class="form-control"
+          type="text"
+          mwlFlatpickr
+          [(ngModel)]="newVehicle.registration_date"
+          [altInput]="true"
+          [locale]="locale"
+          dateFormat="Y-m-d"
+          altFormat="d/m/Y"
+          [allowInput]="true"
+          placeholder="Non impostata">
+      </div>
+
+      <div class="col22">
+        <label for="plate">Targa</label>
+        <input type="text" id="plate" name="plate" [(ngModel)]="newVehicle.plate" placeholder="AA111AA"
+               [maxlength]="7" (input)="newVehicle.plate = $event.target.value.toUpperCase()" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col22">
+        <label for="color">Colore</label>
+        <div class="input_field">
+          <select id="color" name="color" [(ngModel)]="newVehicle.color">
+            <option disabled selected value>Colori principali</option>
+            <option value="BIANCO">Bianco</option>
+            <option value="GRIGIO">Grigio</option>
+            <option value="NERO">Nero</option>
+            <option value="BLU">Blu</option>
+            <option value="ROSSO">Rosso</option>
+            <option value="GIALLO">Giallo</option>
+            <option value="VERDE">Verde</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col22 goldBox">
+        <h4>Assicurazione</h4>
+        <label for="dataScadAss">Data scadenza</label>
+        <input
+          name="dataScadAss"
+          id="dataScadAss"
+          class="form-control"
+          type="text"
+          mwlFlatpickr
+          [(ngModel)]="newVehicle.insurance.deadlineDate"
+          [altInput]="true"
+          [locale]="locale"
+          dateFormat="Y-m-d"
+          altFormat="d/m/Y"
+          [allowInput]="true"
+          placeholder="Non impostata">
+
+        <label for="importoAss">Importo</label>
+        <input type="number" step="0.01" min="0" id="importoAss" name="importoAss"
+               [(ngModel)]="newVehicle.insurance.amount"
+               (blur)="this.newVehicle.insurance.amount = utils.fixAmount(this.newVehicle.insurance.amount)"
+               placeholder="330,10 €" required>
+
+        <label for="sixmonths">Semestrale</label>
+        <select id="sixmonths" class="form-control" name="sixmonths"
+                [(ngModel)]="newVehicle.insurance.sixmonths">
+          <option value="false">NO</option>
+          <option value="true">SI</option>
+        </select>
+      </div>
+
+      <div class="col22 goldBox">
+        <h4>Bollo</h4>
+        <label for="dataScadBollo">Data scadenza</label>
+        <input
+          name="dataScadBollo"
+          id="dataScadBollo"
+          class="form-control"
+          type="text"
+          mwlFlatpickr
+          [(ngModel)]="newVehicle.car_tax.deadlineDate"
+          [altInput]="true"
+          [locale]="locale"
+          dateFormat="Y-m-d"
+          altFormat="d/m/Y"
+          [allowInput]="true"
+          placeholder="Non impostata">
+
+        <label for="importoBollo">Importo</label>
+        <input type="number" step="0.01" min="0" id="importoBollo" name="importoBollo"
+               [(ngModel)]="newVehicle.car_tax.amount"
+               (blur)="this.newVehicle.car_tax.amount = utils.fixAmount(this.newVehicle.car_tax.amount)"
+               placeholder="330,10 €" required>
+      </div>
+
+      <div class="col22 goldBox">
+        <h4>Revisione</h4>
+        <label for="dataScadRev">Data scadenza</label>
+        <input
+          name="dataScadRev"
+          id="dataScadRev"
+          class="form-control"
+          type="text"
+          mwlFlatpickr
+          [(ngModel)]="newVehicle.revision.deadlineDate"
+          [altInput]="true"
+          [locale]="locale"
+          dateFormat="Y-m-d"
+          altFormat="d/m/Y"
+          [allowInput]="true"
+          placeholder="Non impostata">
+
+        <label for="importoRev">Importo</label>
+        <input type="number" step="0.01" min="0" id="importoRev" name="importoRev"
+               [(ngModel)]="newVehicle.revision.amount"
+               (blur)="this.newVehicle.revision.amount = utils.fixAmount(this.newVehicle.revision.amount)"
+               placeholder="330,10 €" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col_full">
+        <input class="button" type="reset" value="Pulisci">
+        <input class="button" type="button" [disabled]="!addForm.valid"
+               (click)="sendVehicle(); addForm.reset();"
+               value="Aggiungi">
+      </div>
+    </div>
+  </form>
+</div>
