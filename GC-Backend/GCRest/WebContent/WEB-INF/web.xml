@@ -37,4 +37,11 @@
 		<param-name>isLog4jAutoInitializationDisabled</param-name>
 		<param-value>false</param-value>
 	</context-param>
+
+	<resource-ref>
+		<description>DBConnection</description>
+		<res-ref-name>jdbc/gestione_cantieri</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+	</resource-ref>
 </web-app>
