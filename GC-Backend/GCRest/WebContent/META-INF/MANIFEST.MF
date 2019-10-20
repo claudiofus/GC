@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Built-By: Claudio Fusillo
+Built-By: bb99381
 Build-Jdk: 1.8.0_111
 Created-By: Maven Integration for Eclipse
 
