@@ -248,6 +248,7 @@ export class BuildingsComponent implements OnInit {
     this.orderColumns = AddInvoiceService.getOrderColumns();
     this.buildings.splice(0, this.buildings.length);
     this.showBuildingOrd = true;
+    this.getTotalQuantity(this.buildingSel.id);
   }
 
   resetView() {
@@ -266,25 +267,7 @@ export class BuildingsComponent implements OnInit {
               return obj.id !== order.id;
             });
             self.ddts.set(ddt.key, filtered);
-            self.orderSum = 0;
-            self.orderIvaSum = 0;
-            self.buildingsService.getBuildingDet(self.buildingSel).subscribe(
-              items => {
-                self.ddts = new Map<string, any[]>();
-                for (const item in items) {
-                  if (item) {
-                    items[item].forEach(el => {
-                      self.orderSum += el.noIvaPrice;
-                      self.orderIvaSum += el.ivaPrice;
-                    });
-                    self.ddts.set(item, items[item]);
-                    if (!self.ddtSel) {
-                      self.ddtSel = undefined;
-                    }
-                  }
-                }
-              }
-            );
+            self.getTotalQuantity(self.buildingSel.id);
             alert(`L'ordine con descrizione ${order.name} e' stato rimosso dal cantiere ${self.buildingSel.name}.`);
           })
           .catch(err => {
@@ -317,6 +300,28 @@ export class BuildingsComponent implements OnInit {
         for (const item in items) {
           if (item) {
             this.ddts.set(item, items[item]);
+          }
+        }
+      }
+    );
+  }
+
+  getTotalQuantity(id) {
+    this.orderSum = 0;
+    this.orderIvaSum = 0;
+    this.buildingsService.getBuildingDet(id).subscribe(
+      items => {
+        this.ddts = new Map<string, any[]>();
+        for (const item in items) {
+          if (item) {
+            items[item].forEach(el => {
+              this.orderSum += el.noIvaPrice;
+              this.orderIvaSum += el.ivaPrice;
+            });
+            this.ddts.set(item, items[item]);
+            if (!this.ddtSel) {
+              this.ddtSel = undefined;
+            }
           }
         }
       }

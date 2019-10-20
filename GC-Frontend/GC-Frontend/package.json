@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --prod --base-href /GC/",
+    "build": "ng build --prod --base-href /GC/ --output-hashing=all",
     "test": "ng test -- --no-watch --no-progress --browsers=ChromeHeadlessCI",
     "coverage": "ng test --code-coverage",
     "lint": "ng lint"
